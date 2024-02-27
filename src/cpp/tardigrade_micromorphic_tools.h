@@ -303,17 +303,30 @@ namespace tardigradeMicromorphicTools{
     errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           variableVector &deviatoricReferenceHigherOrderStress,
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdRCG );
+
+    errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+                                                          const variableVector &rightCauchyGreenDeformation,
+                                                          variableVector &deviatoricReferenceHigherOrderStress,
                                                           variableMatrix &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
                                                           variableMatrix &dDeviatoricReferenceHigherOrderStressdRCG );
 
     errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           const variableVector &pressure,
-                                                          const variableMatrix &dPressuredStress,
-                                                          const variableMatrix &dPressuredRCG,
+                                                          const variableVector &dPressuredStress,
+                                                          const variableVector &dPressuredRCG,
                                                           variableVector &deviatoricReferenceHigherOrderStress,
-                                                          variableMatrix &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
-                                                          variableMatrix &dDeviatoricReferenceHigherOrderStressdRCG );
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdRCG );
+
+    errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+                                                          const variableVector &rightCauchyGreenDeformation,
+                                                          variableVector &deviatoricReferenceHigherOrderStress,
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdRCG,
+                                                          variableVector &d2DevMdMdRCG );
 
     errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
@@ -325,13 +338,13 @@ namespace tardigradeMicromorphicTools{
     errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           const variableVector &pressure,
-                                                          const variableMatrix &dPressuredStress,
-                                                          const variableMatrix &dPressuredRCG,
-                                                          const variableMatrix &d2PressuredStressdRCG,
+                                                          const variableVector &dPressuredStress,
+                                                          const variableVector &dPressuredRCG,
+                                                          const variableVector &d2PressuredStressdRCG,
                                                           variableVector &deviatoricReferenceHigherOrderStress,
-                                                          variableMatrix &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
-                                                          variableMatrix &dDeviatoricReferenceHigherOrderStressdRCG,
-                                                          variableMatrix &d2DevMdMdRCG );
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdRCG,
+                                                          variableVector &d2DevMdMdRCG );
 
     errorOut computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
                                                              const variableVector &rightCauchyGreenDeformation,
