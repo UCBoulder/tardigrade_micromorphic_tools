@@ -380,6 +380,41 @@ namespace tardigradeMicromorphicTools{
 
     errorOut pullBackCauchyStress( const variableVector &cauchyStress,
                                    const variableVector &deformationGradient,
+                                   variableVector &PK2Stress, variableVector &dPK2StressdCauchyStress,
+                                   variableVector &dPK2StressdDeformationGradient ){
+        /*!
+         * Pull back the Cauchy stress in the configuration indicated by the deformation gradient
+         * to the PK2 stress.
+         *
+         * S_{IJ} = J F_{Ii}^{-1} \sigma_{ij} F_{Jj}^{-1}
+         *
+         * Also computes the Jacobians
+         *
+         * \frac{ \partial S_{IJ} }{ \partial \sigma_{kl} } = J F_{Ik}^{-1} F_{Jl}^{-1}
+         * \frac{ \partial S_{IJ} }{ \partial F_{kK} } = F_{Kk}^{-1} S_{IJ} - F_{Ik}^{-1} S_{KJ} - S_{IK} F_{Jk}^{-1}
+         *
+         * \param &cauchyStress: The Cauchy stress in the current configuration of
+         *     the provided deformation gradient.
+         * \param &deformationGradient: The deformation gradient mapping between the 
+         *     reference configuration and the current configuration.
+         * \param &PK2Stress: The PK2 stress in the reference configuration.
+         */
+
+        errorOut error = pullBackMicroStress( cauchyStress, deformationGradient, PK2Stress,
+                                              dPK2StressdCauchyStress, dPK2StressdDeformationGradient );
+
+        if ( error ){
+            errorOut result = new errorNode( "pullBackCauchyStress (jacobian)",
+                                             "Error in pull-back operation (micro-stress and Cauchy stress are identical)" );
+            result->addNext( error );
+            return result;
+        }
+        return NULL;
+    }
+
+
+    errorOut pullBackCauchyStress( const variableVector &cauchyStress,
+                                   const variableVector &deformationGradient,
                                    variableVector &PK2Stress, variableMatrix &dPK2StressdCauchyStress,
                                    variableMatrix &dPK2StressdDeformationGradient ){
         /*!
@@ -710,8 +745,57 @@ namespace tardigradeMicromorphicTools{
          *     the reference micro-stress w.r.t. the deformation gradient.
          */
 
+        variableVector _dReferenceMicroStressdMicroStress;
+        variableVector _dReferenceMicroStressdDeformationGradient;
+
+        errorOut error = pullBackMicroStress( microStress, deformationGradient,
+                                              referenceMicroStress, _dReferenceMicroStressdMicroStress,
+                                              _dReferenceMicroStressdDeformationGradient );
+
+        if (error){
+            errorOut result = new errorNode( "pullBackMicroStress (jacobian)", "Error in computation of pull back of micro-stress" );
+            result->addNext(error);
+            return result;
+        }
+
+        dReferenceMicroStressdMicroStress = tardigradeVectorTools::inflate( _dReferenceMicroStressdMicroStress, 9, 9 );
+        dReferenceMicroStressdDeformationGradient  = tardigradeVectorTools::inflate( _dReferenceMicroStressdDeformationGradient, 9, 9 );
+
+        return error;
+
+
+    }
+
+    errorOut pullBackMicroStress( const variableVector &microStress,
+                                  const variableVector &deformationGradient,
+                                  variableVector &referenceMicroStress,
+                                  variableVector &dReferenceMicroStressdMicroStress,
+                                  variableVector &dReferenceMicroStressdDeformationGradient ){
+        /*!
+         * Push forward the micro-stress in the reference configuration to the 
+         * configuration indicated by the deformation gradient.
+         *
+         * \Sigma_{IJ} = J F_{Ii}^{-1} s_{IJ} F_{Jj}^{-1}
+         *
+         * Also computes the jacobians:
+         * \frac{ \partial \Sigma_{IJ} }{ \partial s_{kl} } = J F_{Ik}^{-1} F_{Jl}^{-1}
+         * \frac{ \partial \Sigma_{IJ} }{ \partial F_{kK} } = F_{Kk}^{-1} \Sigma_{IJ} - F_{Ik}^{-1} \Sigma_{KJ} - \Sigma_{IK} F_{Jk}^{-1}
+         *
+         * :param const variableVector &microStress: The micro-stress in the current 
+         *     configuration.
+         * :param const variableVector &deformationGradient: The deformation gradient 
+         *     mapping between configurations.
+         * :param variableVector &referenceMicroStress: The micro-stress in the 
+         *     reference configuration.
+         * :param variableMatrix &dReferenceMicroStressdMicroStress: The jacobian of 
+         *     the reference micro-stress w.r.t. the micro-stress in the reference configuration.
+         * :param variableMatrix &dReferenceMicroStressdDeformationGradient: The jacobian of 
+         *     the reference micro-stress w.r.t. the deformation gradient.
+         */
+
         //Assume 3d
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
 
         variableType detF;
         variableVector inverseDeformationGradient;
@@ -734,19 +818,19 @@ namespace tardigradeMicromorphicTools{
         }
 
         //Assemble the jacobians
-        dReferenceMicroStressdMicroStress = variableMatrix( referenceMicroStress.size(), variableVector( microStress.size(), 0 ) );
-        dReferenceMicroStressdDeformationGradient = variableMatrix( referenceMicroStress.size(), variableVector( deformationGradient.size(), 0 ) );
+        dReferenceMicroStressdMicroStress = variableVector( sot_dim * sot_dim, 0 );
+        dReferenceMicroStressdDeformationGradient = variableVector( sot_dim * sot_dim, 0 );
 
-        constantVector eye( dim * dim );
+        constantVector eye( sot_dim );
         tardigradeVectorTools::eye( eye );
 
         for ( unsigned int I = 0; I < dim; I++ ){
             for ( unsigned int J = 0; J < dim; J++ ){
                 for ( unsigned int k = 0; k < dim; k++ ){
                     for ( unsigned int K = 0; K < dim; K++ ){
-                        dReferenceMicroStressdMicroStress[ dim * I + J ][ dim * k + K ]
+                        dReferenceMicroStressdMicroStress[ dim * sot_dim * I + sot_dim * J + dim * k + K ]
                             = detF * inverseDeformationGradient[ dim * I + k ] * inverseDeformationGradient[ dim * J + K ];
-                        dReferenceMicroStressdDeformationGradient[ dim * I + J ][ dim * k + K ]
+                        dReferenceMicroStressdDeformationGradient[ dim * sot_dim * I + sot_dim * J + dim * k + K ]
                             = inverseDeformationGradient[ dim * K + k ] * referenceMicroStress[ dim * I + J ]
                             - inverseDeformationGradient[ dim * I + k ] * referenceMicroStress[ dim * K + J ]
                             - inverseDeformationGradient[ dim * J + k ] * referenceMicroStress[ dim * I + K ];
@@ -1091,16 +1175,73 @@ namespace tardigradeMicromorphicTools{
          * \frac{ \partial M_{IJK} }{ \partial F_{lL} } = F_{Ll}^{-1} M_{IJK} - F_{Il}^{-1} M_{LJK} - F_{Jl}^{-1} M_{ILK}
          * \frac{ \partial M_{IJK} }{ \partial \chi_{lL} } = -\chi_{Kl}^{-1} M_{IJL}
          *
-         * :param const variableVector &referenceHigherOrderStress: The higher order stress in the 
+         * \param &referenceHigherOrderStress: The higher order stress in the 
          *     reference configuration.
-         * :param const variableVector &deformationGradient: The deformation gradient which maps 
+         * \param &deformationGradient: The deformation gradient which maps 
          *     between the reference and current configurations.
-         * :param const variableVector &microDeformation: The micro-deformation tensor.
-         * :param variableVector &higherOrderStress: The higher order stress in the current configuration.
+         * \param &microDeformation: The micro-deformation tensor.
+         * \param &higherOrderStress: The higher order stress in the current configuration.
+         * \param &dReferenceHigherOrderStressdHigherOrderStress: The derivative of the reference higher order stress w.r.t. the higher order stress
+         * \param &dReferenceHigherOrderStressdDeformationGradient: The derivative of the reference higher order stress w.r.t. the deformation gradient
+         * \param &dReferenceHigherOrderStressdMicroDeformation: The derivative of the reference higher order stress w.r.t. the micro deformation
+         */
+
+        variableVector _dReferenceHigherOrderStressdHigherOrderStress;
+        variableVector _dReferenceHigherOrderStressdDeformationGradient;
+        variableVector _dReferenceHigherOrderStressdMicroDeformation;
+
+        errorOut error = pullBackHigherOrderStress( higherOrderStress, deformationGradient, microDeformation,
+                                                    referenceHigherOrderStress, _dReferenceHigherOrderStressdHigherOrderStress,
+                                                    _dReferenceHigherOrderStressdDeformationGradient,
+                                                    _dReferenceHigherOrderStressdMicroDeformation );
+        
+        if (error){
+            errorOut result = new errorNode( "pullBackHigherOrderStress (jacobian)", "Error in computation of pull back of the higher order stress" );
+            result->addNext(error);
+            return result;
+        }
+
+        dReferenceHigherOrderStressdHigherOrderStress   = tardigradeVectorTools::inflate( _dReferenceHigherOrderStressdHigherOrderStress  , 27, 27 );
+        dReferenceHigherOrderStressdDeformationGradient = tardigradeVectorTools::inflate( _dReferenceHigherOrderStressdDeformationGradient, 27,  9 );
+        dReferenceHigherOrderStressdMicroDeformation    = tardigradeVectorTools::inflate( _dReferenceHigherOrderStressdMicroDeformation   , 27,  9 );
+
+        return error;
+
+    }
+
+    errorOut pullBackHigherOrderStress( const variableVector &higherOrderStress,
+                                        const variableVector &deformationGradient,
+                                        const variableVector &microDeformation,
+                                        variableVector &referenceHigherOrderStress,
+                                        variableVector &dReferenceHigherOrderStressdHigherOrderStress,
+                                        variableVector &dReferenceHigherOrderStressdDeformationGradient,
+                                        variableVector &dReferenceHigherOrderStressdMicroDeformation ){
+        /*!
+         * Compute the pull back operation on the higher order stress.
+         *
+         * M_{IJK} = J F_{Ii}^{-1} F_{Jj}^{-1} \chi_{Kk}^{-1} m_{ijk}
+         *
+         * Also returns the Jacobians
+         *
+         * \frac{ \partial M_{IJK} }{ \partial m_{lmn} } = J F_{Il}^{-1} F_{Jm}^{-1} \chi_{Kn}^{-1}
+         * \frac{ \partial M_{IJK} }{ \partial F_{lL} } = F_{Ll}^{-1} M_{IJK} - F_{Il}^{-1} M_{LJK} - F_{Jl}^{-1} M_{ILK}
+         * \frac{ \partial M_{IJK} }{ \partial \chi_{lL} } = -\chi_{Kl}^{-1} M_{IJL}
+         *
+         * \param &referenceHigherOrderStress: The higher order stress in the 
+         *     reference configuration.
+         * \param &deformationGradient: The deformation gradient which maps 
+         *     between the reference and current configurations.
+         * \param &microDeformation: The micro-deformation tensor.
+         * \param &higherOrderStress: The higher order stress in the current configuration.
+         * \param &dReferenceHigherOrderStressdHigherOrderStress: The derivative of the reference higher order stress w.r.t. the higher order stress
+         * \param &dReferenceHigherOrderStressdDeformationGradient: The derivative of the reference higher order stress w.r.t. the deformation gradient
+         * \param &dReferenceHigherOrderStressdMicroDeformation: The derivative of the reference higher order stress w.r.t. the micro deformation
          */
 
         //Assume 3d
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
+        unsigned int tot_dim = sot_dim * dim;
 
         variableType detF;
         variableVector inverseDeformationGradient, inverseMicroDeformation;
@@ -1115,26 +1256,26 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        dReferenceHigherOrderStressdHigherOrderStress   = variableMatrix( dim * dim * dim, variableVector( dim * dim * dim, 0 ) );
-        dReferenceHigherOrderStressdDeformationGradient = variableMatrix( dim * dim * dim, variableVector( dim * dim, 0 ) );
-        dReferenceHigherOrderStressdMicroDeformation    = variableMatrix( dim * dim * dim, variableVector( dim * dim, 0 ) );
+        dReferenceHigherOrderStressdHigherOrderStress   = variableVector( tot_dim * tot_dim, 0 );
+        dReferenceHigherOrderStressdDeformationGradient = variableVector( tot_dim * sot_dim, 0 );
+        dReferenceHigherOrderStressdMicroDeformation    = variableVector( tot_dim * sot_dim, 0 );
 
         for ( unsigned int I = 0; I < dim; I++){
             for ( unsigned int J = 0; J < dim; J++){
                 for ( unsigned int K = 0; K < dim; K++){
                     for ( unsigned int l = 0; l < dim; l++){
                         for ( unsigned int m = 0; m < dim; m++){
-                            dReferenceHigherOrderStressdDeformationGradient[ dim * dim * I + dim * J + K ][ dim * l + m ]
+                            dReferenceHigherOrderStressdDeformationGradient[ dim * dim * sot_dim * I + dim * sot_dim * J + sot_dim * K + dim * l + m ]
                                 += inverseDeformationGradient[ dim * m + l ] * referenceHigherOrderStress[ dim * dim * I + dim * J + K ]
                                  - inverseDeformationGradient[ dim * I + l ] * referenceHigherOrderStress[ dim * dim * m + dim * J + K ]
                                  - inverseDeformationGradient[ dim * J + l ] * referenceHigherOrderStress[ dim * dim * I + dim * m + K ];
 
-                            dReferenceHigherOrderStressdMicroDeformation[ dim * dim * I + dim * J + K ][ dim * l + m ]
+                            dReferenceHigherOrderStressdMicroDeformation[ dim * dim * sot_dim * I + dim * sot_dim * J + sot_dim * K + dim * l + m ]
                                 -= inverseMicroDeformation[ dim * K + l ] * referenceHigherOrderStress[ dim * dim * I + dim * J + m ];
 
                             for ( unsigned int n = 0; n < dim; n++){
 
-                                dReferenceHigherOrderStressdHigherOrderStress[ dim * dim * I + dim * J + K ][ dim * dim * l + dim * m + n ]
+                                dReferenceHigherOrderStressdHigherOrderStress[ dim * dim * tot_dim * I + dim * tot_dim * J + tot_dim * K + dim * dim * l + dim * m + n ]
                                     += detF * inverseDeformationGradient[ dim * I + l ]
                                      * inverseDeformationGradient[ dim * J + m ]
                                      * inverseMicroDeformation[ dim * K + n ];
