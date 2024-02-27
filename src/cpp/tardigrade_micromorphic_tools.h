@@ -127,6 +127,14 @@ namespace tardigradeMicromorphicTools{
                                            const variableVector &deformationGradient,
                                            const variableVector &microDeformation,
                                            variableVector &higherOrderStress,
+                                           variableVector &dHigherOrderStressdReferenceHigherOrderStress,
+                                           variableVector &dHigherOrderStressdDeformationGradient,
+                                           variableVector &dHigherOrderStressdMicroDeformation );
+
+    errorOut pushForwardHigherOrderStress( const variableVector &referenceHigherOrderStress,
+                                           const variableVector &deformationGradient,
+                                           const variableVector &microDeformation,
+                                           variableVector &higherOrderStress,
                                            variableMatrix &dHigherOrderStressdReferenceHigherOrderStress,
                                            variableMatrix &dHigherOrderStressdDeformationGradient,
                                            variableMatrix &dHigherOrderStressdMicroDeformation );
