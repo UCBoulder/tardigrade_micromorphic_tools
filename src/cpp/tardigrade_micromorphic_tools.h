@@ -272,7 +272,18 @@ namespace tardigradeMicromorphicTools{
     errorOut computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress, 
                                                         const variableVector &rightCauchyGreenDeformation,
                                                         variableVector &referenceHigherOrderPressure,
+                                                        variableVector &dpdM, variableVector &dpdC );
+
+    errorOut computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress, 
+                                                        const variableVector &rightCauchyGreenDeformation,
+                                                        variableVector &referenceHigherOrderPressure,
                                                         variableMatrix &dpdM, variableMatrix &dpdC );
+
+    errorOut computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress,
+                                                        const variableVector &rightCauchyGreenDeformation,
+                                                        variableVector &referenceHigherOrderPressure,
+                                                        variableVector &dpdM, variableVector &dpdC,
+                                                        variableVector &d2pdMdC );
 
     errorOut computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress,
                                                         const variableVector &rightCauchyGreenDeformation,
@@ -365,9 +376,24 @@ namespace tardigradeMicromorphicTools{
     errorOut computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
                                                              const variableVector &rightCauchyGreenDeformation,
                                                              variableVector &deviatoricHigherOrderReferenceStress,
+                                                             variableVector &pressure, variableVector &dDevStressdStress,
+                                                             variableVector &dDevStressdRCG, variableVector &dPressuredStress,
+                                                             variableVector &dPressuredRCG );
+
+    errorOut computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
+                                                             const variableVector &rightCauchyGreenDeformation,
+                                                             variableVector &deviatoricHigherOrderReferenceStress,
                                                              variableVector &pressure, variableMatrix &dDevStressdStress,
                                                              variableMatrix &dDevStressdRCG, variableMatrix &dPressuredStress,
                                                              variableMatrix &dPressuredRCG );
+
+    errorOut computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
+                                                             const variableVector &rightCauchyGreenDeformation,
+                                                             variableVector &deviatoricHigherOrderReferenceStress,
+                                                             variableVector &pressure, variableVector &dDevStressdStress,
+                                                             variableVector &dDevStressdRCG, variableVector &dPressuredStress,
+                                                             variableVector &dPressuredRCG, variableVector &d2DevStressdStressdRCG,
+                                                             variableVector &d2PressuredStressdRCG );
 
     errorOut computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
                                                              const variableVector &rightCauchyGreenDeformation,
