@@ -58,6 +58,12 @@ namespace tardigradeMicromorphicTools{
     errorOut pushForwardPK2Stress( const variableVector &PK2Stress,
                                    const variableVector &deformationGradient,
                                    variableVector &cauchyStress, 
+                                   variableVector &dcauchyStressdPK2Stress,
+                                   variableVector &dcauchyStressdDeformationGradient );
+
+    errorOut pushForwardPK2Stress( const variableVector &PK2Stress,
+                                   const variableVector &deformationGradient,
+                                   variableVector &cauchyStress, 
                                    variableMatrix &dcauchyStressdPK2Stress,
                                    variableMatrix &dcauchyStressdDeformationGradient );
 
@@ -78,6 +84,12 @@ namespace tardigradeMicromorphicTools{
     errorOut pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
                                               const variableVector &deformationGradient,
                                               variableVector &microStress );
+
+    errorOut pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
+                                              const variableVector &deformationGradient,
+                                              variableVector &microStress, 
+                                              variableVector &dMicroStressdReferenceMicroStress,
+                                              variableVector &dMicroStressdDeformationGradient );
 
     errorOut pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
                                               const variableVector &deformationGradient,

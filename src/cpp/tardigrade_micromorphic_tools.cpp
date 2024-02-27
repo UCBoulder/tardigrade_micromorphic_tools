@@ -269,6 +269,49 @@ namespace tardigradeMicromorphicTools{
     errorOut pushForwardPK2Stress( const variableVector &PK2Stress,
                                    const variableVector &deformationGradient,
                                    variableVector &cauchyStress,
+                                   variableVector &dCauchyStressdPK2Stress,
+                                   variableVector &dCauchyStressdDeformationGradient ){
+        /*!
+         * Push forward the PK2 stress in the reference configuration to the 
+         * configuration indicated by the deformation gradient.
+         *
+         * \sigma_{ij} = (1 / J ) F_{iI} S_{IJ} F_{jJ}
+         *
+         * Also computes the jacobians:
+         * \frac{ \partial \cauchy_{ij} }{\partial \Sigma_{KL} } = ( 1 / J ) F_{iK} F_{jL}
+         * \frac{ \partial \cauchy_{ij} }{\partial F_{kK} } = ( \delta_{i k} \delta_{I K} S_{I J} F_{j J}
+         *                                                  + F_{i I} S_{I J} \delta_{j k} \delta_{J K}
+         *                                                  - \cauchy_{i j} dDetFdF_{kK} ) / J
+         *
+         * \param &referenceMicroStress: The PK2 stress in the 
+         *     reference configuration.
+         * \param &deformationGradient: The deformation gradient 
+         *     mapping between configurations.
+         * \param variableVector &cauchyStress: The Cauchy stress in the current 
+         *     configuration.
+         * \param &dCauchyStressdReferenceMicroStress: The jacobian of 
+         *     the Cauchy w.r.t. the PK2 tress in the reference configuration.
+         * \param &dCauchyStressdDeformationGradient: The jacobian of 
+         *     the Cauchy stress w.r.t. the deformation gradient.
+         */
+
+        errorOut error = pushForwardReferenceMicroStress( PK2Stress, deformationGradient, cauchyStress,
+                                                          dCauchyStressdPK2Stress,
+                                                          dCauchyStressdDeformationGradient );
+
+        if ( error ){
+            errorOut result = new errorNode( "pushForwardPK2Stress (jacobian)",
+                                             "Error in push-forward operation (micro-stress and PK2 are identical)" );
+            result->addNext( error );
+            return result;
+        }
+        return NULL;
+    }
+
+
+    errorOut pushForwardPK2Stress( const variableVector &PK2Stress,
+                                   const variableVector &deformationGradient,
+                                   variableVector &cauchyStress,
                                    variableMatrix &dCauchyStressdPK2Stress,
                                    variableMatrix &dCauchyStressdDeformationGradient ){
         /*!
@@ -425,18 +468,9 @@ namespace tardigradeMicromorphicTools{
 
         detF = tardigradeVectorTools::determinant( deformationGradient, dim, dim );
 
-        for ( unsigned int i = 0; i < dim; i++ ){
-            for ( unsigned int j = 0; j < dim; j++ ){
-                for ( unsigned int I = 0; I < dim; I++ ){
-                    for ( unsigned int J = 0; J < dim; J++ ){
-                        microStress[ dim * i + j ] += deformationGradient[ dim * i + I ]
-                                                    * referenceMicroStress[ dim * I + J ]
-                                                    * deformationGradient[ dim * j + J ];
-                    }
-                }
-                microStress[ dim * i + j ] /= detF;
-            }
-        }
+        microStress = tardigradeVectorTools::matrixMultiply( deformationGradient, referenceMicroStress, dim, dim, dim, dim );
+        microStress = tardigradeVectorTools::matrixMultiply( microStress, deformationGradient, dim, dim, dim, dim, false, true );
+        microStress /= detF;
 
         return NULL;
     }
@@ -446,6 +480,31 @@ namespace tardigradeMicromorphicTools{
                                               variableVector &microStress,
                                               variableMatrix &dMicroStressdReferenceMicroStress,
                                               variableMatrix &dMicroStressdDeformationGradient ){
+
+        variableVector _dMicroStressdReferenceMicroStress;
+        variableVector _dMicroStressdDeformationGradient;
+
+        errorOut error = pushForwardReferenceMicroStress( referenceMicroStress, deformationGradient,
+                                                          microStress, _dMicroStressdReferenceMicroStress,
+                                                          _dMicroStressdDeformationGradient );
+
+        if (error){
+            errorOut result = new errorNode( "pushForwardReferenceMicroStress (jacobian)", "Error in computation of push forward of micro-stress" );
+            result->addNext(error);
+            return result;
+        }
+
+        dMicroStressdReferenceMicroStress = tardigradeVectorTools::inflate( _dMicroStressdReferenceMicroStress, 9, 9 );
+        dMicroStressdDeformationGradient  = tardigradeVectorTools::inflate( _dMicroStressdDeformationGradient, 9, 9 );
+
+        return error;
+
+    }
+    errorOut pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
+                                              const variableVector &deformationGradient,
+                                              variableVector &microStress,
+                                              variableVector &dMicroStressdReferenceMicroStress,
+                                              variableVector &dMicroStressdDeformationGradient ){
         /*!
          * Push forward the micro-stress in the reference configuration to the 
          * configuration indicated by the deformation gradient.
@@ -458,20 +517,21 @@ namespace tardigradeMicromorphicTools{
          *                                              + F_{i I} \Sigma_{I J} \delta_{j k} \delta_{J K}
          *                                              - s_{i j} dDetFdF_{kK} ) / J
          *
-         * :param const variableVector &referenceMicroStress: The micro-stress in the 
+         * \param &referenceMicroStress: The micro-stress in the 
          *     reference configuration.
-         * :param const variableVector &deformationGradient: The deformation gradient 
+         * \param deformationGradient: The deformation gradient 
          *     mapping between configurations.
-         * :param variableVector &microStress: The micro-stress in the current 
+         * \param microStress: The micro-stress in the current 
          *     configuration.
-         * :param variableMatrix &dmicroStressdReferenceMicroStress: The jacobian of 
+         * \param dmicroStressdReferenceMicroStress: The jacobian of 
          *     the micro-stress w.r.t. the micro-stress in the reference configuration.
-         * :param variableMatrix &dmicroSTressdDeformationGradient: The jacobian of 
+         * \param dmicroStressdDeformationGradient: The jacobian of 
          *     the micro-stress w.r.t. the deformation gradient.
          */
 
         //Assume 3d
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
 
         variableType detF;
         errorOut error = pushForwardReferenceMicroStress( referenceMicroStress, deformationGradient,
@@ -495,8 +555,8 @@ namespace tardigradeMicromorphicTools{
         }
 
         //Assemble the jacobians
-        dMicroStressdReferenceMicroStress = variableMatrix( microStress.size(), variableVector( referenceMicroStress.size(), 0 ) );
-        dMicroStressdDeformationGradient = variableMatrix( microStress.size(), variableVector( deformationGradient.size(), 0 ) );
+        dMicroStressdReferenceMicroStress = variableVector( sot_dim * sot_dim, 0 );
+        dMicroStressdDeformationGradient  = variableVector( sot_dim * sot_dim, 0 );
 
         constantVector eye( dim * dim );
         tardigradeVectorTools::eye( eye );
@@ -505,17 +565,17 @@ namespace tardigradeMicromorphicTools{
             for ( unsigned int j = 0; j < dim; j++ ){
                 for ( unsigned int k = 0; k < dim; k++ ){
                     for ( unsigned int K = 0; K < dim; K++ ){
-                        dMicroStressdReferenceMicroStress[ dim * i + j ][ dim * k + K ] = deformationGradient[ dim * i + k ]
-                                                                                        * deformationGradient[ dim * j + K ] / detF;
+                        dMicroStressdReferenceMicroStress[ dim * sot_dim * i + sot_dim * j + dim * k + K ] = deformationGradient[ dim * i + k ]
+                                                                                                           * deformationGradient[ dim * j + K ] / detF;
                         
                         for ( unsigned int I = 0; I < dim; I++ ){
 
-                            dMicroStressdDeformationGradient[ dim * i + j ][ dim * k + K] += eye[ dim * i + k ] * referenceMicroStress[ dim * K + I ] * deformationGradient[ dim * j + I ]
-                                                                                          + deformationGradient[ dim * i + I ] * referenceMicroStress[ dim * I + K ] * eye[ dim * j + k ];
+                            dMicroStressdDeformationGradient[ dim * sot_dim * i + sot_dim * j + dim * k + K] += eye[ dim * i + k ] * referenceMicroStress[ dim * K + I ] * deformationGradient[ dim * j + I ]
+                                                                                                              + deformationGradient[ dim * i + I ] * referenceMicroStress[ dim * I + K ] * eye[ dim * j + k ];
                         }
 
-                        dMicroStressdDeformationGradient[ dim * i + j ][ dim * k + K] -= microStress[ dim * i + j ] * dDetFdF[ dim * k + K ];
-                        dMicroStressdDeformationGradient[ dim * i + j ][ dim * k + K] /= detF; 
+                        dMicroStressdDeformationGradient[ dim * sot_dim * i + sot_dim * j + dim * k + K] -= microStress[ dim * i + j ] * dDetFdF[ dim * k + K ];
+                        dMicroStressdDeformationGradient[ dim * sot_dim * i + sot_dim * j + dim * k + K] /= detF; 
                     }
                 }
             }
