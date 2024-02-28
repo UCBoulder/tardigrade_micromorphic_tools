@@ -3296,16 +3296,59 @@ namespace tardigradeMicromorphicTools{
          *
          * where K is not summed over
          *
-         * :param const variableVector &higherOrderStress: The higher order stress tensor.
-         * :param variableVector &higherOrderStressNorm: The norm of the higher order stress.
-         * :param variableMatrix &dHigherOrderSTressNormdHigherOrderStress: The Jacobian of the higher order
+         * \param &higherOrderStress: The higher order stress tensor.
+         * \param &higherOrderStressNorm: The norm of the higher order stress.
+         * \param &dHigherOrderSTressNormdHigherOrderStress: The Jacobian of the higher order
          *     stress norm w.r.t. the higher order stress.
-         * :param double tol: The tolerance of the higher order stress norm when computing the derivative.
+         * \param tol: The tolerance of the higher order stress norm when computing the derivative.
+         *     Prevents nans.
+         */
+
+        variableVector _dHigherOrderStressNormdHigherOrderStress;
+
+        errorOut error = computeHigherOrderStressNorm( higherOrderStress, higherOrderStressNorm,
+                                                       _dHigherOrderStressNormdHigherOrderStress,
+                                                       tol );
+
+        if ( error ){
+            errorOut result = new errorNode( "computeHigherOrderStressNorm (jacobian)",
+                                             "Error in computation of higher order stress norm" );
+            result->addNext( error );
+            return result;
+        }
+
+        dHigherOrderStressNormdHigherOrderStress = tardigradeVectorTools::inflate( _dHigherOrderStressNormdHigherOrderStress, 3, 27 );
+
+        return error;
+
+    }
+    errorOut computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
+                                           variableVector &dHigherOrderStressNormdHigherOrderStress,
+                                           double tol ){
+        /*!
+         * Compute the norm of the higher order stress which is defined as
+         * || M ||_K = \sqrt{ M_{IJK} M_{IJK} }
+         *
+         * where K is not summed over.
+         *
+         * Also computes the Jacobians
+         *
+         * \frac{ \partial || M ||_K }{ \partial M_{LMN} } = \frac{ M_{LMK} \delta_{KN} }{ || M ||_K }
+         *
+         * where K is not summed over
+         *
+         * \param &higherOrderStress: The higher order stress tensor.
+         * \param &higherOrderStressNorm: The norm of the higher order stress.
+         * \param &dHigherOrderSTressNormdHigherOrderStress: The Jacobian of the higher order
+         *     stress norm w.r.t. the higher order stress.
+         * \param tol: The tolerance of the higher order stress norm when computing the derivative.
          *     Prevents nans.
          */
 
         //Assume 3D
-        unsigned int dim = 3;
+        const unsigned int dim = 3;
+        const unsigned int sot_dim = dim * dim;
+        const unsigned int tot_dim = sot_dim * dim;
 
         errorOut error = computeHigherOrderStressNorm( higherOrderStress, higherOrderStressNorm );
 
@@ -3318,12 +3361,12 @@ namespace tardigradeMicromorphicTools{
 
         constantVector eye( dim * dim );
         tardigradeVectorTools::eye( eye );
-        dHigherOrderStressNormdHigherOrderStress = variableMatrix( dim, variableVector( dim * dim * dim, 0 ) );
+        dHigherOrderStressNormdHigherOrderStress = variableVector( dim * tot_dim, 0 );
         for ( unsigned int K = 0; K < 3; K++ ){
             for ( unsigned int L = 0; L < 3; L++ ){
                 for ( unsigned int M = 0; M < 3; M++ ){
                     for ( unsigned int N = 0; N < 3; N++ ){
-                        dHigherOrderStressNormdHigherOrderStress[ K ][ dim * dim * L + dim * M + N ] = higherOrderStress[ dim * dim * L + dim * M + K ]  * eye[ dim * K + N ] / ( higherOrderStressNorm[ K ] + tol );
+                        dHigherOrderStressNormdHigherOrderStress[ tot_dim * K + dim * dim * L + dim * M + N ] = higherOrderStress[ dim * dim * L + dim * M + K ]  * eye[ dim * K + N ] / ( higherOrderStressNorm[ K ] + tol );
                     }
                 }
             }
@@ -3349,18 +3392,69 @@ namespace tardigradeMicromorphicTools{
          *
          * where K is not summed over
          *
-         * :param const variableVector &higherOrderStress: The higher order stress tensor.
-         * :param variableVector &higherOrderStressNorm: The norm of the higher order stress.
-         * :param variableMatrix &dHigherOrderSTressNormdHigherOrderStress: The Jacobian of the higher order
+         * \param const variableVector &higherOrderStress: The higher order stress tensor.
+         * \param variableVector &higherOrderStressNorm: The norm of the higher order stress.
+         * \param variableMatrix &dHigherOrderSTressNormdHigherOrderStress: The Jacobian of the higher order
          *     stress norm w.r.t. the higher order stress.
-         * :param variableMatrix &d2HigherOrderStressNormdHigherOrderStress2: The second order Jacobian of the 
+         * \param variableMatrix &d2HigherOrderStressNormdHigherOrderStress2: The second order Jacobian of the 
          *     higher order stress norm w.r.t. the higher order stress.
-         * :param double tol: The tolerance of the higher order stress norm when computing the derivatives.
+         * \param double tol: The tolerance of the higher order stress norm when computing the derivatives.
+         *     Prevents nans.
+         */
+
+        variableVector _dHigherOrderStressNormdHigherOrderStress;
+        variableVector _d2HigherOrderStressNormdHigherOrderStress2;
+
+        errorOut error = computeHigherOrderStressNorm( higherOrderStress, higherOrderStressNorm,
+                                                       _dHigherOrderStressNormdHigherOrderStress,
+                                                       _d2HigherOrderStressNormdHigherOrderStress2,
+                                                       tol );
+
+        if ( error ){
+            errorOut result = new errorNode( "computeHigherOrderStressNorm (jacobian)",
+                                             "Error in computation of higher order stress norm" );
+            result->addNext( error );
+            return result;
+        }
+
+        dHigherOrderStressNormdHigherOrderStress   = tardigradeVectorTools::inflate( _dHigherOrderStressNormdHigherOrderStress, 3, 27 );
+        d2HigherOrderStressNormdHigherOrderStress2 = tardigradeVectorTools::inflate( _d2HigherOrderStressNormdHigherOrderStress2, 3, 27 * 27 );
+
+        return error;
+
+    }
+
+    errorOut computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
+                                           variableVector &dHigherOrderStressNormdHigherOrderStress,
+                                           variableVector &d2HigherOrderStressNormdHigherOrderStress2,
+                                           double tol ){
+        /*!
+         * Compute the norm of the higher order stress which is defined as
+         * || M ||_K = \sqrt{ M_{IJK} M_{IJK} }
+         *
+         * where K is not summed over.
+         *
+         * Also computes the Jacobians
+         *
+         * \frac{ \partial || M ||_K }{ \partial M_{LMN} } = \frac{ M_{LMK} \delta_{KN} }{ || M ||_K }
+         * \frac{ \partial^2 || M ||_K }{ \partial M_{LMN} \partial M_{OPQ} } = \frac{1}{ || M ||_K } \left[ \delta_{LO} \delta_{MP} \delta_{KQ} \delta_{KN} - \frac{ M_{LMK} \delta_{KN} }{ || M ||_K } \frac{ M_{OPK} \delta_{KQ} }{ || M ||_K } \right]
+         *
+         * where K is not summed over
+         *
+         * \param const variableVector &higherOrderStress: The higher order stress tensor.
+         * \param variableVector &higherOrderStressNorm: The norm of the higher order stress.
+         * \param variableMatrix &dHigherOrderSTressNormdHigherOrderStress: The Jacobian of the higher order
+         *     stress norm w.r.t. the higher order stress.
+         * \param variableMatrix &d2HigherOrderStressNormdHigherOrderStress2: The second order Jacobian of the 
+         *     higher order stress norm w.r.t. the higher order stress.
+         * \param double tol: The tolerance of the higher order stress norm when computing the derivatives.
          *     Prevents nans.
          */
 
         //Assume 3D
-        unsigned int dim = 3;
+        const unsigned int dim = 3;
+        const unsigned int sot_dim = dim * dim;
+        const unsigned int tot_dim = sot_dim * dim;
 
         errorOut error = computeHigherOrderStressNorm( higherOrderStress, higherOrderStressNorm, dHigherOrderStressNormdHigherOrderStress, tol );
 
@@ -3374,7 +3468,7 @@ namespace tardigradeMicromorphicTools{
         constantVector eye( dim * dim );
         tardigradeVectorTools::eye( eye );
 
-        d2HigherOrderStressNormdHigherOrderStress2 = variableMatrix( dim, variableVector( dim * dim * dim * dim * dim * dim, 0 ) );
+        d2HigherOrderStressNormdHigherOrderStress2 = variableVector( dim * tot_dim * tot_dim, 0 );
 
         for ( unsigned int K = 0; K < dim; K++ ){
             for ( unsigned int L = 0; L < dim; L++ ){
@@ -3383,10 +3477,10 @@ namespace tardigradeMicromorphicTools{
                         for ( unsigned int O = 0; O < dim; O++ ){
                             for ( unsigned int P = 0; P < dim; P++ ){
                                 for ( unsigned int Q = 0; Q < dim; Q++ ){
-                                    d2HigherOrderStressNormdHigherOrderStress2[ K ][ dim * dim * dim * dim * dim * L + dim * dim * dim * dim * M + dim * dim * dim * N + dim * dim * O + dim * P + Q ]
+                                    d2HigherOrderStressNormdHigherOrderStress2[ tot_dim * tot_dim * K + dim * dim * dim * dim * dim * L + dim * dim * dim * dim * M + dim * dim * dim * N + dim * dim * O + dim * P + Q ]
                                         = ( eye[ dim * L + O ] * eye[ dim * M + P ] * eye[ dim * K + Q ] * eye[ dim * K + N ]
-                                        -   dHigherOrderStressNormdHigherOrderStress[ K ][ dim * dim * L + dim * M + N ]
-                                        *   dHigherOrderStressNormdHigherOrderStress[ K ][ dim * dim * O + dim * P + Q ] )
+                                        -   dHigherOrderStressNormdHigherOrderStress[ tot_dim * K + dim * dim * L + dim * M + N ]
+                                        *   dHigherOrderStressNormdHigherOrderStress[ tot_dim * K + dim * dim * O + dim * P + Q ] )
                                         / ( higherOrderStressNorm[ K ] + tol );
                                 }
                             }

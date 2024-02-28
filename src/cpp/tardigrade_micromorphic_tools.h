@@ -419,7 +419,16 @@ namespace tardigradeMicromorphicTools{
     errorOut computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm );
 
     errorOut computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
+                                           variableVector &dHigherOrderStressNormdHigherOrderStress,
+                                           double tol = 1e-9 );
+
+    errorOut computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
                                            variableMatrix &dHigherOrderStressNormdHigherOrderStress,
+                                           double tol = 1e-9 );
+
+    errorOut computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
+                                           variableVector &dHigherOrderStressNormdHigherOrderStress,
+                                           variableVector &d2HigherOrderStressNormdHigherOrderStress2,
                                            double tol = 1e-9 );
 
     errorOut computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
