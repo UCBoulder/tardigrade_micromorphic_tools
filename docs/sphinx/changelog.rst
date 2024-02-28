@@ -6,6 +6,14 @@ Changelog
 #########
 
 ******************
+1.4.0 (unreleased)
+******************
+
+Breaking changes
+================
+- Added vector-based Jacobians (:pull:`1`, :pull:`4`, :pull:`5`). By `Nathan Miller`_.
+
+******************
 1.3.2 (2023-09-29)
 ******************
 

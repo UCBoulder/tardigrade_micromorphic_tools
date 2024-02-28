@@ -3579,46 +3579,44 @@ namespace tardigradeMicromorphicTools{
         return NULL;
     }
 
-    errorOut assembleDeformationGradient( const variableMatrix &displacementGradient, variableVector &deformationGradient ){
+    errorOut assembleDeformationGradient( const variableVector &displacementGradient, variableVector &deformationGradient ){
         /*!
          * Assemble the deformation gradient from the gradient of the displacement.
          *
-         * :param const variableMatrix &displacementGradient: The gradient of the displacement.
-         * :param variableVector &deformationGradient: The deformation gradient.
+         * \param &displacementGradient: The gradient of the displacement.
+         * \param &deformationGradient: The deformation gradient.
          */
 
         //Assume 3D
-        unsigned int dim = 3;
+        const unsigned int dim = 3;
+        const unsigned int sot_dim = dim * dim;
 
-        if ( displacementGradient.size() != dim ){
+        if ( displacementGradient.size() != dim * dim ){
             return new errorNode( "assembleDeformationGradient",
                                   "The gradient of the deformation is not 3D" );
         }
 
-        for ( unsigned int i = 0; i < dim; i++ ){
-            if ( displacementGradient[ i ].size() != dim ){
-                return new errorNode( "assembleDeformationGradient",
-                                      "The gradient of the deformation is not a regular matrix" );
-            }
-        }
+        variableVector eye( sot_dim );
+        tardigradeVectorTools::eye( eye );
 
-        deformationGradient = tardigradeVectorTools::appendVectors( displacementGradient + tardigradeVectorTools::eye< variableType >( dim ) );
+        deformationGradient = displacementGradient + eye;
 
         return NULL;
     }
 
-    errorOut assembleDeformationGradient( const variableMatrix &displacementGradient, variableVector &deformationGradient,
-                                          variableMatrix &dFdGradU ){
+    errorOut assembleDeformationGradient( const variableVector &displacementGradient, variableVector &deformationGradient,
+                                          variableVector &dFdGradU ){
         /*!
          * Assemble the deformation gradient from the gradient of the displacement.
          *
-         * :param const variableMatrix &displacementGradient: The gradient of the displacement.
-         * :param variableVector &deformationGradient: The deformation gradient.
-         * :param variableMatrix &dFdGradU: The Jacobian of the deformation gradient w.r.t. the displacement gradient.
+         * \param &displacementGradient: The gradient of the displacement.
+         * \param &deformationGradient: The deformation gradient.
+         * \param &dFdGradU: The Jacobian of the deformation gradient w.r.t. the displacement gradient.
          */
 
         //Assume 3D
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
 
         errorOut error = assembleDeformationGradient( displacementGradient, deformationGradient );
 
@@ -3629,7 +3627,8 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        dFdGradU = tardigradeVectorTools::eye< variableType >( dim * dim );
+        dFdGradU = variableVector( sot_dim * sot_dim, 0 );
+        tardigradeVectorTools::eye( dFdGradU );
 
         return NULL;
     }
@@ -3638,19 +3637,20 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Assemble the micro deformation from the micro displacement
          *
-         * :param const variableVector &microDisplacement: The micro degrees of freedom.
-         * :param variableVector &microDeformation: The micro deformation.
+         * \param &microDisplacement: The micro degrees of freedom.
+         * \param &microDeformation: The micro deformation.
          */
 
         //Assume 3D
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
 
-        if ( microDisplacement.size() != dim * dim ){
+        if ( microDisplacement.size() != sot_dim ){
             return new errorNode( "assembleMicroDeformation",
                                   "The micro degrees of freedom must be 3D" );
         }
 
-        constantVector eye( dim * dim );
+        constantVector eye( sot_dim );
         tardigradeVectorTools::eye( eye );
 
         microDeformation = microDisplacement + eye;
@@ -3659,17 +3659,18 @@ namespace tardigradeMicromorphicTools{
     }
 
     errorOut assembleMicroDeformation( const variableVector &microDisplacement, variableVector &microDeformation,
-                                       variableMatrix &dChidPhi ){
+                                       variableVector &dChidPhi ){
         /*!
          * Assemble the micro deformation from the micro displacement
          *
-         * :param const variableVector &microDisplacement: The micro degrees of freedom.
-         * :param variableVector &microDeformation: The micro deformation.
-         * :param variableMatrix &dChidPhi: The Jacobian of the micro deformation w.r.t. the micro displacement
+         * \param &microDisplacement: The micro degrees of freedom.
+         * \param &microDeformation: The micro deformation.
+         * \param &dChidPhi: The Jacobian of the micro deformation w.r.t. the micro displacement
          */
 
         //Assume 3D
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
 
         errorOut error = assembleMicroDeformation( microDisplacement, microDeformation );
 
@@ -3680,52 +3681,39 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        dChidPhi = tardigradeVectorTools::eye< variableType >( dim * dim );
+        dChidPhi = variableVector( sot_dim * sot_dim, 0 );
+        tardigradeVectorTools::eye( dChidPhi );
 
         return NULL;
     }
 
-    errorOut assembleGradientMicroDeformation( const variableMatrix &gradientMicroDisplacement,
+    errorOut assembleGradientMicroDeformation( const variableVector &gradientMicroDisplacement,
                                                variableVector &gradientMicroDeformation ){
         /*!
          * Assemble the gradient of the micro deformation from the gradient of the micro displacement
          * in the reference configuration
          *
-         * :param const variableVector &gradientMicroDisplacement: The gradient of the micro displacement
-         * :param variableVector &gradientMicroDeformation: The gradient of the micro deformation.
+         * \param &gradientMicroDisplacement: The gradient of the micro displacement
+         * \param &gradientMicroDeformation: The gradient of the micro deformation.
          */
 
         //Assume 3D
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
 
-        if ( gradientMicroDisplacement.size() != dim * dim ){
+        if ( gradientMicroDisplacement.size() != sot_dim * dim ){
             return new errorNode( "assembleGradientMicroDeformation",
                                   "The gradient of the micro displacement must be 3D" );
         }
 
-        for ( unsigned int i = 0; i < dim; i++ ){
-            if ( gradientMicroDisplacement[ i ].size() != dim ){
-                return new errorNode( "assembleGradientMicroDeformation",
-                                      "The gradient of the micro displacement must be 3D" );
-            }
-        }
-
-        gradientMicroDeformation = variableVector( dim * dim * dim, 0 );
-
-        for ( unsigned int i = 0; i < dim; i++ ){
-            for ( unsigned int I = 0; I < dim; I++ ){
-                for ( unsigned int J = 0; J < dim; J++ ){
-                    gradientMicroDeformation[ dim * dim * i + dim * I + J ] = gradientMicroDisplacement[ dim * i + I ][ J ];
-                }
-            }
-        }
+        gradientMicroDeformation = gradientMicroDisplacement;
 
         return NULL;
     } 
 
-    errorOut assembleGradientMicroDeformation( const variableMatrix &gradientMicroDisplacement,
+    errorOut assembleGradientMicroDeformation( const variableVector &gradientMicroDisplacement,
                                                variableVector &gradientMicroDeformation,
-                                               variableMatrix &dGradChidGradPhi ){
+                                               variableVector &dGradChidGradPhi ){
         /*!
          * Assemble the gradient of the micro deformation from the gradient of the micro displacement
          * in the reference configuration
@@ -3738,6 +3726,8 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3D
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
+        unsigned int tot_dim = sot_dim * dim;
 
         errorOut error = assembleGradientMicroDeformation( gradientMicroDisplacement, gradientMicroDeformation );
 
@@ -3748,7 +3738,8 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
         
-        dGradChidGradPhi = tardigradeVectorTools::eye< variableType >( dim * dim * dim );
+        dGradChidGradPhi = variableVector( tot_dim * tot_dim, 0 );
+        tardigradeVectorTools::eye( dGradChidGradPhi );
 
         return NULL;
     }

@@ -1868,9 +1868,9 @@ BOOST_AUTO_TEST_CASE( test_assembleDeformationGradient ){
      * :param std::ofstream &results: The output file.
      */
 
-    variableMatrix displacementGradient = { { 1, 2, 3 },
-                                            { 4, 5, 6 },
-                                            { 7, 8, 9 } };
+    variableVector displacementGradient = { 1, 2, 3,
+                                            4, 5, 6,
+                                            7, 8, 9 };
 
     variableVector answer = { 2, 2, 3, 4, 6, 6, 7, 8, 10 };
 
@@ -1884,7 +1884,7 @@ BOOST_AUTO_TEST_CASE( test_assembleDeformationGradient ){
 
     //Tests of the Jacobians
     variableVector resultJ;
-    variableMatrix dFdGradU;
+    variableVector dFdGradU;
     error = tardigradeMicromorphicTools::assembleDeformationGradient( displacementGradient, resultJ, dFdGradU );
 
     BOOST_CHECK( !error );
@@ -1894,8 +1894,8 @@ BOOST_AUTO_TEST_CASE( test_assembleDeformationGradient ){
     //Test the Jacobian w.r.t. the displacement gradient
     constantType eps = 1e-6;
     for ( unsigned int i = 0; i < 9; i++ ){
-        constantMatrix delta = constantMatrix( 3, constantVector( 3, 0 ) );
-        delta[ ( int )( i / 3) ][ i % 3 ] = eps * fabs( displacementGradient[ ( int )( i / 3 ) ][ i % 3 ] ) + eps;
+        constantVector delta = constantVector( 9, 0 );
+        delta[ i ] = eps * fabs( displacementGradient[ i ] ) + eps;
 
         variableVector P, M;
 
@@ -1907,10 +1907,10 @@ BOOST_AUTO_TEST_CASE( test_assembleDeformationGradient ){
 
         BOOST_CHECK( !error );
 
-        variableVector gradCol = ( P - M ) / ( 2 * delta[ ( int )( i / 3 ) ][ i % 3 ] );
+        variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dFdGradU[ j ][ i ] ) );
+            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dFdGradU[ 9 * j + i ] ) );
         }
     }
 
@@ -1939,7 +1939,7 @@ BOOST_AUTO_TEST_CASE( test_assembleMicroDeformation ){
 
     //Test the Jacobians
     variableVector resultJ;
-    variableMatrix dChidPhi;
+    variableVector dChidPhi;
 
     error = tardigradeMicromorphicTools::assembleMicroDeformation( microDisplacement, resultJ, dChidPhi );
 
@@ -1966,7 +1966,7 @@ BOOST_AUTO_TEST_CASE( test_assembleMicroDeformation ){
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dChidPhi[ j ][ i ] ) );
+            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dChidPhi[ 9 * j + i ] ) );
         }
     }
 
@@ -1981,15 +1981,15 @@ BOOST_AUTO_TEST_CASE( test_assembleGradientMicroDeformation ){
      * :param std::ofstream &results: The output file.
      */
 
-    variableMatrix gradientMicroDisplacement = { {  1,  2,  3 },
-                                                 {  4,  5,  6 },
-                                                 {  7,  8,  9 },
-                                                 { 10, 11, 12 },
-                                                 { 13, 14, 15 },
-                                                 { 16, 17, 18 },
-                                                 { 19, 20, 21 },
-                                                 { 22, 23, 24 },
-                                                 { 25, 26, 27 } };
+    variableVector gradientMicroDisplacement = {  1,  2,  3,
+                                                  4,  5,  6,
+                                                  7,  8,  9,
+                                                 10, 11, 12,
+                                                 13, 14, 15,
+                                                 16, 17, 18,
+                                                 19, 20, 21,
+                                                 22, 23, 24,
+                                                 25, 26, 27 };
 
     variableVector answer = { 1,  2,  3,  4,  5,  6,  7,  8,  9,
                              10, 11, 12, 13, 14, 15, 16, 17, 18,
@@ -2005,7 +2005,7 @@ BOOST_AUTO_TEST_CASE( test_assembleGradientMicroDeformation ){
 
     //Test the Jacobians
     variableVector resultJ;
-    variableMatrix dGradChidGradPhi;
+    variableVector dGradChidGradPhi;
 
     error = tardigradeMicromorphicTools::assembleGradientMicroDeformation( gradientMicroDisplacement, resultJ, dGradChidGradPhi );
 
@@ -2016,8 +2016,8 @@ BOOST_AUTO_TEST_CASE( test_assembleGradientMicroDeformation ){
     //Test the Jacobian w.r.t. the micro displacement gradient
     constantType eps = 1e-6;
     for ( unsigned int i = 0; i < 27; i++ ){
-        constantMatrix delta( 9, constantVector( 3, 0 ) );
-        delta[ ( int )( i / 3 ) ][ i % 3 ] = eps * fabs( gradientMicroDisplacement[ ( int )( i / 3 ) ][ i % 3 ] ) + eps;
+        constantVector delta( 27, 0 );
+        delta[ i ] = eps * std::fabs( gradientMicroDisplacement[ i ] ) + eps;
 
         variableVector P, M;
 
@@ -2029,10 +2029,10 @@ BOOST_AUTO_TEST_CASE( test_assembleGradientMicroDeformation ){
 
         BOOST_CHECK( !error );
 
-        variableVector gradCol = ( P - M ) / ( 2 * delta[ ( int )( i / 3 ) ][ i % 3 ] );
+        variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dGradChidGradPhi[ j ][ i ] ) );
+            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dGradChidGradPhi[ 27 * j + i ] ) );
         }
     }
 
