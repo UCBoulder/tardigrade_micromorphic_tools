@@ -1452,12 +1452,9 @@ namespace tardigradeMicromorphicTools{
         variableVector _dpdM;
         variableVector _dpdC;
 
-        std::cout << "pre here\n";
         errorOut error = computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation,
                                                                     referenceHigherOrderPressure,
                                                                     _dpdM, _dpdC );
-
-        std::cout << "here?\n";
 
         if ( error ){
             errorOut result = new errorNode( "computeReferenceHigherOrderStressPressure (jacobian)",
@@ -1466,13 +1463,9 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        std::cout << "  derp 1a\n";
-        std::cout << "  _dpdM: "; tardigradeVectorTools::print( _dpdM );
-        std::cout << "  _dpdC: "; tardigradeVectorTools::print( _dpdC );
         dpdM = tardigradeVectorTools::inflate( _dpdM, 3, 27 );
         dpdC = tardigradeVectorTools::inflate( _dpdC, 3,  9 );
 
-        std::cout << "  exiting\n";
         return error;
 
     }
@@ -1625,7 +1618,6 @@ namespace tardigradeMicromorphicTools{
         unsigned int sot_dim = dim * dim;
         unsigned int tot_dim = sot_dim * dim;
 
-        std::cout << " in here?\n";
         errorOut error = computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation,
                                                                     referenceHigherOrderPressure, dpdM, dpdC );
 
@@ -1654,8 +1646,6 @@ namespace tardigradeMicromorphicTools{
                 }
             }
         }
-
-        std::cout << "exiting here\n";
 
         return NULL;
     }
@@ -1808,6 +1798,7 @@ namespace tardigradeMicromorphicTools{
         }
 
         return error = computeDeviatoricReferenceHigherOrderStress( referenceHigherOrderStress, rightCauchyGreenDeformation,
+                                                                    pressure, dpdM, dpdC,
                                                                     deviatoricReferenceHigherOrderStress,
                                                                     dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
                                                                     dDeviatoricReferenceHigherOrderStressdRCG );

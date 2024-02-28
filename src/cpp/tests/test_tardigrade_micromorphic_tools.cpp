@@ -652,19 +652,16 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceHigherOrderStress ){
 
     variableVector pressure;
     variableMatrix dpdM, dpdC, d2pdMdC;
-    std::cout << "derp1\n";
     tardigradeMicromorphicTools::computeReferenceHigherOrderStressPressure( M, C, pressure, dpdM, dpdC, d2pdMdC );
 
     variableVector result;
 
-    std::cout << "derp2\n";
     errorOut error = tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C, result );
 
     BOOST_CHECK( !error );
 
     BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( result, answer ) );
 
-    std::cout << "derp3\n";
     error = tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C, pressure, result );
 
     BOOST_CHECK( !error );
