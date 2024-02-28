@@ -16,11 +16,11 @@ namespace tardigradeMicromorphicTools{
                          variableVector &Psi ){
         /*!
          * Computes the micromorphic quantity psi defined as:
-         * \Psi_{IJ} = F_{i I} \Chi_{i J}
+         * \f$\Psi_{IJ} = F_{i I} \Chi_{i J}\f$
          *
-         * :param const variableVector &deformationGradient: The deformation gradient.
-         * :param const variableVector &microDeformation: The micro-deformation.
-         * :param variableVector &Psi: The micro-displacement metric Psi.
+         * \param &deformationGradient: The deformation gradient.
+         * \param &microDeformation: The micro-deformation.
+         * \param &Psi: The micro-displacement metric Psi.
          */
 
         //Assume 3d
@@ -44,22 +44,62 @@ namespace tardigradeMicromorphicTools{
                          variableVector &Psi, variableMatrix &dPsidF, variableMatrix &dPsidChi ){
         /*!
          * Computes the micromorphic quantity psi defined as:
-         * \Psi_{IJ} = F_{i I} \Chi_{i J}
+         * \f$\Psi_{IJ} = F_{i I} \Chi_{i J}\f$
          *
          * along with the jacobians
          *
-         * \frac{ \partial \Psi_{IJ} }{ \partial F_{k K} } = \delta_{I K} \Chi_{k J}
-         * \frac{ \partial \Psi_{IJ} }{ \partial \Chi_{k K} } = F_{k I} \delta_{J K}
+         * \f$\frac{ \partial \Psi_{IJ} }{ \partial F_{k K} } = \delta_{I K} \Chi_{k J}\f$
+         * \f$\frac{ \partial \Psi_{IJ} }{ \partial \Chi_{k K} } = F_{k I} \delta_{J K}\f}
          *
-         * :param const variableVector &deformationGradient: The deformation gradient.
-         * :param const variableVector &microDeformation: The micro-deformation.
-         * :param variableVector &Psi: The micro-displacement metric Psi
-         * :param variableMatrix &dPsidF: The jacobian of Psi w.r.t. the deformation gradient.
-         * :param variableMatrix &dPsidChi: The jacobian of Psi w.r.t. the micro-deformation.
+         * \param &deformationGradient: The deformation gradient.
+         * \param &microDeformation: The micro-deformation.
+         * \param &Psi: The micro-displacement metric Psi
+         * \param &dPsidF: The jacobian of Psi w.r.t. the deformation gradient.
+         * \param &dPsidChi: The jacobian of Psi w.r.t. the micro-deformation.
+         */
+
+        const unsigned int dim = 3;
+        const unsigned int sot_dim = dim * dim;
+
+        variableVector _dPsidF;
+        variableVector _dPsidChi;
+
+        errorOut error = computePsi( deformationGradient, microDeformation, Psi, _dPsidF, _dPsidChi );
+
+        if (error){
+            errorOut result = new errorNode( "computePsi (jacobian)", "Error in the computation of Psi" );
+            result->addNext( error );
+            return result;
+        }
+
+        dPsidF   = tardigradeVectorTools::inflate( _dPsidF, sot_dim, sot_dim );
+        dPsidChi = tardigradeVectorTools::inflate( _dPsidChi, sot_dim, sot_dim );
+
+        return error;
+
+    }
+
+    errorOut computePsi( const variableVector &deformationGradient, const variableVector &microDeformation,
+                         variableVector &Psi, variableVector &dPsidF, variableVector &dPsidChi ){
+        /*!
+         * Computes the micromorphic quantity psi defined as:
+         * \f$\Psi_{IJ} = F_{i I} \Chi_{i J}\f$
+         *
+         * along with the jacobians
+         *
+         * \f$\frac{ \partial \Psi_{IJ} }{ \partial F_{k K} } = \delta_{I K} \Chi_{k J}\f$
+         * \f$\frac{ \partial \Psi_{IJ} }{ \partial \Chi_{k K} } = F_{k I} \delta_{J K}\f}
+         *
+         * \param &deformationGradient: The deformation gradient.
+         * \param &microDeformation: The micro-deformation.
+         * \param &Psi: The micro-displacement metric Psi
+         * \param &dPsidF: The jacobian of Psi w.r.t. the deformation gradient.
+         * \param &dPsidChi: The jacobian of Psi w.r.t. the micro-deformation.
          */
 
         //Assume 3d
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
 
         errorOut error = computePsi( deformationGradient, microDeformation, Psi );
 
@@ -72,15 +112,15 @@ namespace tardigradeMicromorphicTools{
         constantVector eye( dim * dim, 0 );
         tardigradeVectorTools::eye( eye );
 
-        dPsidF  = variableMatrix( Psi.size(), variableVector( deformationGradient.size(), 0 ) );
-        dPsidChi = variableMatrix( Psi.size(), variableVector( microDeformation.size(), 0 ) );
+        dPsidF   = variableVector( sot_dim * sot_dim, 0 );
+        dPsidChi = variableVector( sot_dim * sot_dim, 0 );
 
         for ( unsigned int I = 0; I < dim; I++ ){
             for ( unsigned int J = 0; J < dim; J++ ){
                 for ( unsigned int k = 0; k < dim; k++ ){
                     for ( unsigned int K = 0; K < dim; K++ ){
-                        dPsidF[ dim * I + J ][ dim * k + K ] = eye[ dim * I + K ] * microDeformation[ dim * k + J ];
-                        dPsidChi[ dim * I + J ][ dim * k + K ] = deformationGradient[ dim * k + I ] * eye[ dim * J + K ];
+                        dPsidF[ dim * sot_dim * I + sot_dim * J + dim * k + K ] = eye[ dim * I + K ] * microDeformation[ dim * k + J ];
+                        dPsidChi[ dim * sot_dim * I + sot_dim * J + dim * k + K ] = deformationGradient[ dim * k + I ] * eye[ dim * J + K ];
                     }
                 }
             }
@@ -93,26 +133,28 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the deformation metric Gamma:
          *
-         * Gamma_{IJK} = F_{iI} \Chi_{iJ,K}
+         * \f$ \Gamma_{IJK} = F_{iI} \Chi_{iJ,K}\f$
          *
-         * :param const variableVector &deformationGradient: The deformation gradient.
-         * :param const variableVector &gradChi: The gradient of the micro-deformation tensor
-         *     w.r.t. the reference configuration.
-         * :param variableVector &Gamma: The micromorphic deformation metric Gamma.
+         * \param &deformationGradient: The deformation gradient.
+         * \param &gradChi: The gradient of the micro-deformation tensor
+         * \   w.r.t. the reference configuration.
+         * \param &Gamma: The micromorphic deformation metric Gamma.
          */
 
         //Assume 3d
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
+        unsigned int tot_dim = sot_dim * dim;
 
-        if ( deformationGradient.size() != dim * dim ){
+        if ( deformationGradient.size() != sot_dim ){
             return new errorNode("computeGamma", "The deformation gradient isn't the right size");
         }
 
-        if ( gradChi.size() != dim * dim * dim ){
+        if ( gradChi.size() != tot_dim ){
             return new errorNode("computeGamma", "The micro-deformation gradient isn't the right size");
         }
 
-        Gamma = variableVector( dim * dim * dim, 0 );
+        Gamma = variableVector( tot_dim, 0 );
 
         for ( unsigned int I = 0; I < dim; I++ ){
             for ( unsigned int J = 0; J < dim; J++ ){
@@ -147,8 +189,52 @@ namespace tardigradeMicromorphicTools{
          *     configuration.
          */
 
+        unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
+        unsigned int tot_dim = sot_dim * dim;
+
+        variableVector _dGammadF;
+        variableVector _dGammadGradChi;
+
+        errorOut error = computeGamma( deformationGradient, gradChi, Gamma, _dGammadF, _dGammadGradChi );
+
+        if ( error ){
+            errorOut result = new errorNode("computeGamma (jacobian)", "Error in computation of Gamma");
+            result->addNext(error);
+            return result;
+        }
+
+        dGammadF       = tardigradeVectorTools::inflate( _dGammadF, tot_dim, sot_dim );
+        dGammadGradChi = tardigradeVectorTools::inflate( _dGammadGradChi, tot_dim, tot_dim ); 
+
+        return error;
+
+    }
+
+    errorOut computeGamma( const variableVector &deformationGradient, const variableVector &gradChi,
+                           variableVector &Gamma, variableVector &dGammadF, variableVector &dGammadGradChi ){
+        /*!
+         * Compute the deformation metric Gamma:
+         *
+         * \f$\Gamma_{IJK} = F_{iI} \Chi_{iJ,K}\f$
+         *
+         * Also return the Jacobians
+         * \f$\frac{ \partial Gamma_{IJK} }{ \partial F_{lL} } = \delta_{IL} \Chi_{lJ,K}\f
+         * \f$\frac{ \partial Gamma_{IJK} }{ \partial \Chi_{lL,M} } = F_{lI} \delta_{JL} \delta_{KM}\f
+         *
+         * \param const variableVector &deformationGradient: The deformation gradient.
+         * \param const variableVector &gradChi: The gradient of the micro-deformation tensor
+         *     w.r.t. the reference configuration.
+         * \param variableVector &Gamma: The micromorphic deformation metric Gamma.
+         * \param variableMatrix &dGammadF: The gradient of Gamma w.r.t. the deformation gradient.
+         * \param variableMatrix &dGammadGradChi: The gradient of Gamma w.r.t. the gradient of Chi in the reference 
+         *     configuration.
+         */
+
         //Assume 3d
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
+        unsigned int tot_dim = sot_dim * dim;
 
         errorOut error = computeGamma( deformationGradient, gradChi, Gamma );
 
@@ -158,10 +244,10 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        dGammadF      = variableMatrix( dim * dim * dim, variableVector( dim * dim, 0 ) );
-        dGammadGradChi = variableMatrix( dim * dim * dim, variableVector( dim * dim * dim, 0 ) );
+        dGammadF       = variableVector( tot_dim * sot_dim, 0 );
+        dGammadGradChi = variableVector( tot_dim * tot_dim, 0 );
 
-        constantVector eye( dim * dim, 0 );
+        constantVector eye( sot_dim, 0 );
         tardigradeVectorTools::eye( eye );
 
         for ( unsigned int I = 0; I < dim; I++ ){
@@ -169,10 +255,10 @@ namespace tardigradeMicromorphicTools{
                 for ( unsigned int K = 0; K < dim; K++ ){
                     for ( unsigned int l = 0; l < dim; l++ ){
                         for ( unsigned int L = 0; L < dim; L++ ){
-                            dGammadF[ dim * dim * I + dim * J + K ][ dim * l + L ] = eye[ dim * I + L ]
+                            dGammadF[ dim * dim * sot_dim * I + dim * sot_dim * J + sot_dim * K + dim * l + L ] = eye[ dim * I + L ]
                                                                                    * gradChi[ dim * dim * l + dim * J + K ];
                             for ( unsigned int M = 0; M < dim; M++ ){
-                                dGammadGradChi[ dim * dim * I + dim * J + K ][ dim * dim * l + dim * L + M ] = deformationGradient[ dim * l + I ]
+                                dGammadGradChi[ dim * dim * tot_dim * I + dim * tot_dim * J + tot_dim * K + dim * dim * l + dim * L + M ] = deformationGradient[ dim * l + I ]
                                                                                                             * eye[ dim * J + L ] 
                                                                                                             * eye[ dim * K + M ];
                             }
@@ -3493,46 +3579,44 @@ namespace tardigradeMicromorphicTools{
         return NULL;
     }
 
-    errorOut assembleDeformationGradient( const variableMatrix &displacementGradient, variableVector &deformationGradient ){
+    errorOut assembleDeformationGradient( const variableVector &displacementGradient, variableVector &deformationGradient ){
         /*!
          * Assemble the deformation gradient from the gradient of the displacement.
          *
-         * :param const variableMatrix &displacementGradient: The gradient of the displacement.
-         * :param variableVector &deformationGradient: The deformation gradient.
+         * \param &displacementGradient: The gradient of the displacement.
+         * \param &deformationGradient: The deformation gradient.
          */
 
         //Assume 3D
-        unsigned int dim = 3;
+        const unsigned int dim = 3;
+        const unsigned int sot_dim = dim * dim;
 
-        if ( displacementGradient.size() != dim ){
+        if ( displacementGradient.size() != dim * dim ){
             return new errorNode( "assembleDeformationGradient",
                                   "The gradient of the deformation is not 3D" );
         }
 
-        for ( unsigned int i = 0; i < dim; i++ ){
-            if ( displacementGradient[ i ].size() != dim ){
-                return new errorNode( "assembleDeformationGradient",
-                                      "The gradient of the deformation is not a regular matrix" );
-            }
-        }
+        variableVector eye( sot_dim );
+        tardigradeVectorTools::eye( eye );
 
-        deformationGradient = tardigradeVectorTools::appendVectors( displacementGradient + tardigradeVectorTools::eye< variableType >( dim ) );
+        deformationGradient = displacementGradient + eye;
 
         return NULL;
     }
 
-    errorOut assembleDeformationGradient( const variableMatrix &displacementGradient, variableVector &deformationGradient,
-                                          variableMatrix &dFdGradU ){
+    errorOut assembleDeformationGradient( const variableVector &displacementGradient, variableVector &deformationGradient,
+                                          variableVector &dFdGradU ){
         /*!
          * Assemble the deformation gradient from the gradient of the displacement.
          *
-         * :param const variableMatrix &displacementGradient: The gradient of the displacement.
-         * :param variableVector &deformationGradient: The deformation gradient.
-         * :param variableMatrix &dFdGradU: The Jacobian of the deformation gradient w.r.t. the displacement gradient.
+         * \param &displacementGradient: The gradient of the displacement.
+         * \param &deformationGradient: The deformation gradient.
+         * \param &dFdGradU: The Jacobian of the deformation gradient w.r.t. the displacement gradient.
          */
 
         //Assume 3D
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
 
         errorOut error = assembleDeformationGradient( displacementGradient, deformationGradient );
 
@@ -3543,7 +3627,8 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        dFdGradU = tardigradeVectorTools::eye< variableType >( dim * dim );
+        dFdGradU = variableVector( sot_dim * sot_dim, 0 );
+        tardigradeVectorTools::eye( dFdGradU );
 
         return NULL;
     }
@@ -3552,19 +3637,20 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Assemble the micro deformation from the micro displacement
          *
-         * :param const variableVector &microDisplacement: The micro degrees of freedom.
-         * :param variableVector &microDeformation: The micro deformation.
+         * \param &microDisplacement: The micro degrees of freedom.
+         * \param &microDeformation: The micro deformation.
          */
 
         //Assume 3D
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
 
-        if ( microDisplacement.size() != dim * dim ){
+        if ( microDisplacement.size() != sot_dim ){
             return new errorNode( "assembleMicroDeformation",
                                   "The micro degrees of freedom must be 3D" );
         }
 
-        constantVector eye( dim * dim );
+        constantVector eye( sot_dim );
         tardigradeVectorTools::eye( eye );
 
         microDeformation = microDisplacement + eye;
@@ -3573,17 +3659,18 @@ namespace tardigradeMicromorphicTools{
     }
 
     errorOut assembleMicroDeformation( const variableVector &microDisplacement, variableVector &microDeformation,
-                                       variableMatrix &dChidPhi ){
+                                       variableVector &dChidPhi ){
         /*!
          * Assemble the micro deformation from the micro displacement
          *
-         * :param const variableVector &microDisplacement: The micro degrees of freedom.
-         * :param variableVector &microDeformation: The micro deformation.
-         * :param variableMatrix &dChidPhi: The Jacobian of the micro deformation w.r.t. the micro displacement
+         * \param &microDisplacement: The micro degrees of freedom.
+         * \param &microDeformation: The micro deformation.
+         * \param &dChidPhi: The Jacobian of the micro deformation w.r.t. the micro displacement
          */
 
         //Assume 3D
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
 
         errorOut error = assembleMicroDeformation( microDisplacement, microDeformation );
 
@@ -3594,52 +3681,39 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        dChidPhi = tardigradeVectorTools::eye< variableType >( dim * dim );
+        dChidPhi = variableVector( sot_dim * sot_dim, 0 );
+        tardigradeVectorTools::eye( dChidPhi );
 
         return NULL;
     }
 
-    errorOut assembleGradientMicroDeformation( const variableMatrix &gradientMicroDisplacement,
+    errorOut assembleGradientMicroDeformation( const variableVector &gradientMicroDisplacement,
                                                variableVector &gradientMicroDeformation ){
         /*!
          * Assemble the gradient of the micro deformation from the gradient of the micro displacement
          * in the reference configuration
          *
-         * :param const variableVector &gradientMicroDisplacement: The gradient of the micro displacement
-         * :param variableVector &gradientMicroDeformation: The gradient of the micro deformation.
+         * \param &gradientMicroDisplacement: The gradient of the micro displacement
+         * \param &gradientMicroDeformation: The gradient of the micro deformation.
          */
 
         //Assume 3D
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
 
-        if ( gradientMicroDisplacement.size() != dim * dim ){
+        if ( gradientMicroDisplacement.size() != sot_dim * dim ){
             return new errorNode( "assembleGradientMicroDeformation",
                                   "The gradient of the micro displacement must be 3D" );
         }
 
-        for ( unsigned int i = 0; i < dim; i++ ){
-            if ( gradientMicroDisplacement[ i ].size() != dim ){
-                return new errorNode( "assembleGradientMicroDeformation",
-                                      "The gradient of the micro displacement must be 3D" );
-            }
-        }
-
-        gradientMicroDeformation = variableVector( dim * dim * dim, 0 );
-
-        for ( unsigned int i = 0; i < dim; i++ ){
-            for ( unsigned int I = 0; I < dim; I++ ){
-                for ( unsigned int J = 0; J < dim; J++ ){
-                    gradientMicroDeformation[ dim * dim * i + dim * I + J ] = gradientMicroDisplacement[ dim * i + I ][ J ];
-                }
-            }
-        }
+        gradientMicroDeformation = gradientMicroDisplacement;
 
         return NULL;
     } 
 
-    errorOut assembleGradientMicroDeformation( const variableMatrix &gradientMicroDisplacement,
+    errorOut assembleGradientMicroDeformation( const variableVector &gradientMicroDisplacement,
                                                variableVector &gradientMicroDeformation,
-                                               variableMatrix &dGradChidGradPhi ){
+                                               variableVector &dGradChidGradPhi ){
         /*!
          * Assemble the gradient of the micro deformation from the gradient of the micro displacement
          * in the reference configuration
@@ -3652,6 +3726,8 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3D
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
+        unsigned int tot_dim = sot_dim * dim;
 
         errorOut error = assembleGradientMicroDeformation( gradientMicroDisplacement, gradientMicroDeformation );
 
@@ -3662,7 +3738,8 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
         
-        dGradChidGradPhi = tardigradeVectorTools::eye< variableType >( dim * dim * dim );
+        dGradChidGradPhi = variableVector( tot_dim * tot_dim, 0 );
+        tardigradeVectorTools::eye( dGradChidGradPhi );
 
         return NULL;
     }

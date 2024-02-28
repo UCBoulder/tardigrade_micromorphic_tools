@@ -37,10 +37,16 @@ namespace tardigradeMicromorphicTools{
                          variableVector &Psi );
 
     errorOut computePsi( const variableVector &deformationGradient, const variableVector &microDeformation,
+                         variableVector &Psi, variableVector &dPsidF, variableVector &dPsidChi );
+
+    errorOut computePsi( const variableVector &deformationGradient, const variableVector &microDeformation,
                          variableVector &Psi, variableMatrix &dPsidF, variableMatrix &dPsidChi );
 
     errorOut computeGamma( const variableVector &deformationGradient, const variableVector &gradChi,
                            variableVector &Gamma );
+
+    errorOut computeGamma( const variableVector &deformationGradient, const variableVector &gradChi,
+                           variableVector &Gamma, variableVector &dGammadF, variableVector &dGammadGradChi );
 
     errorOut computeGamma( const variableVector &deformationGradient, const variableVector &gradChi,
                            variableVector &Gamma, variableMatrix &dGammadF, variableMatrix &dGammadGradChi );
@@ -436,21 +442,21 @@ namespace tardigradeMicromorphicTools{
                                            variableMatrix &d2HigherOrderStressNormdHigherOrderStress2,
                                            double tol = 1e-9 );
 
-    errorOut assembleDeformationGradient( const variableMatrix &displacementGradient, variableVector &deformationGradient );
+    errorOut assembleDeformationGradient( const variableVector &displacementGradient, variableVector &deformationGradient );
 
-    errorOut assembleDeformationGradient( const variableMatrix &displacementGradient, variableVector &deformationGradient,
-                                          variableMatrix &dFdGradU );
+    errorOut assembleDeformationGradient( const variableVector &displacementGradient, variableVector &deformationGradient,
+                                          variableVector &dFdGradU );
 
     errorOut assembleMicroDeformation( const variableVector &microDisplacement, variableVector &microDeformation );
 
     errorOut assembleMicroDeformation( const variableVector &microDisplacement, variableVector &microDeformation,
-                                       variableMatrix &dChidPhi );
+                                       variableVector &dChidPhi );
 
-    errorOut assembleGradientMicroDeformation( const variableMatrix &gradientMicroDisplacement,
+    errorOut assembleGradientMicroDeformation( const variableVector &gradientMicroDisplacement,
                                                variableVector &gradientMicroDeformation );
 
-    errorOut assembleGradientMicroDeformation( const variableMatrix &gradientMicroDisplacement,
-                                               variableVector &gradientMicroDeformation, variableMatrix &dGradChidGradPhi );
+    errorOut assembleGradientMicroDeformation( const variableVector &gradientMicroDisplacement,
+                                               variableVector &gradientMicroDeformation, variableVector &dGradChidGradPhi );
 }
 
 #endif
