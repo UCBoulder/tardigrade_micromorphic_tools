@@ -37,10 +37,16 @@ namespace tardigradeMicromorphicTools{
                          variableVector &Psi );
 
     errorOut computePsi( const variableVector &deformationGradient, const variableVector &microDeformation,
+                         variableVector &Psi, variableVector &dPsidF, variableVector &dPsidChi );
+
+    errorOut computePsi( const variableVector &deformationGradient, const variableVector &microDeformation,
                          variableVector &Psi, variableMatrix &dPsidF, variableMatrix &dPsidChi );
 
     errorOut computeGamma( const variableVector &deformationGradient, const variableVector &gradChi,
                            variableVector &Gamma );
+
+    errorOut computeGamma( const variableVector &deformationGradient, const variableVector &gradChi,
+                           variableVector &Gamma, variableVector &dGammadF, variableVector &dGammadGradChi );
 
     errorOut computeGamma( const variableVector &deformationGradient, const variableVector &gradChi,
                            variableVector &Gamma, variableMatrix &dGammadF, variableMatrix &dGammadGradChi );
