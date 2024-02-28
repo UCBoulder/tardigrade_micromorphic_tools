@@ -678,9 +678,13 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceHigherOrderStress ){
     BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ, answer ) );
 
     variableVector resultJP;
-    variableMatrix dDevMdMP, dDevMdCP;
+    variableVector _dDevMdMP, _dDevMdCP;
 
-    error = tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C, pressure, dpdM, dpdC, resultJP, dDevMdMP, dDevMdCP );
+    error = tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C, pressure, tardigradeVectorTools::appendVectors( dpdM ),
+                                                                                      tardigradeVectorTools::appendVectors( dpdC ), resultJP, _dDevMdMP, _dDevMdCP );
+
+    variableMatrix dDevMdMP = tardigradeVectorTools::inflate( _dDevMdMP, 27, 27 );
+    variableMatrix dDevMdCP = tardigradeVectorTools::inflate( _dDevMdCP, 27,  9 );
 
     BOOST_CHECK( !error );
 
@@ -696,10 +700,16 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceHigherOrderStress ){
     BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ, answer ) );
 
     variableVector resultJ2P;
-    variableMatrix dDevMdMJ2P, dDevMdCJ2P, d2DevMdMdCP;
+    variableVector _dDevMdMJ2P, _dDevMdCJ2P, _d2DevMdMdCP;
 
-    error = tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C, pressure, dpdM, dpdC, d2pdMdC,
-                                                                            resultJ2P, dDevMdMJ2P, dDevMdCJ2P, d2DevMdMdCP );
+    error = tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C, pressure, tardigradeVectorTools::appendVectors( dpdM ),
+                                                                                      tardigradeVectorTools::appendVectors( dpdC ),
+                                                                                      tardigradeVectorTools::appendVectors( d2pdMdC ),
+                                                                                      resultJ2P, _dDevMdMJ2P, _dDevMdCJ2P, _d2DevMdMdCP );
+
+    variableMatrix dDevMdMJ2P  = tardigradeVectorTools::inflate( _dDevMdMJ2P,  27,  27 );
+    variableMatrix dDevMdCJ2P  = tardigradeVectorTools::inflate( _dDevMdCJ2P,  27,   9 );
+    variableMatrix d2DevMdMdCP = tardigradeVectorTools::inflate( _d2DevMdMdCP, 27, 243 );
 
     BOOST_CHECK( !error );
 
@@ -1065,10 +1075,13 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceSecondOrderStress ){
     BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ, answer ) );
 
     variableVector resultJP;
-    variableMatrix dDevSdSJP, dDevSdCJP;
+    variableVector _dDevSdSJP, _dDevSdCJP;
 
     error = tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C, pressure, dpdS, dpdC, 
-                                                                            resultJP, dDevSdSJP, dDevSdCJP );
+                                                                            resultJP, _dDevSdSJP, _dDevSdCJP );
+
+    variableMatrix dDevSdSJP = tardigradeVectorTools::inflate( _dDevSdSJP, 9, 9 );
+    variableMatrix dDevSdCJP = tardigradeVectorTools::inflate( _dDevSdCJP, 9, 9 );
 
     BOOST_CHECK( !error );
 
@@ -1084,10 +1097,14 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceSecondOrderStress ){
     BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ2, answer ) );
 
     variableVector resultJ2P;
-    variableMatrix dDevSdSJ2P, dDevSdCJ2P, d2DevSdSdCP;
+    variableVector _dDevSdSJ2P, _dDevSdCJ2P, _d2DevSdSdCP;
 
-    error = tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C, pressure, dpdS, dpdC, d2pdSdC,
-                                                                            resultJ2P, dDevSdSJ2P, dDevSdCJ2P, d2DevSdSdCP );
+    error = tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C, pressure, dpdS, dpdC, tardigradeVectorTools::appendVectors( d2pdSdC ),
+                                                                            resultJ2P, _dDevSdSJ2P, _dDevSdCJ2P, _d2DevSdSdCP );
+
+    variableMatrix dDevSdSJ2P  = tardigradeVectorTools::inflate( _dDevSdSJ2P, 9,   9 );
+    variableMatrix dDevSdCJ2P  = tardigradeVectorTools::inflate( _dDevSdCJ2P, 9,   9 );
+    variableMatrix d2DevSdSdCP = tardigradeVectorTools::inflate( _d2DevSdSdCP, 9, 81 );
 
     BOOST_CHECK( !error );
 

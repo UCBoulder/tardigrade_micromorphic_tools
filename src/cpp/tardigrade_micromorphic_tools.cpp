@@ -269,6 +269,49 @@ namespace tardigradeMicromorphicTools{
     errorOut pushForwardPK2Stress( const variableVector &PK2Stress,
                                    const variableVector &deformationGradient,
                                    variableVector &cauchyStress,
+                                   variableVector &dCauchyStressdPK2Stress,
+                                   variableVector &dCauchyStressdDeformationGradient ){
+        /*!
+         * Push forward the PK2 stress in the reference configuration to the 
+         * configuration indicated by the deformation gradient.
+         *
+         * \sigma_{ij} = (1 / J ) F_{iI} S_{IJ} F_{jJ}
+         *
+         * Also computes the jacobians:
+         * \frac{ \partial \cauchy_{ij} }{\partial \Sigma_{KL} } = ( 1 / J ) F_{iK} F_{jL}
+         * \frac{ \partial \cauchy_{ij} }{\partial F_{kK} } = ( \delta_{i k} \delta_{I K} S_{I J} F_{j J}
+         *                                                  + F_{i I} S_{I J} \delta_{j k} \delta_{J K}
+         *                                                  - \cauchy_{i j} dDetFdF_{kK} ) / J
+         *
+         * \param &referenceMicroStress: The PK2 stress in the 
+         *     reference configuration.
+         * \param &deformationGradient: The deformation gradient 
+         *     mapping between configurations.
+         * \param variableVector &cauchyStress: The Cauchy stress in the current 
+         *     configuration.
+         * \param &dCauchyStressdReferenceMicroStress: The jacobian of 
+         *     the Cauchy w.r.t. the PK2 tress in the reference configuration.
+         * \param &dCauchyStressdDeformationGradient: The jacobian of 
+         *     the Cauchy stress w.r.t. the deformation gradient.
+         */
+
+        errorOut error = pushForwardReferenceMicroStress( PK2Stress, deformationGradient, cauchyStress,
+                                                          dCauchyStressdPK2Stress,
+                                                          dCauchyStressdDeformationGradient );
+
+        if ( error ){
+            errorOut result = new errorNode( "pushForwardPK2Stress (jacobian)",
+                                             "Error in push-forward operation (micro-stress and PK2 are identical)" );
+            result->addNext( error );
+            return result;
+        }
+        return NULL;
+    }
+
+
+    errorOut pushForwardPK2Stress( const variableVector &PK2Stress,
+                                   const variableVector &deformationGradient,
+                                   variableVector &cauchyStress,
                                    variableMatrix &dCauchyStressdPK2Stress,
                                    variableMatrix &dCauchyStressdDeformationGradient ){
         /*!
@@ -334,6 +377,41 @@ namespace tardigradeMicromorphicTools{
         }
         return NULL;
     }
+
+    errorOut pullBackCauchyStress( const variableVector &cauchyStress,
+                                   const variableVector &deformationGradient,
+                                   variableVector &PK2Stress, variableVector &dPK2StressdCauchyStress,
+                                   variableVector &dPK2StressdDeformationGradient ){
+        /*!
+         * Pull back the Cauchy stress in the configuration indicated by the deformation gradient
+         * to the PK2 stress.
+         *
+         * S_{IJ} = J F_{Ii}^{-1} \sigma_{ij} F_{Jj}^{-1}
+         *
+         * Also computes the Jacobians
+         *
+         * \frac{ \partial S_{IJ} }{ \partial \sigma_{kl} } = J F_{Ik}^{-1} F_{Jl}^{-1}
+         * \frac{ \partial S_{IJ} }{ \partial F_{kK} } = F_{Kk}^{-1} S_{IJ} - F_{Ik}^{-1} S_{KJ} - S_{IK} F_{Jk}^{-1}
+         *
+         * \param &cauchyStress: The Cauchy stress in the current configuration of
+         *     the provided deformation gradient.
+         * \param &deformationGradient: The deformation gradient mapping between the 
+         *     reference configuration and the current configuration.
+         * \param &PK2Stress: The PK2 stress in the reference configuration.
+         */
+
+        errorOut error = pullBackMicroStress( cauchyStress, deformationGradient, PK2Stress,
+                                              dPK2StressdCauchyStress, dPK2StressdDeformationGradient );
+
+        if ( error ){
+            errorOut result = new errorNode( "pullBackCauchyStress (jacobian)",
+                                             "Error in pull-back operation (micro-stress and Cauchy stress are identical)" );
+            result->addNext( error );
+            return result;
+        }
+        return NULL;
+    }
+
 
     errorOut pullBackCauchyStress( const variableVector &cauchyStress,
                                    const variableVector &deformationGradient,
@@ -425,18 +503,9 @@ namespace tardigradeMicromorphicTools{
 
         detF = tardigradeVectorTools::determinant( deformationGradient, dim, dim );
 
-        for ( unsigned int i = 0; i < dim; i++ ){
-            for ( unsigned int j = 0; j < dim; j++ ){
-                for ( unsigned int I = 0; I < dim; I++ ){
-                    for ( unsigned int J = 0; J < dim; J++ ){
-                        microStress[ dim * i + j ] += deformationGradient[ dim * i + I ]
-                                                    * referenceMicroStress[ dim * I + J ]
-                                                    * deformationGradient[ dim * j + J ];
-                    }
-                }
-                microStress[ dim * i + j ] /= detF;
-            }
-        }
+        microStress = tardigradeVectorTools::matrixMultiply( deformationGradient, referenceMicroStress, dim, dim, dim, dim );
+        microStress = tardigradeVectorTools::matrixMultiply( microStress, deformationGradient, dim, dim, dim, dim, false, true );
+        microStress /= detF;
 
         return NULL;
     }
@@ -458,20 +527,69 @@ namespace tardigradeMicromorphicTools{
          *                                              + F_{i I} \Sigma_{I J} \delta_{j k} \delta_{J K}
          *                                              - s_{i j} dDetFdF_{kK} ) / J
          *
-         * :param const variableVector &referenceMicroStress: The micro-stress in the 
+         * \param &referenceMicroStress: The micro-stress in the 
          *     reference configuration.
-         * :param const variableVector &deformationGradient: The deformation gradient 
+         * \param deformationGradient: The deformation gradient 
          *     mapping between configurations.
-         * :param variableVector &microStress: The micro-stress in the current 
+         * \param microStress: The micro-stress in the current 
          *     configuration.
-         * :param variableMatrix &dmicroStressdReferenceMicroStress: The jacobian of 
+         * \param dmicroStressdReferenceMicroStress: The jacobian of 
          *     the micro-stress w.r.t. the micro-stress in the reference configuration.
-         * :param variableMatrix &dmicroSTressdDeformationGradient: The jacobian of 
+         * \param dmicroStressdDeformationGradient: The jacobian of 
+         *     the micro-stress w.r.t. the deformation gradient.
+         */
+
+        variableVector _dMicroStressdReferenceMicroStress;
+        variableVector _dMicroStressdDeformationGradient;
+
+        errorOut error = pushForwardReferenceMicroStress( referenceMicroStress, deformationGradient,
+                                                          microStress, _dMicroStressdReferenceMicroStress,
+                                                          _dMicroStressdDeformationGradient );
+
+        if (error){
+            errorOut result = new errorNode( "pushForwardReferenceMicroStress (jacobian)", "Error in computation of push forward of micro-stress" );
+            result->addNext(error);
+            return result;
+        }
+
+        dMicroStressdReferenceMicroStress = tardigradeVectorTools::inflate( _dMicroStressdReferenceMicroStress, 9, 9 );
+        dMicroStressdDeformationGradient  = tardigradeVectorTools::inflate( _dMicroStressdDeformationGradient, 9, 9 );
+
+        return error;
+
+    }
+    errorOut pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
+                                              const variableVector &deformationGradient,
+                                              variableVector &microStress,
+                                              variableVector &dMicroStressdReferenceMicroStress,
+                                              variableVector &dMicroStressdDeformationGradient ){
+        /*!
+         * Push forward the micro-stress in the reference configuration to the 
+         * configuration indicated by the deformation gradient.
+         *
+         * s_{ij} = (1 / J ) F_{iI} \Sigma_{IJ} F_{jJ}
+         *
+         * Also computes the jacobians:
+         * \frac{ \partial s_{ij} }{\partial \Sigma_{KL} } = ( 1 / J ) F_{iK} F_{jL}
+         * \frac{ \partial s_{ij} }{\partial F_{kK} } = ( \delta_{i k} \delta_{I K} \Sigma_{I J} F_{j J}
+         *                                              + F_{i I} \Sigma_{I J} \delta_{j k} \delta_{J K}
+         *                                              - s_{i j} dDetFdF_{kK} ) / J
+         *
+         * \param &referenceMicroStress: The micro-stress in the 
+         *     reference configuration.
+         * \param deformationGradient: The deformation gradient 
+         *     mapping between configurations.
+         * \param microStress: The micro-stress in the current 
+         *     configuration.
+         * \param dmicroStressdReferenceMicroStress: The jacobian of 
+         *     the micro-stress w.r.t. the micro-stress in the reference configuration.
+         * \param dmicroStressdDeformationGradient: The jacobian of 
          *     the micro-stress w.r.t. the deformation gradient.
          */
 
         //Assume 3d
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
 
         variableType detF;
         errorOut error = pushForwardReferenceMicroStress( referenceMicroStress, deformationGradient,
@@ -495,8 +613,8 @@ namespace tardigradeMicromorphicTools{
         }
 
         //Assemble the jacobians
-        dMicroStressdReferenceMicroStress = variableMatrix( microStress.size(), variableVector( referenceMicroStress.size(), 0 ) );
-        dMicroStressdDeformationGradient = variableMatrix( microStress.size(), variableVector( deformationGradient.size(), 0 ) );
+        dMicroStressdReferenceMicroStress = variableVector( sot_dim * sot_dim, 0 );
+        dMicroStressdDeformationGradient  = variableVector( sot_dim * sot_dim, 0 );
 
         constantVector eye( dim * dim );
         tardigradeVectorTools::eye( eye );
@@ -505,17 +623,17 @@ namespace tardigradeMicromorphicTools{
             for ( unsigned int j = 0; j < dim; j++ ){
                 for ( unsigned int k = 0; k < dim; k++ ){
                     for ( unsigned int K = 0; K < dim; K++ ){
-                        dMicroStressdReferenceMicroStress[ dim * i + j ][ dim * k + K ] = deformationGradient[ dim * i + k ]
-                                                                                        * deformationGradient[ dim * j + K ] / detF;
+                        dMicroStressdReferenceMicroStress[ dim * sot_dim * i + sot_dim * j + dim * k + K ] = deformationGradient[ dim * i + k ]
+                                                                                                           * deformationGradient[ dim * j + K ] / detF;
                         
                         for ( unsigned int I = 0; I < dim; I++ ){
 
-                            dMicroStressdDeformationGradient[ dim * i + j ][ dim * k + K] += eye[ dim * i + k ] * referenceMicroStress[ dim * K + I ] * deformationGradient[ dim * j + I ]
-                                                                                          + deformationGradient[ dim * i + I ] * referenceMicroStress[ dim * I + K ] * eye[ dim * j + k ];
+                            dMicroStressdDeformationGradient[ dim * sot_dim * i + sot_dim * j + dim * k + K] += eye[ dim * i + k ] * referenceMicroStress[ dim * K + I ] * deformationGradient[ dim * j + I ]
+                                                                                                              + deformationGradient[ dim * i + I ] * referenceMicroStress[ dim * I + K ] * eye[ dim * j + k ];
                         }
 
-                        dMicroStressdDeformationGradient[ dim * i + j ][ dim * k + K] -= microStress[ dim * i + j ] * dDetFdF[ dim * k + K ];
-                        dMicroStressdDeformationGradient[ dim * i + j ][ dim * k + K] /= detF; 
+                        dMicroStressdDeformationGradient[ dim * sot_dim * i + sot_dim * j + dim * k + K] -= microStress[ dim * i + j ] * dDetFdF[ dim * k + K ];
+                        dMicroStressdDeformationGradient[ dim * sot_dim * i + sot_dim * j + dim * k + K] /= detF; 
                     }
                 }
             }
@@ -627,8 +745,57 @@ namespace tardigradeMicromorphicTools{
          *     the reference micro-stress w.r.t. the deformation gradient.
          */
 
+        variableVector _dReferenceMicroStressdMicroStress;
+        variableVector _dReferenceMicroStressdDeformationGradient;
+
+        errorOut error = pullBackMicroStress( microStress, deformationGradient,
+                                              referenceMicroStress, _dReferenceMicroStressdMicroStress,
+                                              _dReferenceMicroStressdDeformationGradient );
+
+        if (error){
+            errorOut result = new errorNode( "pullBackMicroStress (jacobian)", "Error in computation of pull back of micro-stress" );
+            result->addNext(error);
+            return result;
+        }
+
+        dReferenceMicroStressdMicroStress = tardigradeVectorTools::inflate( _dReferenceMicroStressdMicroStress, 9, 9 );
+        dReferenceMicroStressdDeformationGradient  = tardigradeVectorTools::inflate( _dReferenceMicroStressdDeformationGradient, 9, 9 );
+
+        return error;
+
+
+    }
+
+    errorOut pullBackMicroStress( const variableVector &microStress,
+                                  const variableVector &deformationGradient,
+                                  variableVector &referenceMicroStress,
+                                  variableVector &dReferenceMicroStressdMicroStress,
+                                  variableVector &dReferenceMicroStressdDeformationGradient ){
+        /*!
+         * Push forward the micro-stress in the reference configuration to the 
+         * configuration indicated by the deformation gradient.
+         *
+         * \Sigma_{IJ} = J F_{Ii}^{-1} s_{IJ} F_{Jj}^{-1}
+         *
+         * Also computes the jacobians:
+         * \frac{ \partial \Sigma_{IJ} }{ \partial s_{kl} } = J F_{Ik}^{-1} F_{Jl}^{-1}
+         * \frac{ \partial \Sigma_{IJ} }{ \partial F_{kK} } = F_{Kk}^{-1} \Sigma_{IJ} - F_{Ik}^{-1} \Sigma_{KJ} - \Sigma_{IK} F_{Jk}^{-1}
+         *
+         * :param const variableVector &microStress: The micro-stress in the current 
+         *     configuration.
+         * :param const variableVector &deformationGradient: The deformation gradient 
+         *     mapping between configurations.
+         * :param variableVector &referenceMicroStress: The micro-stress in the 
+         *     reference configuration.
+         * :param variableMatrix &dReferenceMicroStressdMicroStress: The jacobian of 
+         *     the reference micro-stress w.r.t. the micro-stress in the reference configuration.
+         * :param variableMatrix &dReferenceMicroStressdDeformationGradient: The jacobian of 
+         *     the reference micro-stress w.r.t. the deformation gradient.
+         */
+
         //Assume 3d
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
 
         variableType detF;
         variableVector inverseDeformationGradient;
@@ -651,19 +818,19 @@ namespace tardigradeMicromorphicTools{
         }
 
         //Assemble the jacobians
-        dReferenceMicroStressdMicroStress = variableMatrix( referenceMicroStress.size(), variableVector( microStress.size(), 0 ) );
-        dReferenceMicroStressdDeformationGradient = variableMatrix( referenceMicroStress.size(), variableVector( deformationGradient.size(), 0 ) );
+        dReferenceMicroStressdMicroStress = variableVector( sot_dim * sot_dim, 0 );
+        dReferenceMicroStressdDeformationGradient = variableVector( sot_dim * sot_dim, 0 );
 
-        constantVector eye( dim * dim );
+        constantVector eye( sot_dim );
         tardigradeVectorTools::eye( eye );
 
         for ( unsigned int I = 0; I < dim; I++ ){
             for ( unsigned int J = 0; J < dim; J++ ){
                 for ( unsigned int k = 0; k < dim; k++ ){
                     for ( unsigned int K = 0; K < dim; K++ ){
-                        dReferenceMicroStressdMicroStress[ dim * I + J ][ dim * k + K ]
+                        dReferenceMicroStressdMicroStress[ dim * sot_dim * I + sot_dim * J + dim * k + K ]
                             = detF * inverseDeformationGradient[ dim * I + k ] * inverseDeformationGradient[ dim * J + K ];
-                        dReferenceMicroStressdDeformationGradient[ dim * I + J ][ dim * k + K ]
+                        dReferenceMicroStressdDeformationGradient[ dim * sot_dim * I + sot_dim * J + dim * k + K ]
                             = inverseDeformationGradient[ dim * K + k ] * referenceMicroStress[ dim * I + J ]
                             - inverseDeformationGradient[ dim * I + k ] * referenceMicroStress[ dim * K + J ]
                             - inverseDeformationGradient[ dim * J + k ] * referenceMicroStress[ dim * I + K ];
@@ -776,16 +943,77 @@ namespace tardigradeMicromorphicTools{
          *                                                     - m_{ijk} dDetFdF_{lM} \right)/J
          * \frac{ \partial m_{ijk} }{ \partial \Chi_{lM} } = \frac{1}{J} F_{iN} F_{jO} \delta_{kl} M_{NOM}
          *
-         * :param const variableVector &referenceHigherOrderStress: The higher order stress in the 
+         * \param &referenceHigherOrderStress: The higher order stress in the 
          *     reference configuration.
-         * :param const variableVector &deformationGradient: The deformation gradient which maps 
+         * \param &deformationGradient: The deformation gradient which maps 
          *     between the reference and current configurations.
-         * :param const variableVector &microDeformation: The micro-deformation tensor.
-         * :param variableVector &higherOrderStress: The higher order stress in the current configuration.
+         * \param &microDeformation: The micro-deformation tensor.
+         * \param &higherOrderStress: The higher order stress in the current configuration.
+         * \param &dHigherOrderStressdReferenceHigherOrderStress: The Jacobian of the higher order stress w.r.t. the reference higher order stress
+         * \param &dHigherOrderStressdDeformationGradient: The Jacobian of the higher order stress w.r.t. the deformation gradient
+         * \param &dHigherOrderStressdMicroDeformation: The Jacobian of the higher order stress w.r.t. the micro deformation
+         */
+
+        variableVector _dHigherOrderStressdReferenceHigherOrderStress;
+        variableVector _dHigherOrderStressdDeformationGradient;
+        variableVector _dHigherOrderStressdMicroDeformation;
+
+        errorOut error = pushForwardHigherOrderStress( referenceHigherOrderStress,
+                                                       deformationGradient,
+                                                       microDeformation,
+                                                       higherOrderStress,
+                                                       _dHigherOrderStressdReferenceHigherOrderStress,
+                                                       _dHigherOrderStressdDeformationGradient,
+                                                       _dHigherOrderStressdMicroDeformation );
+
+        if (error){
+            errorOut result = new errorNode( "pushForwardHigherOrderStress (jacobian)", "Error in computation of push forward of the higher order stress" );
+            result->addNext(error);
+            return result;
+        }
+
+        dHigherOrderStressdReferenceHigherOrderStress = tardigradeVectorTools::inflate( _dHigherOrderStressdReferenceHigherOrderStress , 27, 27 );
+        dHigherOrderStressdDeformationGradient        = tardigradeVectorTools::inflate( _dHigherOrderStressdDeformationGradient        , 27,  9 );
+        dHigherOrderStressdMicroDeformation           = tardigradeVectorTools::inflate( _dHigherOrderStressdMicroDeformation           , 27,  9 );
+
+        return error;
+
+    }
+    errorOut pushForwardHigherOrderStress( const variableVector &referenceHigherOrderStress,
+                                           const variableVector &deformationGradient,
+                                           const variableVector &microDeformation,
+                                           variableVector &higherOrderStress,
+                                           variableVector &dHigherOrderStressdReferenceHigherOrderStress,
+                                           variableVector &dHigherOrderStressdDeformationGradient,
+                                           variableVector &dHigherOrderStressdMicroDeformation ){
+        /*!
+         * Compute the push-forward operation on the higher order stress.
+         *
+         * m_{ijk} = \frac{1}{J} F_{iI} F_{jJ} \Chi_{kK} M_{IJK}
+         *
+         * Also returns the Jacobians
+         *
+         * \frac{ \partial m_{ijk} }{ \partial M_{LMN} } = \frac{1}{J} F_{iL} F_{jM} \Chi_{kN}
+         * \frac{ \partial m_{ijk} }{ \partial F_{lM} } = \left( \delta_{il} F_{jN} \Chi_{kO} M_{MNO}
+         *                                                     + F_{iN} \delta_{jl} \Chi_{kO} M_{NMO}
+         *                                                     - m_{ijk} dDetFdF_{lM} \right)/J
+         * \frac{ \partial m_{ijk} }{ \partial \Chi_{lM} } = \frac{1}{J} F_{iN} F_{jO} \delta_{kl} M_{NOM}
+         *
+         * \param &referenceHigherOrderStress: The higher order stress in the 
+         *     reference configuration.
+         * \param &deformationGradient: The deformation gradient which maps 
+         *     between the reference and current configurations.
+         * \param &microDeformation: The micro-deformation tensor.
+         * \param &higherOrderStress: The higher order stress in the current configuration.
+         * \param &dHigherOrderStressdReferenceHigherOrderStress: The Jacobian of the higher order stress w.r.t. the reference higher order stress
+         * \param &dHigherOrderStressdDeformationGradient: The Jacobian of the higher order stress w.r.t. the deformation gradient
+         * \param &dHigherOrderStressdMicroDeformation: The Jacobian of the higher order stress w.r.t. the micro deformation
          */
 
         //Assume 3d
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
+        unsigned int tot_dim = sot_dim * dim;
 
         variableType detF;
 
@@ -801,7 +1029,7 @@ namespace tardigradeMicromorphicTools{
         //Assemble the jacobian of the determinant of the deformation gradient
         variableVector inverseDeformationGradient = tardigradeVectorTools::inverse( deformationGradient, dim, dim );
 
-        variableVector dDetFdF( dim * dim, 0 );
+        variableVector dDetFdF( sot_dim, 0 );
 
         for (unsigned int i = 0; i < dim; i++ ){
             for (unsigned int I = 0; I < dim; I++ ){
@@ -812,9 +1040,9 @@ namespace tardigradeMicromorphicTools{
         constantVector eye( dim * dim );
         tardigradeVectorTools::eye( eye );
 
-        dHigherOrderStressdReferenceHigherOrderStress = variableMatrix( dim * dim * dim, variableVector( dim * dim * dim, 0 ) );
-        dHigherOrderStressdDeformationGradient = variableMatrix( dim * dim * dim, variableVector( dim * dim, 0 ) );
-        dHigherOrderStressdMicroDeformation = variableMatrix( dim * dim * dim, variableVector( dim * dim, 0 ) );
+        dHigherOrderStressdReferenceHigherOrderStress = variableVector( tot_dim * tot_dim, 0 );
+        dHigherOrderStressdDeformationGradient        = variableVector( tot_dim * sot_dim, 0 );
+        dHigherOrderStressdMicroDeformation           = variableVector( tot_dim * sot_dim, 0 );
 
         for ( unsigned int i = 0; i < dim; i++ ){
             for ( unsigned int j = 0; j < dim; j++ ){
@@ -822,17 +1050,17 @@ namespace tardigradeMicromorphicTools{
                     for ( unsigned int l = 0; l < dim; l++ ){
                         for ( unsigned int M = 0; M < dim; M++ ){
                             for ( unsigned int N = 0; N < dim; N++ ){
-                                dHigherOrderStressdReferenceHigherOrderStress[ dim * dim * i + dim * j + k ][ dim * dim * l + dim * M + N ] = deformationGradient[ dim * i + l ] * deformationGradient[ dim * j + M ] * microDeformation[ dim * k + N] / detF;
+                                dHigherOrderStressdReferenceHigherOrderStress[ dim * dim * tot_dim * i + dim * tot_dim * j + tot_dim * k + dim * dim * l + dim * M + N ] = deformationGradient[ dim * i + l ] * deformationGradient[ dim * j + M ] * microDeformation[ dim * k + N] / detF;
                                 for ( unsigned int O = 0; O < dim; O++ ){
-                                    dHigherOrderStressdDeformationGradient[ dim * dim * i + dim * j + k ][ dim * l + M ] += 
+                                    dHigherOrderStressdDeformationGradient[ dim * dim * sot_dim * i + dim * sot_dim * j +sot_dim * k + dim * l + M ] += 
                                         eye[ dim * i + l ] * deformationGradient[ dim * j + N ] * microDeformation[ dim * k + O ] * referenceHigherOrderStress[ dim * dim * M + dim * N + O ]
                                       + deformationGradient[ dim * i + N ] * eye[ dim * j + l ] * microDeformation[ dim * k + O ] * referenceHigherOrderStress[ dim * dim * N + dim * M + O ];
-                                    dHigherOrderStressdMicroDeformation[ dim * dim * i + dim * j + k ][ dim * l + M ] += deformationGradient[ dim * i + N ] * deformationGradient[ dim * j + O ] * eye[ dim * k + l ] * referenceHigherOrderStress[ dim * dim * N + dim * O + M ];
+                                    dHigherOrderStressdMicroDeformation[ dim * dim * sot_dim * i + dim * sot_dim * j + sot_dim * k + dim * l + M ] += deformationGradient[ dim * i + N ] * deformationGradient[ dim * j + O ] * eye[ dim * k + l ] * referenceHigherOrderStress[ dim * dim * N + dim * O + M ];
                                 }
                             }
-                            dHigherOrderStressdDeformationGradient[ dim * dim * i + dim * j + k ][ dim * l + M ] -= higherOrderStress[ dim * dim * i + dim * j + k ] * dDetFdF[ dim * l + M ];
-                            dHigherOrderStressdDeformationGradient[ dim * dim * i + dim * j + k ][ dim * l + M ] /= detF;
-                            dHigherOrderStressdMicroDeformation[ dim * dim * i + dim * j + k ][ dim * l + M ] /= detF;
+                            dHigherOrderStressdDeformationGradient[ dim * dim * sot_dim * i + dim * sot_dim * j + sot_dim * k + dim * l + M ] -= higherOrderStress[ dim * dim * i + dim * j + k ] * dDetFdF[ dim * l + M ];
+                            dHigherOrderStressdDeformationGradient[ dim * dim * sot_dim * i + dim * sot_dim * j + sot_dim * k + dim * l + M ] /= detF;
+                            dHigherOrderStressdMicroDeformation[ dim * dim * sot_dim * i + dim * sot_dim * j + sot_dim * k + dim * l + M ] /= detF;
                         }
                     }
                 }
@@ -947,16 +1175,73 @@ namespace tardigradeMicromorphicTools{
          * \frac{ \partial M_{IJK} }{ \partial F_{lL} } = F_{Ll}^{-1} M_{IJK} - F_{Il}^{-1} M_{LJK} - F_{Jl}^{-1} M_{ILK}
          * \frac{ \partial M_{IJK} }{ \partial \chi_{lL} } = -\chi_{Kl}^{-1} M_{IJL}
          *
-         * :param const variableVector &referenceHigherOrderStress: The higher order stress in the 
+         * \param &referenceHigherOrderStress: The higher order stress in the 
          *     reference configuration.
-         * :param const variableVector &deformationGradient: The deformation gradient which maps 
+         * \param &deformationGradient: The deformation gradient which maps 
          *     between the reference and current configurations.
-         * :param const variableVector &microDeformation: The micro-deformation tensor.
-         * :param variableVector &higherOrderStress: The higher order stress in the current configuration.
+         * \param &microDeformation: The micro-deformation tensor.
+         * \param &higherOrderStress: The higher order stress in the current configuration.
+         * \param &dReferenceHigherOrderStressdHigherOrderStress: The derivative of the reference higher order stress w.r.t. the higher order stress
+         * \param &dReferenceHigherOrderStressdDeformationGradient: The derivative of the reference higher order stress w.r.t. the deformation gradient
+         * \param &dReferenceHigherOrderStressdMicroDeformation: The derivative of the reference higher order stress w.r.t. the micro deformation
+         */
+
+        variableVector _dReferenceHigherOrderStressdHigherOrderStress;
+        variableVector _dReferenceHigherOrderStressdDeformationGradient;
+        variableVector _dReferenceHigherOrderStressdMicroDeformation;
+
+        errorOut error = pullBackHigherOrderStress( higherOrderStress, deformationGradient, microDeformation,
+                                                    referenceHigherOrderStress, _dReferenceHigherOrderStressdHigherOrderStress,
+                                                    _dReferenceHigherOrderStressdDeformationGradient,
+                                                    _dReferenceHigherOrderStressdMicroDeformation );
+        
+        if (error){
+            errorOut result = new errorNode( "pullBackHigherOrderStress (jacobian)", "Error in computation of pull back of the higher order stress" );
+            result->addNext(error);
+            return result;
+        }
+
+        dReferenceHigherOrderStressdHigherOrderStress   = tardigradeVectorTools::inflate( _dReferenceHigherOrderStressdHigherOrderStress  , 27, 27 );
+        dReferenceHigherOrderStressdDeformationGradient = tardigradeVectorTools::inflate( _dReferenceHigherOrderStressdDeformationGradient, 27,  9 );
+        dReferenceHigherOrderStressdMicroDeformation    = tardigradeVectorTools::inflate( _dReferenceHigherOrderStressdMicroDeformation   , 27,  9 );
+
+        return error;
+
+    }
+
+    errorOut pullBackHigherOrderStress( const variableVector &higherOrderStress,
+                                        const variableVector &deformationGradient,
+                                        const variableVector &microDeformation,
+                                        variableVector &referenceHigherOrderStress,
+                                        variableVector &dReferenceHigherOrderStressdHigherOrderStress,
+                                        variableVector &dReferenceHigherOrderStressdDeformationGradient,
+                                        variableVector &dReferenceHigherOrderStressdMicroDeformation ){
+        /*!
+         * Compute the pull back operation on the higher order stress.
+         *
+         * M_{IJK} = J F_{Ii}^{-1} F_{Jj}^{-1} \chi_{Kk}^{-1} m_{ijk}
+         *
+         * Also returns the Jacobians
+         *
+         * \frac{ \partial M_{IJK} }{ \partial m_{lmn} } = J F_{Il}^{-1} F_{Jm}^{-1} \chi_{Kn}^{-1}
+         * \frac{ \partial M_{IJK} }{ \partial F_{lL} } = F_{Ll}^{-1} M_{IJK} - F_{Il}^{-1} M_{LJK} - F_{Jl}^{-1} M_{ILK}
+         * \frac{ \partial M_{IJK} }{ \partial \chi_{lL} } = -\chi_{Kl}^{-1} M_{IJL}
+         *
+         * \param &referenceHigherOrderStress: The higher order stress in the 
+         *     reference configuration.
+         * \param &deformationGradient: The deformation gradient which maps 
+         *     between the reference and current configurations.
+         * \param &microDeformation: The micro-deformation tensor.
+         * \param &higherOrderStress: The higher order stress in the current configuration.
+         * \param &dReferenceHigherOrderStressdHigherOrderStress: The derivative of the reference higher order stress w.r.t. the higher order stress
+         * \param &dReferenceHigherOrderStressdDeformationGradient: The derivative of the reference higher order stress w.r.t. the deformation gradient
+         * \param &dReferenceHigherOrderStressdMicroDeformation: The derivative of the reference higher order stress w.r.t. the micro deformation
          */
 
         //Assume 3d
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
+        unsigned int tot_dim = sot_dim * dim;
 
         variableType detF;
         variableVector inverseDeformationGradient, inverseMicroDeformation;
@@ -971,26 +1256,26 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        dReferenceHigherOrderStressdHigherOrderStress   = variableMatrix( dim * dim * dim, variableVector( dim * dim * dim, 0 ) );
-        dReferenceHigherOrderStressdDeformationGradient = variableMatrix( dim * dim * dim, variableVector( dim * dim, 0 ) );
-        dReferenceHigherOrderStressdMicroDeformation    = variableMatrix( dim * dim * dim, variableVector( dim * dim, 0 ) );
+        dReferenceHigherOrderStressdHigherOrderStress   = variableVector( tot_dim * tot_dim, 0 );
+        dReferenceHigherOrderStressdDeformationGradient = variableVector( tot_dim * sot_dim, 0 );
+        dReferenceHigherOrderStressdMicroDeformation    = variableVector( tot_dim * sot_dim, 0 );
 
         for ( unsigned int I = 0; I < dim; I++){
             for ( unsigned int J = 0; J < dim; J++){
                 for ( unsigned int K = 0; K < dim; K++){
                     for ( unsigned int l = 0; l < dim; l++){
                         for ( unsigned int m = 0; m < dim; m++){
-                            dReferenceHigherOrderStressdDeformationGradient[ dim * dim * I + dim * J + K ][ dim * l + m ]
+                            dReferenceHigherOrderStressdDeformationGradient[ dim * dim * sot_dim * I + dim * sot_dim * J + sot_dim * K + dim * l + m ]
                                 += inverseDeformationGradient[ dim * m + l ] * referenceHigherOrderStress[ dim * dim * I + dim * J + K ]
                                  - inverseDeformationGradient[ dim * I + l ] * referenceHigherOrderStress[ dim * dim * m + dim * J + K ]
                                  - inverseDeformationGradient[ dim * J + l ] * referenceHigherOrderStress[ dim * dim * I + dim * m + K ];
 
-                            dReferenceHigherOrderStressdMicroDeformation[ dim * dim * I + dim * J + K ][ dim * l + m ]
+                            dReferenceHigherOrderStressdMicroDeformation[ dim * dim * sot_dim * I + dim * sot_dim * J + sot_dim * K + dim * l + m ]
                                 -= inverseMicroDeformation[ dim * K + l ] * referenceHigherOrderStress[ dim * dim * I + dim * J + m ];
 
                             for ( unsigned int n = 0; n < dim; n++){
 
-                                dReferenceHigherOrderStressdHigherOrderStress[ dim * dim * I + dim * J + K ][ dim * dim * l + dim * m + n ]
+                                dReferenceHigherOrderStressdHigherOrderStress[ dim * dim * tot_dim * I + dim * tot_dim * J + tot_dim * K + dim * dim * l + dim * m + n ]
                                     += detF * inverseDeformationGradient[ dim * I + l ]
                                      * inverseDeformationGradient[ dim * J + m ]
                                      * inverseMicroDeformation[ dim * K + n ];
@@ -1111,13 +1396,15 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3D
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
+        unsigned int tot_dim = sot_dim * dim;
 
-        if ( rightCauchyGreenDeformation.size() != dim * dim ){
+        if ( rightCauchyGreenDeformation.size() != sot_dim ){
             return new errorNode( "computeReferenceHigherOrderStressPressure",
                                   "The right Cauchy-Green deformation tensor must have nine terms." );
         }
 
-        if ( referenceHigherOrderStress.size() != dim * dim * dim ){
+        if ( referenceHigherOrderStress.size() != tot_dim ){
             return new errorNode( "computeReferenceHigherOrderStressPressure",
                                   "The higher order stress tensor must have 27 terms." );
         }
@@ -1152,18 +1439,66 @@ namespace tardigradeMicromorphicTools{
          * where $C_{AB}$ is the right Cauchy-Green deformation tensor and 
          * M_{ABK} is the higher order stress tensor in the reference configuration.
          *
-         * :param const variableVector &referenceHigherOrderStress: The higher order stress in the 
+         * \param &referenceHigherOrderStress: The higher order stress in the 
          *     reference configuration.
-         * :param const variableVector &rightCauchyGreenDeformation: The right Cauchy-Green deformation
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation
          *     tensor.
-         * :param variableVector &referenceHigherOrderPressure: The higher order pressure.
-         * :param variableMatrix &dpdM: The Jacobian of the pressure w.r.t. the higher order stress.
-         * :param variableMatrix &dpdC: The Jacobian of the pressure w.r.t. the right Cauchy-Green 
+         * \param &referenceHigherOrderPressure: The higher order pressure.
+         * \param &dpdM: The Jacobian of the pressure w.r.t. the higher order stress.
+         * \param &dpdC: The Jacobian of the pressure w.r.t. the right Cauchy-Green 
+         *     deformation tensor.
+         */
+
+        variableVector _dpdM;
+        variableVector _dpdC;
+
+        errorOut error = computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation,
+                                                                    referenceHigherOrderPressure,
+                                                                    _dpdM, _dpdC );
+
+        if ( error ){
+            errorOut result = new errorNode( "computeReferenceHigherOrderStressPressure (jacobian)",
+                                             "Error in computation of reference higher order pressure" );
+            result->addNext( error );
+            return result;
+        }
+
+        dpdM = tardigradeVectorTools::inflate( _dpdM, 3, 27 );
+        dpdC = tardigradeVectorTools::inflate( _dpdC, 3,  9 );
+
+        return error;
+
+    }
+
+    errorOut computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress,
+                                                        const variableVector &rightCauchyGreenDeformation,
+                                                        variableVector &referenceHigherOrderPressure,
+                                                        variableVector &dpdM, variableVector &dpdC ){
+        /*!
+         * Compute the pressure for a higher-order stress in the reference configuration.
+         * $p_K = \frac{1}{3} C_{AB} M_{ABK}$
+         *
+         * Also compute the Jacobians
+         * $\frac{ \partial p_K }{ \partial M_{NOP} } = \frac{1}{3} C_{NO} \delta_{KP}$
+         * $\frac{ \partial p_K }{ \partial C_{NO} } = \frac{1}{3} M_{NOK}$
+         *
+         * where $C_{AB}$ is the right Cauchy-Green deformation tensor and 
+         * M_{ABK} is the higher order stress tensor in the reference configuration.
+         *
+         * \param &referenceHigherOrderStress: The higher order stress in the 
+         *     reference configuration.
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation
+         *     tensor.
+         * \param &referenceHigherOrderPressure: The higher order pressure.
+         * \param &dpdM: The Jacobian of the pressure w.r.t. the higher order stress.
+         * \param &dpdC: The Jacobian of the pressure w.r.t. the right Cauchy-Green 
          *     deformation tensor.
          */
 
         //Assume 3D
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
+        unsigned int tot_dim = sot_dim * dim;
 
         errorOut error = computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation,
                                                                     referenceHigherOrderPressure );
@@ -1178,15 +1513,15 @@ namespace tardigradeMicromorphicTools{
         constantVector eye( dim * dim );
         tardigradeVectorTools::eye( eye );
 
-        dpdM = variableMatrix( referenceHigherOrderPressure.size(), variableVector( referenceHigherOrderStress.size(), 0 ) );
-        dpdC = variableMatrix( referenceHigherOrderPressure.size(), variableVector( rightCauchyGreenDeformation.size(), 0 ) );
+        dpdM = variableVector( dim * tot_dim, 0 );
+        dpdC = variableVector( dim * sot_dim, 0 );
 
         for ( unsigned int K = 0; K < dim; K++ ){
             for ( unsigned int N = 0; N < dim; N++ ){
                 for ( unsigned int O = 0; O < dim; O++ ){
-                    dpdC[ K ][ dim * N + O ] = referenceHigherOrderStress[ dim * dim * N + dim * O + K ];
+                    dpdC[ sot_dim * K + dim * N + O ] = referenceHigherOrderStress[ dim * dim * N + dim * O + K ];
                     for ( unsigned int P = 0; P < dim; P++ ){
-                        dpdM[ K ][ dim * dim * N + dim * O + P ] = rightCauchyGreenDeformation[ dim * N + O ] * eye[ dim * K + P ];
+                        dpdM[ tot_dim * K + dim * dim * N + dim * O + P ] = rightCauchyGreenDeformation[ dim * N + O ] * eye[ dim * K + P ];
                     }
                 }
             }
@@ -1215,21 +1550,73 @@ namespace tardigradeMicromorphicTools{
          * where $C_{AB}$ is the right Cauchy-Green deformation tensor and
          * M_{ABK} is the higher order stress tensor in the reference configuration.
          *
-         * :param const variableVector &referenceHigherOrderStress: The higher order stress in the
+         * \param &referenceHigherOrderStress: The higher order stress in the
          *     reference configuration.
-         * :param const variableVector &rightCauchyGreenDeformation: The right Cauchy-Green deformation
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation
          *     tensor.
-         * :param variableVector &referenceHigherOrderPressure: The higher order pressure.
-         * :param variableMatrix &dpdM: The Jacobian of the pressure w.r.t. the higher order stress.
-         * :param variableMatrix &dpdC: The Jacobian of the pressure w.r.t. the right Cauchy-Green
+         * \param &referenceHigherOrderPressure: The higher order pressure.
+         * \param &dpdM: The Jacobian of the pressure w.r.t. the higher order stress.
+         * \param &dpdC: The Jacobian of the pressure w.r.t. the right Cauchy-Green
          *     deformation tensor.
-         * :param variableMatrix &d2pdMdC: The second order jacobian of the pressure w.r.t the 
-         *     reference higher order stress and right Cauchy-Green deformation tensor. This Jacobian is organized
-         *     [ K ][ NOPQR ]
+         * \param &d2pdMdC: The second order jacobian of the pressure w.r.t the 
+         *     reference higher order stress and right Cauchy-Green deformation tensor.
+         */
+
+        variableVector _dpdM;
+        variableVector _dpdC;
+        variableVector _d2pdMdC;
+
+        errorOut error = computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation,
+                                                                    referenceHigherOrderPressure,
+                                                                    _dpdM, _dpdC, _d2pdMdC );
+
+        if ( error ){
+            errorOut result = new errorNode( "computeReferenceHigherOrderStressPressure (jacobian)",
+                                             "Error in computation of reference higher order pressure" );
+            result->addNext( error );
+            return result;
+        }
+
+        dpdM    = tardigradeVectorTools::inflate(    _dpdM, 3,  27 );
+        dpdC    = tardigradeVectorTools::inflate(    _dpdC, 3,   9 );
+        d2pdMdC = tardigradeVectorTools::inflate( _d2pdMdC, 3, 243 );
+
+        return error;
+    }
+
+    errorOut computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress,
+                                                        const variableVector &rightCauchyGreenDeformation,
+                                                        variableVector &referenceHigherOrderPressure,
+                                                        variableVector &dpdM, variableVector &dpdC,
+                                                        variableVector &d2pdMdC ){
+        /*!
+         * Compute the pressure for a higher-order stress in the reference configuration.
+         * $p_K = \frac{1}{3} C_{AB} M_{ABK}$
+         *
+         * Also compute the Jacobians
+         * $\frac{ \partial p_K }{ \partial M_{NOP} } = \frac{1}{3} C_{NO} \delta_{KP}$
+         * $\frac{ \partial p_K }{ \partial C_{NO} } = \frac{1}{3} M_{NOK}$
+         * $\frac{ \partial^2 p_K}{ \partial M_{NOP} C_{QR} } = \frac{1}{3} \delta_{NQ} \delta_{OR} \delta_{KP}
+         *
+         * where $C_{AB}$ is the right Cauchy-Green deformation tensor and
+         * M_{ABK} is the higher order stress tensor in the reference configuration.
+         *
+         * \param &referenceHigherOrderStress: The higher order stress in the
+         *     reference configuration.
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation
+         *     tensor.
+         * \param &referenceHigherOrderPressure: The higher order pressure.
+         * \param &dpdM: The Jacobian of the pressure w.r.t. the higher order stress.
+         * \param &dpdC: The Jacobian of the pressure w.r.t. the right Cauchy-Green
+         *     deformation tensor.
+         * \param &d2pdMdC: The second order jacobian of the pressure w.r.t the 
+         *     reference higher order stress and right Cauchy-Green deformation tensor.
          */
 
         //Assume 3D
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
+        unsigned int tot_dim = sot_dim * dim;
 
         errorOut error = computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation,
                                                                     referenceHigherOrderPressure, dpdM, dpdC );
@@ -1241,18 +1628,17 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        variableVector eye( dim * dim );
+        variableVector eye( sot_dim, 0 );
         tardigradeVectorTools::eye( eye );
 
-        d2pdMdC = variableMatrix( dim, variableVector( dim * dim * dim * dim * dim, 0 ) );
-
+        d2pdMdC = variableVector( dim * tot_dim * sot_dim, 0 );
         for ( unsigned int K = 0; K < dim; K++ ){
             for ( unsigned int N = 0; N < dim; N++ ){
                 for ( unsigned int O = 0; O < dim; O++ ){
                     for ( unsigned int P = 0; P < dim; P++ ){
                         for ( unsigned int Q = 0; Q < dim; Q++ ){
                             for ( unsigned int R = 0; R < dim; R++ ){
-                                d2pdMdC[ K ][ dim * dim * dim * dim * N + dim * dim * dim * O + dim * dim * P + dim * Q + R ] = 
+                                d2pdMdC[ tot_dim * sot_dim * K + dim * dim * dim * dim * N + dim * dim * dim * O + dim * dim * P + dim * Q + R ] = 
                                     eye[ dim * N + Q ] * eye[ dim * O + R ] * eye[ dim * K + P ] / 3;
                             }
                         }
@@ -1341,44 +1727,43 @@ namespace tardigradeMicromorphicTools{
          * \frac{ \partial dev ( M_{IJK} ) }{ \partial M_{LMN} } = \delta_{IL} \delta_{JM} \delta_{KN} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial M_{LMN} }
          * \frac{ \partial dev ( M_{IJK} ) }{ \partial C_{LM} } = \left( (C^{-1})_{IL} (C^{-1})_{MJ} p_{K} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial C_{LM} } \right)
          *
-         * :param const variableVector &referenceHigherOrderStress: The higher order stress in the reference configuration.
-         * :param const variableVector &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor.
-         * :param variableVector &deviatoricReferenceHigherOrderStress: The deviatoric part of the higher order tensor in the 
+         * \param &referenceHigherOrderStress: The higher order stress in the reference configuration.
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor.
+         * \param &deviatoricReferenceHigherOrderStress: The deviatoric part of the higher order tensor in the 
          *     reference configuration.
-         * :param variableVector &dDeviatoricReferenceHigherOrdeterStressdReferenceHigherOrderStress: The Jacobian of the 
+         * \param variableVector &dDeviatoricReferenceHigherOrdeterStressdReferenceHigherOrderStress: The Jacobian of the 
          *     deviatoric part of the reference higher order stress w.r.t. the reference higher order stress.
-         * :param variableVector &dDeviatoricReferenceHigherOrdeterStressdRCG: The Jacobian of the 
+         * \param &dDeviatoricReferenceHigherOrdeterStressdRCG: The Jacobian of the 
          *     deviatoric part of the reference higher order stress w.r.t. the right Cauchy-Green deformation tensor.
          */
 
-        variableVector invRCG, pressure;
-        variableMatrix dpdM, dpdC;
+        variableVector _dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress;
+        variableVector _dDeviatoricReferenceHigherOrderStressdRCG;
 
-        //Compute the pressure
-        errorOut error = computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation, pressure,
-                                                                    dpdM, dpdC );
+        errorOut error = computeDeviatoricReferenceHigherOrderStress( referenceHigherOrderStress, rightCauchyGreenDeformation,
+                                                                      deviatoricReferenceHigherOrderStress,
+                                                                      _dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
+                                                                      _dDeviatoricReferenceHigherOrderStressdRCG );
 
         if ( error ){
             errorOut result = new errorNode( "computeDeviatoricReferenceHigherOrderStress (jacobian)",
-                                             "Error in computation of higher order pressure" );
+                                             "Error in computation of higher order deviatoric stress" );
             result->addNext( error );
             return result;
         }
 
-        return computeDeviatoricReferenceHigherOrderStress( referenceHigherOrderStress, rightCauchyGreenDeformation,
-                                                            pressure, dpdM, dpdC, deviatoricReferenceHigherOrderStress,
-                                                            dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
-                                                            dDeviatoricReferenceHigherOrderStressdRCG );
+        dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress = tardigradeVectorTools::inflate( _dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress, 27, 27 );
+        dDeviatoricReferenceHigherOrderStressdRCG                        = tardigradeVectorTools::inflate( _dDeviatoricReferenceHigherOrderStressdRCG                       , 27,  9 );
+
+        return error;
+
     }
 
     errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
-                                                          const variableVector &pressure,
-                                                          const variableMatrix &dPressuredStress,
-                                                          const variableMatrix &dPressuredRCG,
                                                           variableVector &deviatoricReferenceHigherOrderStress,
-                                                          variableMatrix &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
-                                                          variableMatrix &dDeviatoricReferenceHigherOrderStressdRCG ){
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdRCG ){
         /*!
          * Compute the deviatoric part of the higher order stress in the reference configuration.
          *
@@ -1388,22 +1773,73 @@ namespace tardigradeMicromorphicTools{
          * \frac{ \partial dev ( M_{IJK} ) }{ \partial M_{LMN} } = \delta_{IL} \delta_{JM} \delta_{KN} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial M_{LMN} }
          * \frac{ \partial dev ( M_{IJK} ) }{ \partial C_{LM} } = \left( (C^{-1})_{IL} (C^{-1})_{MJ} p_{K} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial C_{LM} } \right)
          *
-         * :param const variableVector &referenceHigherOrderStress: The higher order stress in the reference configuration.
-         * :param const variableVector &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor.
-         * :param const variableVector &pressure: The higher order pressure.
-         * :param const variableMatrix &dPressuredStress: The Jacobian of the pressure w.r.t. the stress.
-         * :param const variableMatrix &dPressuredStress: The Jacobian of the pressure w.r.t. the right Cauchy Green 
-         *     deformation tensor.
-         * :param variableVector &deviatoricReferenceHigherOrderStress: The deviatoric part of the higher order tensor in the 
+         * \param &referenceHigherOrderStress: The higher order stress in the reference configuration.
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor.
+         * \param &deviatoricReferenceHigherOrderStress: The deviatoric part of the higher order tensor in the 
          *     reference configuration.
-         * :param variableVector &dDeviatoricReferenceHigherOrdeterStressdReferenceHigherOrderStress: The Jacobian of the 
+         * \param variableVector &dDeviatoricReferenceHigherOrdeterStressdReferenceHigherOrderStress: The Jacobian of the 
          *     deviatoric part of the reference higher order stress w.r.t. the reference higher order stress.
-         * :param variableVector &dDeviatoricReferenceHigherOrdeterStressdRCG: The Jacobian of the 
+         * \param &dDeviatoricReferenceHigherOrdeterStressdRCG: The Jacobian of the 
+         *     deviatoric part of the reference higher order stress w.r.t. the right Cauchy-Green deformation tensor.
+         */
+
+        variableVector invRCG, pressure;
+        variableVector dpdM, dpdC;
+
+        //Compute the pressure
+        errorOut error = computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation, pressure,
+                                                                    dpdM, dpdC );
+
+        if ( error ){
+            errorOut result = new errorNode( "computeDeviatoricReferenceHigherOrderStress (second order jacobian)",
+                                             "Error in computation of higher order pressure" );
+            result->addNext( error );
+            return result;
+        }
+
+        return error = computeDeviatoricReferenceHigherOrderStress( referenceHigherOrderStress, rightCauchyGreenDeformation,
+                                                                    pressure, dpdM, dpdC,
+                                                                    deviatoricReferenceHigherOrderStress,
+                                                                    dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
+                                                                    dDeviatoricReferenceHigherOrderStressdRCG );
+
+    }
+
+    errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+                                                          const variableVector &rightCauchyGreenDeformation,
+                                                          const variableVector &pressure,
+                                                          const variableVector &dPressuredStress,
+                                                          const variableVector &dPressuredRCG,
+                                                          variableVector &deviatoricReferenceHigherOrderStress,
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdRCG ){
+        /*!
+         * Compute the deviatoric part of the higher order stress in the reference configuration.
+         *
+         * dev ( M_{IJK} ) = M_{IJK} - \frac{1}{3} (C^{-1})_{IJ} C_{AB} M_{ABK} = M_{IJK} - ( C^{-1} )_{IJ} p_{K}
+         *
+         * Also compute Jacobians:
+         * \frac{ \partial dev ( M_{IJK} ) }{ \partial M_{LMN} } = \delta_{IL} \delta_{JM} \delta_{KN} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial M_{LMN} }
+         * \frac{ \partial dev ( M_{IJK} ) }{ \partial C_{LM} } = \left( (C^{-1})_{IL} (C^{-1})_{MJ} p_{K} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial C_{LM} } \right)
+         *
+         * \param &referenceHigherOrderStress: The higher order stress in the reference configuration.
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor.
+         * \param &pressure: The higher order pressure.
+         * \param &dPressuredStress: The Jacobian of the pressure w.r.t. the stress.
+         * \param &dPressuredStress: The Jacobian of the pressure w.r.t. the right Cauchy Green 
+         *     deformation tensor.
+         * \param &deviatoricReferenceHigherOrderStress: The deviatoric part of the higher order tensor in the 
+         *     reference configuration.
+         * \param &dDeviatoricReferenceHigherOrdeterStressdReferenceHigherOrderStress: The Jacobian of the 
+         *     deviatoric part of the reference higher order stress w.r.t. the reference higher order stress.
+         * \param &dDeviatoricReferenceHigherOrdeterStressdRCG: The Jacobian of the 
          *     deviatoric part of the reference higher order stress w.r.t. the right Cauchy-Green deformation tensor.
          */
         
         //Assume 3d
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
+        unsigned int tot_dim = sot_dim * dim;
 
         deviatoricReferenceHigherOrderStress = referenceHigherOrderStress;
 
@@ -1422,8 +1858,8 @@ namespace tardigradeMicromorphicTools{
         constantVector eye( dim * dim );
         tardigradeVectorTools::eye( eye );
 
-        dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress = variableMatrix( dim * dim * dim, variableVector( dim * dim * dim, 0 ) );
-        dDeviatoricReferenceHigherOrderStressdRCG = variableMatrix( dim * dim * dim, variableVector( dim * dim, 0 ) );
+        dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress = variableVector( tot_dim * tot_dim, 0 );
+        dDeviatoricReferenceHigherOrderStressdRCG = variableVector( tot_dim * sot_dim, 0 );
 
         for ( unsigned int I = 0; I < dim; I++ ){
             for ( unsigned int J = 0; J < dim; J++ ){
@@ -1431,12 +1867,12 @@ namespace tardigradeMicromorphicTools{
                     for ( unsigned int L = 0; L < dim; L++ ){
                         for ( unsigned int M = 0; M < dim; M++ ){
                             for ( unsigned int N = 0; N < dim; N++ ){
-                                dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress[ dim * dim * I + dim * J + K ][ dim * dim * L + dim * M + N ]
-                                    = eye[ dim * I + L ] * eye[ dim * J + M ] * eye[ dim * K + N ] - invRCG[ dim * I + J ] * dPressuredStress[ K ][ dim * dim * L + dim * M + N ];
+                                dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress[ dim * dim * tot_dim * I + dim * tot_dim * J + tot_dim * K + dim * dim * L + dim * M + N ]
+                                    = eye[ dim * I + L ] * eye[ dim * J + M ] * eye[ dim * K + N ] - invRCG[ dim * I + J ] * dPressuredStress[ tot_dim * K + dim * dim * L + dim * M + N ];
                             }
 
-                            dDeviatoricReferenceHigherOrderStressdRCG[ dim * dim * I + dim * J + K ][ dim * L + M ]
-                                = invRCG[ dim * I + L ] * invRCG[ dim * M + J ] * pressure[ K ] - invRCG[ dim * I + J ] * dPressuredRCG[ K ][ dim * L + M ];
+                            dDeviatoricReferenceHigherOrderStressdRCG[ dim * dim * sot_dim * I + dim * sot_dim * J + sot_dim * K + dim * L + M ]
+                                = invRCG[ dim * I + L ] * invRCG[ dim * M + J ] * pressure[ K ] - invRCG[ dim * I + J ] * dPressuredRCG[ sot_dim * K + dim * L + M ];
                         }
                     }
                 }
@@ -1463,21 +1899,74 @@ namespace tardigradeMicromorphicTools{
          *
          * \frac{ \partial dev( M_{IJK} ) }{ \partial M_{LMN} \partial C_{OP} } = (C^{-1})_{IO} (C^{-1})_{PJ} \frac{ \partial p_{k }{ \partial M_{LMN} } - (C^{-1})_{IJ} \frac{ \partial^2 p_K}{ \partial M_{LMN} \partial C_{OP} } 
          *
-         * :param const variableVector &referenceHigherOrderStress: The higher order stress in the reference configuration.
-         * :param const variableVector &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor.
-         * :param variableVector &deviatoricReferenceHigherOrderStress: The deviatoric part of the higher order tensor in the 
+         * \param &referenceHigherOrderStress: The higher order stress in the reference configuration.
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor.
+         * \param &deviatoricReferenceHigherOrderStress: The deviatoric part of the higher order tensor in the 
          *     reference configuration.
-         * :param variableVector &dDeviatoricReferenceHigherOrdeterStressdReferenceHigherOrderStress: The Jacobian of the 
+         * \param &dDeviatoricReferenceHigherOrdeterStressdReferenceHigherOrderStress: The Jacobian of the 
          *     deviatoric part of the reference higher order stress w.r.t. the reference higher order stress.
-         * :param variableVector &dDeviatoricReferenceHigherOrdeterStressdRCG: The Jacobian of the 
+         * \param &dDeviatoricReferenceHigherOrdeterStressdRCG: The Jacobian of the 
          *     deviatoric part of the reference higher order stress w.r.t. the right Cauchy-Green deformation tensor.
-         * :param variableMatrix &d2DevMdMdRCG: The mixed second derivative of the deviatoric part of the reference higher order 
+         * \param &d2DevMdMdRCG: The mixed second derivative of the deviatoric part of the reference higher order 
          *     stress tensor with respect to the reference higher order stress tensor and the right Cauchy-Green deformation 
          *     tensor.
          */
 
+        variableVector _dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress;
+        variableVector _dDeviatoricReferenceHigherOrderStressdRCG;
+        variableVector _d2MdMdRCG;
+
+        errorOut error = computeDeviatoricReferenceHigherOrderStress( referenceHigherOrderStress, rightCauchyGreenDeformation,
+                                                                      deviatoricReferenceHigherOrderStress,
+                                                                      _dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
+                                                                      _dDeviatoricReferenceHigherOrderStressdRCG,
+                                                                      _d2MdMdRCG );
+
+        if ( error ){
+            errorOut result = new errorNode( "computeDeviatoricReferenceHigherOrderStress (jacobian)",
+                                             "Error in computation of higher order deviatoric stress" );
+            result->addNext( error );
+            return result;
+        }
+
+        dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress = tardigradeVectorTools::inflate( _dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress, 27,  27 );
+        dDeviatoricReferenceHigherOrderStressdRCG                        = tardigradeVectorTools::inflate( _dDeviatoricReferenceHigherOrderStressdRCG                       , 27,   9 );
+        d2MdMdRCG                                                        = tardigradeVectorTools::inflate( _d2MdMdRCG                                                       , 27, 243 );
+
+        return error;
+    }
+
+    errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+                                                          const variableVector &rightCauchyGreenDeformation,
+                                                          variableVector &deviatoricReferenceHigherOrderStress,
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdRCG,
+                                                          variableVector &d2MdMdRCG ){
+        /*!
+         * Compute the deviatoric part of the higher order stress in the reference configuration.
+         *
+         * dev ( M_{IJK} ) = M_{IJK} - \frac{1}{3} (C^{-1})_{IJ} C_{AB} M_{ABK} = M_{IJK} - ( C^{-1} )_{IJ} p_{K}
+         *
+         * Also compute Jacobians:
+         * \frac{ \partial dev ( M_{IJK} ) }{ \partial M_{LMN} } = \delta_{IL} \delta_{JM} \delta_{KN} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial M_{LMN} }
+         * \frac{ \partial dev ( M_{IJK} ) }{ \partial C_{LM} } = \left( (C^{-1})_{IL} (C^{-1})_{MJ} p_{K} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial C_{LM} } \right)
+         *
+         * \frac{ \partial dev( M_{IJK} ) }{ \partial M_{LMN} \partial C_{OP} } = (C^{-1})_{IO} (C^{-1})_{PJ} \frac{ \partial p_{k }{ \partial M_{LMN} } - (C^{-1})_{IJ} \frac{ \partial^2 p_K}{ \partial M_{LMN} \partial C_{OP} } 
+         *
+         * \param &referenceHigherOrderStress: The higher order stress in the reference configuration.
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor.
+         * \param &deviatoricReferenceHigherOrderStress: The deviatoric part of the higher order tensor in the 
+         * \   reference configuration.
+         * \param &dDeviatoricReferenceHigherOrdeterStressdReferenceHigherOrderStress: The Jacobian of the 
+         * \   deviatoric part of the reference higher order stress w.r.t. the reference higher order stress.
+         * \param &dDeviatoricReferenceHigherOrdeterStressdRCG: The Jacobian of the 
+         * \   deviatoric part of the reference higher order stress w.r.t. the right Cauchy-Green deformation tensor.
+         * \param &d2DevMdMdRCG: The mixed second derivative of the deviatoric part of the reference higher order 
+         *     stress tensor with respect to the reference higher order stress tensor and the right Cauchy-Green deformation 
+         *     tensor.
+         */
         variableVector invRCG, pressure;
-        variableMatrix dpdM, dpdC, d2pdMdRCG;
+        variableVector dpdM, dpdC, d2pdMdRCG;
 
         //Compute the pressure
         errorOut error = computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation, pressure,
@@ -1501,13 +1990,13 @@ namespace tardigradeMicromorphicTools{
     errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           const variableVector &pressure,
-                                                          const variableMatrix &dPressuredStress,
-                                                          const variableMatrix &dPressuredRCG,
-                                                          const variableMatrix &d2PressuredStressdRCG,
+                                                          const variableVector &dPressuredStress,
+                                                          const variableVector &dPressuredRCG,
+                                                          const variableVector &d2PressuredStressdRCG,
                                                           variableVector &deviatoricReferenceHigherOrderStress,
-                                                          variableMatrix &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
-                                                          variableMatrix &dDeviatoricReferenceHigherOrderStressdRCG,
-                                                          variableMatrix &d2MdMdRCG ){
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdRCG,
+                                                          variableVector &d2MdMdRCG ){
         /*!
          * Compute the deviatoric part of the higher order stress in the reference configuration.
          *
@@ -1519,27 +2008,29 @@ namespace tardigradeMicromorphicTools{
          *
          * \frac{ \partial dev( M_{IJK} ) }{ \partial M_{LMN} \partial C_{OP} } = (C^{-1})_{IO} (C^{-1})_{PJ} \frac{ \partial p_{k }{ \partial M_{LMN} } - (C^{-1})_{IJ} \frac{ \partial^2 p_K}{ \partial M_{LMN} \partial C_{OP} } 
          *
-         * :param const variableVector &referenceHigherOrderStress: The higher order stress in the reference configuration.
-         * :param const variableVector &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor.
-         * :param const variableVector &pressure: The higher order pressure.
-         * :param const variableMatrix &dPressuredStress: The Jacobian of the pressure w.r.t. the stress.
-         * :param const variableMatrix &dPressuredStress: The Jacobian of the pressure w.r.t. the right Cauchy-Green 
-         *     deformation tensor.
-         * :param const variableMatrix &d2PressuredStressdRCG: The second order Jacobian of the pressure w.r.t. the 
-         *     stress and the right Cauchy-Green deformation tensor.
-         * :param variableVector &deviatoricReferenceHigherOrderStress: The deviatoric part of the higher order tensor in the 
-         *     reference configuration.
-         * :param variableVector &dDeviatoricReferenceHigherOrdeterStressdReferenceHigherOrderStress: The Jacobian of the 
-         *     deviatoric part of the reference higher order stress w.r.t. the reference higher order stress.
-         * :param variableVector &dDeviatoricReferenceHigherOrdeterStressdRCG: The Jacobian of the 
-         *     deviatoric part of the reference higher order stress w.r.t. the right Cauchy-Green deformation tensor.
-         * :param variableMatrix &d2DevMdMdRCG: The mixed second derivative of the deviatoric part of the reference higher order 
+         * \param &referenceHigherOrderStress: The higher order stress in the reference configuration.
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor.
+         * \param &pressure: The higher order pressure.
+         * \param &dPressuredStress: The Jacobian of the pressure w.r.t. the stress.
+         * \param &dPressuredStress: The Jacobian of the pressure w.r.t. the right Cauchy-Green 
+         * \   deformation tensor.
+         * \param &d2PressuredStressdRCG: The second order Jacobian of the pressure w.r.t. the 
+         * \   stress and the right Cauchy-Green deformation tensor.
+         * \param &deviatoricReferenceHigherOrderStress: The deviatoric part of the higher order tensor in the 
+         * \   reference configuration.
+         * \param &dDeviatoricReferenceHigherOrdeterStressdReferenceHigherOrderStress: The Jacobian of the 
+         * \   deviatoric part of the reference higher order stress w.r.t. the reference higher order stress.
+         * \param &dDeviatoricReferenceHigherOrdeterStressdRCG: The Jacobian of the 
+         * \   deviatoric part of the reference higher order stress w.r.t. the right Cauchy-Green deformation tensor.
+         * \param &d2DevMdMdRCG: The mixed second derivative of the deviatoric part of the reference higher order 
          *     stress tensor with respect to the reference higher order stress tensor and the right Cauchy-Green deformation 
          *     tensor.
          */
         
         //Assume 3d
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
+        unsigned int tot_dim = sot_dim * dim;
 
         deviatoricReferenceHigherOrderStress = referenceHigherOrderStress;
 
@@ -1555,11 +2046,11 @@ namespace tardigradeMicromorphicTools{
         }
 
         //Compute the first order Jacobians
-        constantVector eye( dim * dim );
+        constantVector eye( sot_dim );
         tardigradeVectorTools::eye( eye );
 
-        dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress = variableMatrix( dim * dim * dim, variableVector( dim * dim * dim, 0 ) );
-        dDeviatoricReferenceHigherOrderStressdRCG = variableMatrix( dim * dim * dim, variableVector( dim * dim, 0 ) );
+        dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress = variableVector( tot_dim * tot_dim, 0 );
+        dDeviatoricReferenceHigherOrderStressdRCG = variableVector( tot_dim * sot_dim, 0 );
 
         for ( unsigned int I = 0; I < dim; I++ ){
             for ( unsigned int J = 0; J < dim; J++ ){
@@ -1567,12 +2058,12 @@ namespace tardigradeMicromorphicTools{
                     for ( unsigned int L = 0; L < dim; L++ ){
                         for ( unsigned int M = 0; M < dim; M++ ){
                             for ( unsigned int N = 0; N < dim; N++ ){
-                                dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress[ dim * dim * I + dim * J + K ][ dim * dim * L + dim * M + N ]
-                                    = eye[ dim * I + L ] * eye[ dim * J + M ] * eye[ dim * K + N ] - invRCG[ dim * I + J ] * dPressuredStress[ K ][ dim * dim * L + dim * M + N ];
+                                dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress[ dim * dim * tot_dim * I + dim * tot_dim * J + tot_dim * K + dim * dim * L + dim * M + N ]
+                                    = eye[ dim * I + L ] * eye[ dim * J + M ] * eye[ dim * K + N ] - invRCG[ dim * I + J ] * dPressuredStress[ tot_dim * K + dim * dim * L + dim * M + N ];
                             }
 
-                            dDeviatoricReferenceHigherOrderStressdRCG[ dim * dim * I + dim * J + K ][ dim * L + M ]
-                                = invRCG[ dim * I + L ] * invRCG[ dim * M + J ] * pressure[ K ] - invRCG[ dim * I + J ] * dPressuredRCG[ K ][ dim * L + M ];
+                            dDeviatoricReferenceHigherOrderStressdRCG[ dim * dim * sot_dim * I + dim * sot_dim * J + sot_dim * K + dim * L + M ]
+                                = invRCG[ dim * I + L ] * invRCG[ dim * M + J ] * pressure[ K ] - invRCG[ dim * I + J ] * dPressuredRCG[ sot_dim * K + dim * L + M ];
                         }
                     }
                 }
@@ -1581,7 +2072,7 @@ namespace tardigradeMicromorphicTools{
 
         //Compute the second order Jacobian
 
-        d2MdMdRCG = variableMatrix( dim * dim * dim, variableVector( dim * dim * dim * dim * dim, 0 ) );
+        d2MdMdRCG = variableVector( tot_dim * tot_dim * sot_dim, 0 );
 
         for ( unsigned int I = 0; I < dim; I++ ){
             for ( unsigned int J = 0; J < dim; J++ ){
@@ -1591,9 +2082,9 @@ namespace tardigradeMicromorphicTools{
                             for ( unsigned int N = 0; N < dim; N++ ){
                                 for ( unsigned int O = 0; O < dim; O++ ){
                                     for ( unsigned int P = 0; P < dim; P++ ){
-                                        d2MdMdRCG[ dim * dim * I + dim * J + K ][ dim * dim * dim * dim * L + dim * dim * dim * M + dim * dim * N + dim * O + P ]
-                                            = invRCG[ dim * I + O ] * invRCG[ dim * P + J ] * dPressuredStress[ K ][ dim * dim * L + dim * M + N ]
-                                            - invRCG[ dim * I + J ] * d2PressuredStressdRCG[ K ][ dim * dim * dim * dim * L + dim * dim * dim * M + dim * dim * N + dim * O + P ];
+                                        d2MdMdRCG[ dim * dim * tot_dim * sot_dim * I + dim * tot_dim * sot_dim * J + tot_dim * sot_dim * K + dim * dim * dim * dim * L + dim * dim * dim * M + dim * dim * N + dim * O + P ]
+                                            = invRCG[ dim * I + O ] * invRCG[ dim * P + J ] * dPressuredStress[ tot_dim * K + dim * dim * L + dim * M + N ]
+                                            - invRCG[ dim * I + J ] * d2PressuredStressdRCG[ tot_dim * sot_dim * K + dim * dim * dim * dim * L + dim * dim * dim * M + dim * dim * N + dim * O + P ];
                                     }
                                 }
                             }
@@ -1753,6 +2244,51 @@ namespace tardigradeMicromorphicTools{
          *
          * \frac{ \partial^2 p}{ \partial S_{IJ} \partial C_{KL} } = \frac{1}{3} \delta_{IK} \delta_{JL}
          *
+         * \param &referenceStressMeasure: The stress measure in the reference configuration.
+         * \param &rightCauchyGreen: The right Cauchy-Green deformation tensor between the 
+         *     current configuration and the reference configuration of the stress tensor.
+         * \param &pressure: The computed pressure.
+         * \param &dpdStress: The Jacobian of the pressure w.r.t. the stress.
+         * \param &dpdRCG: The Jacobian of the pressure w.r.t. the right Cauchy-Green deformation tensor.
+         * \param $d2pdStressdRCG: The second-order Jacobian of the pressure w.r.t. the stress and the 
+         *     right Cauchy-Green deformation tensor.
+         */
+
+        variableVector _d2pdStressdRCG;
+
+        errorOut error = computeReferenceSecondOrderStressPressure( referenceStressMeasure, rightCauchyGreen, pressure,
+                                                                    dpdStress, dpdRCG, _d2pdStressdRCG );
+
+        if ( error ){
+            errorOut result = new errorNode( "computeReferenceSecondOrderStressPressure (second order jacobian)",
+                                             "Error in computation of pressure in the reference configuration" );
+            result->addNext( error );
+            return result;
+        }
+
+
+        d2pdStressdRCG = tardigradeVectorTools::inflate( _d2pdStressdRCG, 9, 9 );
+
+        return error;
+
+    }
+
+    errorOut computeReferenceSecondOrderStressPressure( const variableVector &referenceStressMeasure,
+                                                        const variableVector &rightCauchyGreen,  variableType &pressure,
+                                                        variableVector &dpdStress, variableVector &dpdRCG,
+                                                        variableVector &d2pdStressdRCG ){
+        /*!
+         * Compute the pressure part of a second order stress measure in the reference configuration.
+         * p = \frac{1}{3} C_{IJ} S_{IJ}
+         *
+         * where C_{IJ} is the right Cauchy-Green deformation tensor and S_{IJ} is the stress measure.
+         *
+         * Also compute the Jacobians
+         * \frac{ \partial p }{ \partial C_{IJ} } = \frac{1}{3} S_{IJ}
+         * \frac{ \partial p }{ \partial S_{IJ} } = \frac{1}{3} C_{IJ}
+         *
+         * \frac{ \partial^2 p}{ \partial S_{IJ} \partial C_{KL} } = \frac{1}{3} \delta_{IK} \delta_{JL}
+         *
          * :param const variableVector &referenceStressMeasure: The stress measure in the reference configuration.
          * :param const variableVector &rightCauchyGreen: The right Cauchy-Green deformation tensor between the 
          *     current configuration and the reference configuration of the stress tensor.
@@ -1762,6 +2298,9 @@ namespace tardigradeMicromorphicTools{
          * :param variableMatrix $d2pdStressdRCG: The second-order Jacobian of the pressure w.r.t. the stress and the 
          *     right Cauchy-Green deformation tensor.
          */
+
+        const unsigned int dim = 3;
+        const unsigned int sot_dim = dim * dim;
 
         errorOut error = computeReferenceSecondOrderStressPressure( referenceStressMeasure, rightCauchyGreen, pressure,
                                                                     dpdStress, dpdRCG );
@@ -1773,7 +2312,9 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        d2pdStressdRCG = tardigradeVectorTools::eye< constantType >( referenceStressMeasure.size() ) / 3;
+        d2pdStressdRCG = variableVector( sot_dim * sot_dim, 0 );
+        tardigradeVectorTools::eye( d2pdStressdRCG );
+        d2pdStressdRCG /= 3;
 
         return NULL;
     }
@@ -1855,6 +2396,52 @@ namespace tardigradeMicromorphicTools{
          *     tensor.
          */
 
+        variableVector _dDeviatoricReferenceStressdReferenceStress;
+        variableVector _dDeviatoricReferenceStressdRCG;
+
+        errorOut error = computeDeviatoricReferenceSecondOrderStress( secondOrderReferenceStress,
+                                                                      rightCauchyGreenDeformation,
+                                                                      deviatoricSecondOrderReferenceStress,
+                                                                      _dDeviatoricReferenceStressdReferenceStress,
+                                                                      _dDeviatoricReferenceStressdRCG );
+
+        if ( error ){
+            errorOut result = new errorNode( "computeDeviatoricReferenceSecondOrderStress (jacobian)",
+                                             "Error in computation of the reference pressure" );
+            result->addNext( error );
+            return result;
+        }
+
+        dDeviatoricReferenceStressdReferenceStress = tardigradeVectorTools::inflate( _dDeviatoricReferenceStressdReferenceStress, 9, 9 );
+        dDeviatoricReferenceStressdRCG             = tardigradeVectorTools::inflate( _dDeviatoricReferenceStressdRCG            , 9, 9 );
+
+        return error;
+
+    }
+
+    errorOut computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
+                                                          const variableVector &rightCauchyGreenDeformation,
+                                                          variableVector &deviatoricSecondOrderReferenceStress,
+                                                          variableVector &dDeviatoricReferenceStressdReferenceStress,
+                                                          variableVector &dDeviatoricReferenceStressdRCG ){
+        /*!
+         * Compute the deviatoric part of a second order stress measure in the reference configuration.
+         * \hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}
+         * 
+         * Also compute the Jacobians.
+         * \frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} } = \delta_{IK} \delta_{LJ} - \frac{1}{3} C_{KL} (C^{-1})_{IJ}
+         * \frac{ \partial \hat{S}_{IJ} }{ \partial C_{KL} } = \frac{1}{3} \left( C_{AB} S_{AB} (C^{-1})_{IK} (C^{-1})_{LJ} - S_{KL} (C^{-1}_{IJ}) \right)
+         *
+         * \param &secondOrderReferenceStress: The stress measure in the reference configuration.
+         * \param &rightCauchyGreenDeformation: The right Cauchy Green Deformation tensor of the 
+         *     deformation between configurations.
+         * \param &deviatoricSecondOrderReferenceStrain: The deviatoric part of the second order 
+         *     stress in the reference configuration.
+         * \param &dDeviatoricReferenceStressdReferenceStress: The jacobian w.r.t. the reference stress.
+         * \param &dDeviatoricreferenceStressdRCG: The jacobian w.r.t. the right Cauchy Green deformation
+         *     tensor.
+         */
+
         variableType pressure;
         variableVector dpdS, dpdC;
         errorOut error = computeReferenceSecondOrderStressPressure( secondOrderReferenceStress, rightCauchyGreenDeformation, pressure,
@@ -1880,8 +2467,8 @@ namespace tardigradeMicromorphicTools{
                                                           const variableVector &dPressuredStress,
                                                           const variableVector &dPressuredRCG,
                                                           variableVector &deviatoricSecondOrderReferenceStress,
-                                                          variableMatrix &dDeviatoricReferenceStressdReferenceStress,
-                                                          variableMatrix &dDeviatoricReferenceStressdRCG ){
+                                                          variableVector &dDeviatoricReferenceStressdReferenceStress,
+                                                          variableVector &dDeviatoricReferenceStressdRCG ){
         /*!
          * Compute the deviatoric part of a second order stress measure in the reference configuration.
          * \hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}
@@ -1890,36 +2477,38 @@ namespace tardigradeMicromorphicTools{
          * \frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} } = \delta_{IK} \delta_{LJ} - \frac{1}{3} C_{KL} (C^{-1})_{IJ}
          * \frac{ \partial \hat{S}_{IJ} }{ \partial C_{KL} } = \frac{1}{3} \left( C_{AB} S_{AB} (C^{-1})_{IK} (C^{-1})_{LJ} - S_{KL} (C^{-1}_{IJ}) \right)
          *
-         * :param const variableVector &secondOrderReferenceStress: The stress measure in the reference configuration.
-         * :param const variableVector &rightCauchyGreenDeformation: The right Cauchy Green Deformation tensor of the 
+         * \param &secondOrderReferenceStress: The stress measure in the reference configuration.
+         * \param &rightCauchyGreenDeformation: The right Cauchy Green Deformation tensor of the 
          *     deformation between configurations.
-         * :param const variableType &pressure: The pressure of the reference stress measure.
-         * :param const variableVector &dPressuredStress: The Jacobian of the pressure w.r.t. the reference stress.
-         * :param const variableVector &dPressuredRCG: The Jacobian of the pressure w.r.t. the right Cauchy-Green
+         * \param &pressure: The pressure of the reference stress measure.
+         * \param &dPressuredStress: The Jacobian of the pressure w.r.t. the reference stress.
+         * \param &dPressuredRCG: The Jacobian of the pressure w.r.t. the right Cauchy-Green
          *     deformation measure.
-         * :param variableVector &deviatoricSecondOrderReferenceStrain: The deviatoric part of the second order 
+         * \param &deviatoricSecondOrderReferenceStrain: The deviatoric part of the second order 
          *     stress in the reference configuration.
-         * :param variableMatrix &dDeviatoricReferenceStressdReferenceStress: The jacobian w.r.t. the reference stress.
-         * :param variableMatrix &dDeviatoricreferenceStressdRCG: The jacobian w.r.t. the right Cauchy Green deformation
+         * \param &dDeviatoricReferenceStressdReferenceStress: The jacobian w.r.t. the reference stress.
+         * \param &dDeviatoricreferenceStressdRCG: The jacobian w.r.t. the right Cauchy Green deformation
          *     tensor.
          */
         //Assume 3d
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
 
         variableVector invRCG = tardigradeVectorTools::inverse( rightCauchyGreenDeformation, dim, dim );
 
         deviatoricSecondOrderReferenceStress = secondOrderReferenceStress - pressure * invRCG;
 
         //Compute the first order jacobians
-        dDeviatoricReferenceStressdReferenceStress = tardigradeVectorTools::eye< constantType >( dim * dim );
-        dDeviatoricReferenceStressdReferenceStress -= tardigradeVectorTools::dyadic( invRCG, dPressuredStress );
+        dDeviatoricReferenceStressdReferenceStress = variableVector( sot_dim * sot_dim, 0 );
+        tardigradeVectorTools::eye( dDeviatoricReferenceStressdReferenceStress );
+        dDeviatoricReferenceStressdReferenceStress -= tardigradeVectorTools::matrixMultiply( invRCG, dPressuredStress, sot_dim, 1, 1, sot_dim );
 
-        dDeviatoricReferenceStressdRCG = - tardigradeVectorTools::dyadic( invRCG, dPressuredRCG );
+        dDeviatoricReferenceStressdRCG = -tardigradeVectorTools::matrixMultiply( invRCG, dPressuredRCG, sot_dim, 1, 1, sot_dim );
         for ( unsigned int I = 0; I < dim; I++ ){
             for ( unsigned int J = 0; J < dim; J++ ){
                 for ( unsigned int K = 0; K < dim; K++ ){
                     for ( unsigned int L = 0; L < dim; L++ ){
-                        dDeviatoricReferenceStressdRCG[ dim * I + J ][ dim * K + L ] += pressure * invRCG[ dim * I + K ] * invRCG[ dim * L + J ];
+                        dDeviatoricReferenceStressdRCG[ dim * sot_dim * I + sot_dim * J + dim * K + L ] += pressure * invRCG[ dim * I + K ] * invRCG[ dim * L + J ];
                     }
                 }
             }
@@ -1933,11 +2522,11 @@ namespace tardigradeMicromorphicTools{
                                                           const variableType &pressure,
                                                           const variableVector &dPressuredStress,
                                                           const variableVector &dPressuredRCG,
-                                                          const variableMatrix &d2PressuredStressdRCG,
+                                                          const variableVector &d2PressuredStressdRCG,
                                                           variableVector &deviatoricSecondOrderReferenceStress,
-                                                          variableMatrix &dDeviatoricReferenceStressdReferenceStress,
-                                                          variableMatrix &dDeviatoricReferenceStressdRCG,
-                                                          variableMatrix &d2DevSdSdRCG ){
+                                                          variableVector &dDeviatoricReferenceStressdReferenceStress,
+                                                          variableVector &dDeviatoricReferenceStressdRCG,
+                                                          variableVector &d2DevSdSdRCG ){
         /*!
          * Compute the deviatoric part of a second order stress measure in the reference configuration.
          * \hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}
@@ -1948,55 +2537,57 @@ namespace tardigradeMicromorphicTools{
          *
          * \frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} \partial C_{MN} } = - \frac{ \partial p^2 }{ \partial S_{KL} \partial C_{MN}} (C^{-1})_{IJ} + \frac{ \partial p }{ \partial S_{KL} } (C^{-1})_{IM} (C^{-1})_{NJ}
          *
-         * :param const variableVector &secondOrderReferenceStress: The stress measure in the reference configuration.
-         * :param const variableVector &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor of the 
+         * \param &secondOrderReferenceStress: The stress measure in the reference configuration.
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor of the 
          *     deformation between configurations.
-         * :param const variableType &pressure: The pressure of the reference stress.
-         * :param const variableVector &dPressuredStress: The Jacobian of the pressure w.r.t. the stress.
-         * :param const variableVector &dPressuredRCG: The Jacobian of the pressure w.r.t. the right Cauchy-Green
+         * \param &pressure: The pressure of the reference stress.
+         * \param &dPressuredStress: The Jacobian of the pressure w.r.t. the stress.
+         * \param &dPressuredRCG: The Jacobian of the pressure w.r.t. the right Cauchy-Green
          *     deformation tensor.
-         * :param const variableMatrix &dPressuredStressdRCG: The Jacobian of the pressure w.r.t. the stress and 
+         * \param &dPressuredStressdRCG: The Jacobian of the pressure w.r.t. the stress and 
          *     the right Cauchy-Green deformation tensor.
-         * :param variableVector &deviatoricSecondOrderReferenceStrain: The deviatoric part of the second order 
+         * \param &deviatoricSecondOrderReferenceStrain: The deviatoric part of the second order 
          *     stress in the reference configuration.
-         * :param variableMatrix &dDeviatoricReferenceStressdReferenceStress: The Jacobian w.r.t. the reference stress.
-         * :param variableMatrix &dDeviatoricreferenceStressdRCG: The Jacobian w.r.t. the right Cauchy-Green deformation
+         * \param &dDeviatoricReferenceStressdReferenceStress: The Jacobian w.r.t. the reference stress.
+         * \param &dDeviatoricreferenceStressdRCG: The Jacobian w.r.t. the right Cauchy-Green deformation
          *     tensor.
-         * :param variableMatrix &d2DevSdSdRCG: The second order mixed Jacobian w.r.t. the stress and right Cauchy-Green 
+         * \param &d2DevSdSdRCG: The second order mixed Jacobian w.r.t. the stress and right Cauchy-Green 
          *     deformation tensor. Stored [IJ][KLMN]
          */
         //Assume 3d
         unsigned int dim = 3;
+        unsigned int sot_dim = dim * dim;
 
         variableVector invRCG = tardigradeVectorTools::inverse( rightCauchyGreenDeformation, dim, dim );
 
         deviatoricSecondOrderReferenceStress = secondOrderReferenceStress - pressure * invRCG;
 
         //Compute the first order jacobians
-        dDeviatoricReferenceStressdReferenceStress = tardigradeVectorTools::eye< constantType >( dim * dim );
-        dDeviatoricReferenceStressdReferenceStress -= tardigradeVectorTools::dyadic( invRCG, dPressuredStress );
+        dDeviatoricReferenceStressdReferenceStress = variableVector( sot_dim * sot_dim, 0 );
+        tardigradeVectorTools::eye( dDeviatoricReferenceStressdReferenceStress );
+        dDeviatoricReferenceStressdReferenceStress -= tardigradeVectorTools::matrixMultiply( invRCG, dPressuredStress, sot_dim, 1, 1, sot_dim );
 
-        dDeviatoricReferenceStressdRCG = - tardigradeVectorTools::dyadic( invRCG, dPressuredRCG );
+        dDeviatoricReferenceStressdRCG = - tardigradeVectorTools::matrixMultiply( invRCG, dPressuredRCG, sot_dim, 1, 1, sot_dim );
         for ( unsigned int I = 0; I < dim; I++ ){
             for ( unsigned int J = 0; J < dim; J++ ){
                 for ( unsigned int K = 0; K < dim; K++ ){
                     for ( unsigned int L = 0; L < dim; L++ ){
-                        dDeviatoricReferenceStressdRCG[ dim * I + J ][ dim * K + L ] += pressure * invRCG[ dim * I + K ] * invRCG[ dim * L + J ];
+                        dDeviatoricReferenceStressdRCG[ dim * sot_dim * I + sot_dim * J + dim * K + L ] += pressure * invRCG[ dim * I + K ] * invRCG[ dim * L + J ];
                     }
                 }
             }
         }
 
         //Compute the second order jacobians
-        d2DevSdSdRCG = variableMatrix( dim * dim, variableVector( dim * dim * dim * dim, 0 ) );
+        d2DevSdSdRCG = variableVector( sot_dim * sot_dim * sot_dim, 0 );
         for ( unsigned int I = 0; I < dim; I++ ){
             for ( unsigned int J = 0; J < dim; J++ ){
                 for ( unsigned int K = 0; K < dim; K++ ){
                     for ( unsigned int L = 0; L < dim; L++ ){
                         for ( unsigned int M = 0; M < dim; M++ ){
                             for ( unsigned int N = 0; N < dim; N++ ){
-                                d2DevSdSdRCG[ dim * I + J ][ dim * dim * dim * K + dim * dim * L + dim * M + N ] = 
-                                    -d2PressuredStressdRCG[ dim * K + L ][ dim * M + N ] * invRCG[ dim * I + J ]
+                                d2DevSdSdRCG[ dim * sot_dim * sot_dim * I + sot_dim * sot_dim * J + dim * dim * dim * K + dim * dim * L + dim * M + N ] = 
+                                    -d2PressuredStressdRCG[ dim * sot_dim * K + sot_dim * L + dim * M + N ] * invRCG[ dim * I + J ]
                                     +dPressuredStress[ dim * K + L ] * invRCG[ dim * I + M ] * invRCG[ dim * N + J ];
                             }
                         }
@@ -2024,21 +2615,74 @@ namespace tardigradeMicromorphicTools{
          *
          * \frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} \partial C_{MN} } = - \frac{ \partial p^2 }{ \partial S_{KL} \partial C_{MN}} (C^{-1})_{IJ} + \frac{ \partial p }{ \partial S_{KL} } (C^{-1})_{IM} (C^{-1})_{NJ}
          *
-         * :param const variableVector &secondOrderReferenceStress: The stress measure in the reference configuration.
-         * :param const variableVector &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor of the 
+         * \param &secondOrderReferenceStress: The stress measure in the reference configuration.
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor of the 
          *     deformation between configurations.
-         * :param variableVector &deviatoricSecondOrderReferenceStrain: The deviatoric part of the second order 
+         * \param &deviatoricSecondOrderReferenceStrain: The deviatoric part of the second order 
          *     stress in the reference configuration.
-         * :param variableMatrix &dDeviatoricReferenceStressdReferenceStress: The Jacobian w.r.t. the reference stress.
-         * :param variableMatrix &dDeviatoricreferenceStressdRCG: The Jacobian w.r.t. the right Cauchy-Green deformation
+         * \param &dDeviatoricReferenceStressdReferenceStress: The Jacobian w.r.t. the reference stress.
+         * \param &dDeviatoricreferenceStressdRCG: The Jacobian w.r.t. the right Cauchy-Green deformation
          *     tensor.
-         * :param variableMatrix &d2DevSdSdRCG: The second order mixed Jacobian w.r.t. the stress and right Cauchy-Green 
-         *     deformation tensor. Stored [IJ][KLMN]
+         * \param &d2DevSdSdRCG: The second order mixed Jacobian w.r.t. the stress and right Cauchy-Green 
+         *     deformation tensor.
          */
+
+        variableVector _dDeviatoricReferenceStressdReferenceStress;
+        variableVector _dDeviatoricReferenceStressdRCG;
+        variableVector _d2DevSdSdRCG;
+
+        errorOut error = computeDeviatoricReferenceSecondOrderStress( secondOrderReferenceStress,
+                                                                      rightCauchyGreenDeformation,
+                                                                      deviatoricSecondOrderReferenceStress,
+                                                                      _dDeviatoricReferenceStressdReferenceStress,
+                                                                      _dDeviatoricReferenceStressdRCG,
+                                                                      _d2DevSdSdRCG );
+        if ( error ){
+            errorOut result = new errorNode( "computeDeviatoricReferenceSecondOrderStress",
+                                             "Error in computation of the reference pressure" );
+            result->addNext( error );
+            return result;
+        }
+
+        dDeviatoricReferenceStressdReferenceStress = tardigradeVectorTools::inflate( _dDeviatoricReferenceStressdReferenceStress , 9,  9 );
+        dDeviatoricReferenceStressdRCG             = tardigradeVectorTools::inflate( _dDeviatoricReferenceStressdRCG             , 9,  9 );
+        d2DevSdSdRCG                               = tardigradeVectorTools::inflate( _d2DevSdSdRCG                               , 9, 81 );
+
+        return error;
+
+    }
+    errorOut computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
+                                                          const variableVector &rightCauchyGreenDeformation,
+                                                          variableVector &deviatoricSecondOrderReferenceStress,
+                                                          variableVector &dDeviatoricReferenceStressdReferenceStress,
+                                                          variableVector &dDeviatoricReferenceStressdRCG,
+                                                          variableVector &d2DevSdSdRCG ){
+        /*!
+         * Compute the deviatoric part of a second order stress measure in the reference configuration.
+         * \hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}
+         * 
+         * Also compute the Jacobians.
+         * \frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} } = \delta_{IK} \delta_{LJ} - \frac{1}{3} C_{KL} (C^{-1})_{IJ}
+         * \frac{ \partial \hat{S}_{IJ} }{ \partial C_{KL} } = \frac{1}{3} \left( C_{AB} S_{AB} (C^{-1})_{IK} (C^{-1})_{LJ} - S_{KL} (C^{-1}_{IJ}) \right)
+         *
+         * \frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} \partial C_{MN} } = - \frac{ \partial p^2 }{ \partial S_{KL} \partial C_{MN}} (C^{-1})_{IJ} + \frac{ \partial p }{ \partial S_{KL} } (C^{-1})_{IM} (C^{-1})_{NJ}
+         *
+         * \param &secondOrderReferenceStress: The stress measure in the reference configuration.
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor of the 
+         *     deformation between configurations.
+         * \param &deviatoricSecondOrderReferenceStrain: The deviatoric part of the second order 
+         *     stress in the reference configuration.
+         * \param &dDeviatoricReferenceStressdReferenceStress: The Jacobian w.r.t. the reference stress.
+         * \param &dDeviatoricreferenceStressdRCG: The Jacobian w.r.t. the right Cauchy-Green deformation
+         *     tensor.
+         * \param &d2DevSdSdRCG: The second order mixed Jacobian w.r.t. the stress and right Cauchy-Green 
+         *     deformation tensor.
+         */
+
 
         variableType pressure;
         variableVector dpdS, dpdC;
-        variableMatrix d2pdSdC;
+        variableVector d2pdSdC;
         errorOut error = computeReferenceSecondOrderStressPressure( secondOrderReferenceStress, rightCauchyGreenDeformation, pressure,
                                                                     dpdS, dpdC, d2pdSdC );
 
@@ -2110,19 +2754,70 @@ namespace tardigradeMicromorphicTools{
          *
          * Includes the first order Jacobians
          *
-         * :param const variableVector &secondOrderReferenceStress: The second-order stress in the reference
+         * \param &secondOrderReferenceStress: The second-order stress in the reference
          *     configuration.
-         * :param const variableVector &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor 
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor 
          *     between the current configuration and the configuration the stress is located in.
-         * :param variableVector &deviatoricSecondOrderReferenceStress: The deviatoric part of the second order 
+         * \param &deviatoricSecondOrderReferenceStress: The deviatoric part of the second order 
          *     stress tensor.
-         * :param variableType &pressure: The pressure of the stress tensor.
-         * :param variableMatrix &dDevStressdStress: The Jacobian of the deviatoric part of the reference 
+         * \param &pressure: The pressure of the stress tensor.
+         * \param &dDevStressdStress: The Jacobian of the deviatoric part of the reference 
          *     stress w.r.t. the reference stress.
-         * :param variableMatrix &dDevStressdRCG: The Jacobian of the deviatoric part of the reference stress
+         * \param &dDevStressdRCG: The Jacobian of the deviatoric part of the reference stress
          *     w.r.t. the right Cauchy-Green deformation tensor.
-         * :param variableMatrix &dPressuredStress: The Jacobian of the pressure w.r.t. the reference stress.
-         * :param variableMatrix &dPressuredRCG: The Jacobian of the pressure w.r.t. the right Cauchy-Green 
+         * \param &dPressuredStress: The Jacobian of the pressure w.r.t. the reference stress.
+         * \param &dPressuredRCG: The Jacobian of the pressure w.r.t. the right Cauchy-Green 
+         *     deformation tensor.
+         */
+
+        variableVector _dDevStressdStress;
+        variableVector _dDevStressdRCG;
+
+        errorOut error = computeSecondOrderReferenceStressDecomposition( secondOrderReferenceStress,
+                                                                         rightCauchyGreenDeformation,
+                                                                         deviatoricSecondOrderReferenceStress,
+                                                                         pressure, _dDevStressdStress,
+                                                                         _dDevStressdRCG, dPressuredStress,
+                                                                         dPressuredRCG );
+
+        if ( error ){
+            errorOut result = new errorNode( "computeSecondOrderReferenceStressDecomposition (jacobian)",
+                                             "Error in computation of pressure" );
+            result->addNext( error );
+            return result;
+        }
+
+        dDevStressdStress = tardigradeVectorTools::inflate( _dDevStressdStress, 9, 9 );
+        dDevStressdRCG    = tardigradeVectorTools::inflate( _dDevStressdRCG,    9, 9 );
+
+        return error;
+
+    }
+
+    errorOut computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
+                                                             const variableVector &rightCauchyGreenDeformation,
+                                                             variableVector &deviatoricSecondOrderReferenceStress,
+                                                             variableType &pressure, variableVector &dDevStressdStress,
+                                                             variableVector &dDevStressdRCG, variableVector &dPressuredStress,
+                                                             variableVector &dPressuredRCG ){
+        /*!
+         * Compute the decomposition of a second-order stress measure into pressure and deviatoric parts.
+         *
+         * Includes the first order Jacobians
+         *
+         * \param &secondOrderReferenceStress: The second-order stress in the reference
+         *     configuration.
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor 
+         *     between the current configuration and the configuration the stress is located in.
+         * \param &deviatoricSecondOrderReferenceStress: The deviatoric part of the second order 
+         *     stress tensor.
+         * \param &pressure: The pressure of the stress tensor.
+         * \param &dDevStressdStress: The Jacobian of the deviatoric part of the reference 
+         *     stress w.r.t. the reference stress.
+         * \param &dDevStressdRCG: The Jacobian of the deviatoric part of the reference stress
+         *     w.r.t. the right Cauchy-Green deformation tensor.
+         * \param &dPressuredStress: The Jacobian of the pressure w.r.t. the reference stress.
+         * \param &dPressuredRCG: The Jacobian of the pressure w.r.t. the right Cauchy-Green 
          *     deformation tensor.
          */
 
@@ -2165,25 +2860,86 @@ namespace tardigradeMicromorphicTools{
          *
          * Includes the first and some of the second order Jacobians
          *
-         * :param const variableVector &secondOrderReferenceStress: The second-order stress in the reference
+         * \param &secondOrderReferenceStress: The second-order stress in the reference
          *     configuration.
-         * :param const variableVector &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor 
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor 
          *     between the current configuration and the configuration the stress is located in.
-         * :param variableVector &deviatoricSecondOrderReferenceStress: The deviatoric part of the second order 
+         * \param &deviatoricSecondOrderReferenceStress: The deviatoric part of the second order 
          *     stress tensor.
-         * :param variableType &pressure: The pressure of the stress tensor.
-         * :param variableMatrix &dDevStressdStress: The Jacobian of the deviatoric part of the reference 
+         * \param &pressure: The pressure of the stress tensor.
+         * \param &dDevStressdStress: The Jacobian of the deviatoric part of the reference 
          *     stress w.r.t. the reference stress.
-         * :param variableMatrix &dDevStressdRCG: The Jacobian of the deviatoric part of the reference stress
+         * \param &dDevStressdRCG: The Jacobian of the deviatoric part of the reference stress
          *     w.r.t. the right Cauchy-Green deformation tensor.
-         * :param variableMatrix &dPressuredStress: The Jacobian of the pressure w.r.t. the reference stress.
-         * :param variableMatrix &dPressuredRCG: The Jacobian of the pressure w.r.t. the right Cauchy-Green 
+         * \param &dPressuredStress: The Jacobian of the pressure w.r.t. the reference stress.
+         * \param &dPressuredRCG: The Jacobian of the pressure w.r.t. the right Cauchy-Green 
          *     deformation tensor.
-         * :param variableMatrix &d2DevStressdStressdRCG: The second order Jacobian of the deviatoric part of the 
+         * \param &d2DevStressdStressdRCG: The second order Jacobian of the deviatoric part of the 
          *     reference stress w.r.t. the reference stress and the right Cauchy-Green deformation tensor. 
          *     $\frac{ \partial^2 dev( S )_{IJ} }{ \partial S_{KL} \partial C_{MN} }$
-         *     stored as [IJ][KLMN]
-         * :param variableMatrix &d2PressuredStressdRCG: THe second order Jacobian of the deviatoric part of the 
+         * \param &d2PressuredStressdRCG: THe second order Jacobian of the deviatoric part of the 
+         *     reference stress w.r.t. the reference stress and the right Cauchy-Green deformation tensor.
+         */
+
+        variableVector _dDevStressdStress;
+        variableVector _dDevStressdRCG;
+        variableVector _d2DevStressdStressdRCG;
+        variableVector _d2PressuredStressdRCG;
+
+        errorOut error = computeSecondOrderReferenceStressDecomposition( secondOrderReferenceStress,
+                                                                         rightCauchyGreenDeformation,
+                                                                         deviatoricSecondOrderReferenceStress,
+                                                                         pressure, _dDevStressdStress,
+                                                                         _dDevStressdRCG,dPressuredStress,
+                                                                         dPressuredRCG, _d2DevStressdStressdRCG,
+                                                                         _d2PressuredStressdRCG );
+
+        if ( error ){
+            errorOut result = new errorNode( "computeSecondOrderReferenceStressDecomposition (second order jacobian)",
+                                             "Error in computation of pressure" );
+            result->addNext( error );
+            return result;
+        }
+
+        dDevStressdStress      = tardigradeVectorTools::inflate( _dDevStressdStress     , 9,  9 );
+        dDevStressdRCG         = tardigradeVectorTools::inflate( _dDevStressdRCG        , 9,  9 );
+        d2DevStressdStressdRCG = tardigradeVectorTools::inflate( _d2DevStressdStressdRCG, 9, 81 );
+        d2PressuredStressdRCG  = tardigradeVectorTools::inflate( _d2PressuredStressdRCG , 9,  9 );
+
+        return error;
+
+    }
+
+    errorOut computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
+                                                             const variableVector &rightCauchyGreenDeformation,
+                                                             variableVector &deviatoricSecondOrderReferenceStress,
+                                                             variableType &pressure, variableVector &dDevStressdStress,
+                                                             variableVector &dDevStressdRCG, variableVector &dPressuredStress,
+                                                             variableVector &dPressuredRCG, variableVector &d2DevStressdStressdRCG,
+                                                             variableVector &d2PressuredStressdRCG ){
+        /*!
+         * Compute the decomposition of a second-order stress measure into pressure and deviatoric parts.
+         *
+         * Includes the first and some of the second order Jacobians
+         *
+         * \param &secondOrderReferenceStress: The second-order stress in the reference
+         *     configuration.
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor 
+         *     between the current configuration and the configuration the stress is located in.
+         * \param &deviatoricSecondOrderReferenceStress: The deviatoric part of the second order 
+         *     stress tensor.
+         * \param &pressure: The pressure of the stress tensor.
+         * \param &dDevStressdStress: The Jacobian of the deviatoric part of the reference 
+         *     stress w.r.t. the reference stress.
+         * \param &dDevStressdRCG: The Jacobian of the deviatoric part of the reference stress
+         *     w.r.t. the right Cauchy-Green deformation tensor.
+         * \param &dPressuredStress: The Jacobian of the pressure w.r.t. the reference stress.
+         * \param &dPressuredRCG: The Jacobian of the pressure w.r.t. the right Cauchy-Green 
+         *     deformation tensor.
+         * \param &d2DevStressdStressdRCG: The second order Jacobian of the deviatoric part of the 
+         *     reference stress w.r.t. the reference stress and the right Cauchy-Green deformation tensor. 
+         *     $\frac{ \partial^2 dev( S )_{IJ} }{ \partial S_{KL} \partial C_{MN} }$
+         * \param &d2PressuredStressdRCG: THe second order Jacobian of the deviatoric part of the 
          *     reference stress w.r.t. the reference stress and the right Cauchy-Green deformation tensor.
          */
 
@@ -2270,18 +3026,71 @@ namespace tardigradeMicromorphicTools{
          *
          * Also return the Jacobians
          *
-         * :param const variableVector &higherOrderReferenceStress: The higher order stress in the reference
+         * \param &higherOrderReferenceStress: The higher order stress in the reference
          *     configuration.
-         * :param const variableVector &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor 
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor 
          *     between the current configuration and the configuration the stress is located in.
-         * :param variableVector &deviatoricHigherOrderReferenceStress: The deviatoric part of the higher order 
+         * \param &deviatoricHigherOrderReferenceStress: The deviatoric part of the higher order 
          *     stress tensor.
-         * :param variableVector &pressure: The pressure of the higher order stress tensor.
-         * :param variableMatrix &dDevStressdStress: The Jacobian of the deviatoric stress w.r.t. the stress.
-         * :param variableMatrix &dDevStressdRCG: The Jacobian of the deviatoric stress w.r.t. the right 
+         * \param &pressure: The pressure of the higher order stress tensor.
+         * \param &dDevStressdStress: The Jacobian of the deviatoric stress w.r.t. the stress.
+         * \param &dDevStressdRCG: The Jacobian of the deviatoric stress w.r.t. the right 
          *     Cauchy-Green deformation tensor.
-         * :param variableMatrix &dPressuredStress: The Jacobian of the pressure w.r.t. the stress.
-         * :param variableMatrix &dPressuredRCG: The Jacobian of the pressure w.r.t. the right 
+         * \param &dPressuredStress: The Jacobian of the pressure w.r.t. the stress.
+         * \param &dPressuredRCG: The Jacobian of the pressure w.r.t. the right 
+         *     Cauchy-Green deformation tensor.
+         */
+
+        variableVector _dDevStressdStress;
+        variableVector _dDevStressdRCG;
+        variableVector _dPressuredStress;
+        variableVector _dPressuredRCG;
+
+        errorOut error = computeHigherOrderReferenceStressDecomposition( higherOrderReferenceStress,
+                                                                         rightCauchyGreenDeformation,
+                                                                         deviatoricHigherOrderReferenceStress,
+                                                                         pressure, _dDevStressdStress,
+                                                                         _dDevStressdRCG, _dPressuredStress,
+                                                                         _dPressuredRCG );
+
+        if ( error ){
+            errorOut result = new errorNode( "computeHigherOrderReferenceStressDecomposition (jacobian)", "error in decomposition" );
+            result->addNext( error );
+            return result;
+        }
+
+        dDevStressdStress = tardigradeVectorTools::inflate( _dDevStressdStress , 27, 27 );
+        dDevStressdRCG    = tardigradeVectorTools::inflate( _dDevStressdRCG    , 27,  9 );
+        dPressuredStress  = tardigradeVectorTools::inflate( _dPressuredStress  ,  3, 27 );
+        dPressuredRCG     = tardigradeVectorTools::inflate( _dPressuredRCG     ,  3,  9 );
+
+        return error;
+
+    }
+
+    errorOut computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
+                                                             const variableVector &rightCauchyGreenDeformation,
+                                                             variableVector &deviatoricHigherOrderReferenceStress,
+                                                             variableVector &pressure, variableVector &dDevStressdStress,
+                                                             variableVector &dDevStressdRCG, variableVector &dPressuredStress,
+                                                             variableVector &dPressuredRCG ){
+        /*!
+         * Compute the decomposition of the higher-order stress measure into pressure and deviatoric parts.
+         *
+         * Also return the Jacobians
+         *
+         * \param &higherOrderReferenceStress: The higher order stress in the reference
+         *     configuration.
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor 
+         *     between the current configuration and the configuration the stress is located in.
+         * \param &deviatoricHigherOrderReferenceStress: The deviatoric part of the higher order 
+         *     stress tensor.
+         * \param &pressure: The pressure of the higher order stress tensor.
+         * \param &dDevStressdStress: The Jacobian of the deviatoric stress w.r.t. the stress.
+         * \param &dDevStressdRCG: The Jacobian of the deviatoric stress w.r.t. the right 
+         *     Cauchy-Green deformation tensor.
+         * \param &dPressuredStress: The Jacobian of the pressure w.r.t. the stress.
+         * \param &dPressuredRCG: The Jacobian of the pressure w.r.t. the right 
          *     Cauchy-Green deformation tensor.
          */
 
@@ -2321,6 +3130,70 @@ namespace tardigradeMicromorphicTools{
                                                              variableMatrix &dDevStressdRCG, variableMatrix &dPressuredStress,
                                                              variableMatrix &dPressuredRCG, variableMatrix &d2DevStressdStressdRCG,
                                                              variableMatrix &d2PressuredStressdRCG ){
+        /*!
+         * Compute the decomposition of the higher-order stress measure into pressure and deviatoric parts.
+         *
+         * Also return the Jacobians
+         *
+         * \param &higherOrderReferenceStress: The higher order stress in the reference
+         *     configuration.
+         * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor 
+         *     between the current configuration and the configuration the stress is located in.
+         * \param &deviatoricHigherOrderReferenceStress: The deviatoric part of the higher order 
+         *     stress tensor.
+         * \param &pressure: The pressure of the higher order stress tensor.
+         * \param &dDevStressdStress: The Jacobian of the deviatoric stress w.r.t. the stress.
+         * \param &dDevStressdRCG: The Jacobian of the deviatoric stress w.r.t. the right 
+         *     Cauchy-Green deformation tensor.
+         * \param &dPressuredStress: The Jacobian of the pressure w.r.t. the stress.
+         * \param &dPressuredRCG: The Jacobian of the pressure w.r.t. the right 
+         *     Cauchy-Green deformation tensor.
+         * \param &d2DevStressdStressdRCG: The second order jacobian of the deviatoric stress 
+         *     w.r.t. the stress and the right Cauchy-Green deformation tensor.
+         * \param &d2PressuredStressdRCG: The second order jacobian of the pressure
+         *     w.r.t. the stress and the right Cauchy-Green deformation tensor.
+         */
+
+        variableVector _dDevStressdStress;
+        variableVector _dDevStressdRCG;
+        variableVector _dPressuredStress;
+        variableVector _dPressuredRCG;
+        variableVector _d2DevStressdStressdRCG;
+        variableVector _d2PressuredStressdRCG;
+
+        errorOut error = computeHigherOrderReferenceStressDecomposition( higherOrderReferenceStress,
+                                                                         rightCauchyGreenDeformation,
+                                                                         deviatoricHigherOrderReferenceStress,
+                                                                         pressure, _dDevStressdStress,
+                                                                         _dDevStressdRCG, _dPressuredStress,
+                                                                         _dPressuredRCG, _d2DevStressdStressdRCG,
+                                                                         _d2PressuredStressdRCG );
+
+        if ( error ){
+            errorOut result = new errorNode( "computeHigherOrderReferenceStressDecomposition (jacobian)",
+                                             "Error in computation of the decomposition of the stress" );
+            result->addNext( error );
+            return result;
+        }
+
+        dDevStressdStress      = tardigradeVectorTools::inflate( _dDevStressdStress     , 27,  27 );
+        dDevStressdRCG         = tardigradeVectorTools::inflate( _dDevStressdRCG        , 27,   9 );
+        dPressuredStress       = tardigradeVectorTools::inflate( _dPressuredStress      ,  3,  27 );
+        dPressuredRCG          = tardigradeVectorTools::inflate( _dPressuredRCG         ,  3,   9 );
+        d2DevStressdStressdRCG = tardigradeVectorTools::inflate( _d2DevStressdStressdRCG, 27, 243 );
+        d2PressuredStressdRCG  = tardigradeVectorTools::inflate( _d2PressuredStressdRCG ,  3, 243 );
+
+        return error;
+
+    }
+
+    errorOut computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
+                                                             const variableVector &rightCauchyGreenDeformation,
+                                                             variableVector &deviatoricHigherOrderReferenceStress,
+                                                             variableVector &pressure, variableVector &dDevStressdStress,
+                                                             variableVector &dDevStressdRCG, variableVector &dPressuredStress,
+                                                             variableVector &dPressuredRCG, variableVector &d2DevStressdStressdRCG,
+                                                             variableVector &d2PressuredStressdRCG ){
         /*!
          * Compute the decomposition of the higher-order stress measure into pressure and deviatoric parts.
          *
@@ -2423,16 +3296,59 @@ namespace tardigradeMicromorphicTools{
          *
          * where K is not summed over
          *
-         * :param const variableVector &higherOrderStress: The higher order stress tensor.
-         * :param variableVector &higherOrderStressNorm: The norm of the higher order stress.
-         * :param variableMatrix &dHigherOrderSTressNormdHigherOrderStress: The Jacobian of the higher order
+         * \param &higherOrderStress: The higher order stress tensor.
+         * \param &higherOrderStressNorm: The norm of the higher order stress.
+         * \param &dHigherOrderSTressNormdHigherOrderStress: The Jacobian of the higher order
          *     stress norm w.r.t. the higher order stress.
-         * :param double tol: The tolerance of the higher order stress norm when computing the derivative.
+         * \param tol: The tolerance of the higher order stress norm when computing the derivative.
+         *     Prevents nans.
+         */
+
+        variableVector _dHigherOrderStressNormdHigherOrderStress;
+
+        errorOut error = computeHigherOrderStressNorm( higherOrderStress, higherOrderStressNorm,
+                                                       _dHigherOrderStressNormdHigherOrderStress,
+                                                       tol );
+
+        if ( error ){
+            errorOut result = new errorNode( "computeHigherOrderStressNorm (jacobian)",
+                                             "Error in computation of higher order stress norm" );
+            result->addNext( error );
+            return result;
+        }
+
+        dHigherOrderStressNormdHigherOrderStress = tardigradeVectorTools::inflate( _dHigherOrderStressNormdHigherOrderStress, 3, 27 );
+
+        return error;
+
+    }
+    errorOut computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
+                                           variableVector &dHigherOrderStressNormdHigherOrderStress,
+                                           double tol ){
+        /*!
+         * Compute the norm of the higher order stress which is defined as
+         * || M ||_K = \sqrt{ M_{IJK} M_{IJK} }
+         *
+         * where K is not summed over.
+         *
+         * Also computes the Jacobians
+         *
+         * \frac{ \partial || M ||_K }{ \partial M_{LMN} } = \frac{ M_{LMK} \delta_{KN} }{ || M ||_K }
+         *
+         * where K is not summed over
+         *
+         * \param &higherOrderStress: The higher order stress tensor.
+         * \param &higherOrderStressNorm: The norm of the higher order stress.
+         * \param &dHigherOrderSTressNormdHigherOrderStress: The Jacobian of the higher order
+         *     stress norm w.r.t. the higher order stress.
+         * \param tol: The tolerance of the higher order stress norm when computing the derivative.
          *     Prevents nans.
          */
 
         //Assume 3D
-        unsigned int dim = 3;
+        const unsigned int dim = 3;
+        const unsigned int sot_dim = dim * dim;
+        const unsigned int tot_dim = sot_dim * dim;
 
         errorOut error = computeHigherOrderStressNorm( higherOrderStress, higherOrderStressNorm );
 
@@ -2445,12 +3361,12 @@ namespace tardigradeMicromorphicTools{
 
         constantVector eye( dim * dim );
         tardigradeVectorTools::eye( eye );
-        dHigherOrderStressNormdHigherOrderStress = variableMatrix( dim, variableVector( dim * dim * dim, 0 ) );
+        dHigherOrderStressNormdHigherOrderStress = variableVector( dim * tot_dim, 0 );
         for ( unsigned int K = 0; K < 3; K++ ){
             for ( unsigned int L = 0; L < 3; L++ ){
                 for ( unsigned int M = 0; M < 3; M++ ){
                     for ( unsigned int N = 0; N < 3; N++ ){
-                        dHigherOrderStressNormdHigherOrderStress[ K ][ dim * dim * L + dim * M + N ] = higherOrderStress[ dim * dim * L + dim * M + K ]  * eye[ dim * K + N ] / ( higherOrderStressNorm[ K ] + tol );
+                        dHigherOrderStressNormdHigherOrderStress[ tot_dim * K + dim * dim * L + dim * M + N ] = higherOrderStress[ dim * dim * L + dim * M + K ]  * eye[ dim * K + N ] / ( higherOrderStressNorm[ K ] + tol );
                     }
                 }
             }
@@ -2476,18 +3392,69 @@ namespace tardigradeMicromorphicTools{
          *
          * where K is not summed over
          *
-         * :param const variableVector &higherOrderStress: The higher order stress tensor.
-         * :param variableVector &higherOrderStressNorm: The norm of the higher order stress.
-         * :param variableMatrix &dHigherOrderSTressNormdHigherOrderStress: The Jacobian of the higher order
+         * \param const variableVector &higherOrderStress: The higher order stress tensor.
+         * \param variableVector &higherOrderStressNorm: The norm of the higher order stress.
+         * \param variableMatrix &dHigherOrderSTressNormdHigherOrderStress: The Jacobian of the higher order
          *     stress norm w.r.t. the higher order stress.
-         * :param variableMatrix &d2HigherOrderStressNormdHigherOrderStress2: The second order Jacobian of the 
+         * \param variableMatrix &d2HigherOrderStressNormdHigherOrderStress2: The second order Jacobian of the 
          *     higher order stress norm w.r.t. the higher order stress.
-         * :param double tol: The tolerance of the higher order stress norm when computing the derivatives.
+         * \param double tol: The tolerance of the higher order stress norm when computing the derivatives.
+         *     Prevents nans.
+         */
+
+        variableVector _dHigherOrderStressNormdHigherOrderStress;
+        variableVector _d2HigherOrderStressNormdHigherOrderStress2;
+
+        errorOut error = computeHigherOrderStressNorm( higherOrderStress, higherOrderStressNorm,
+                                                       _dHigherOrderStressNormdHigherOrderStress,
+                                                       _d2HigherOrderStressNormdHigherOrderStress2,
+                                                       tol );
+
+        if ( error ){
+            errorOut result = new errorNode( "computeHigherOrderStressNorm (jacobian)",
+                                             "Error in computation of higher order stress norm" );
+            result->addNext( error );
+            return result;
+        }
+
+        dHigherOrderStressNormdHigherOrderStress   = tardigradeVectorTools::inflate( _dHigherOrderStressNormdHigherOrderStress, 3, 27 );
+        d2HigherOrderStressNormdHigherOrderStress2 = tardigradeVectorTools::inflate( _d2HigherOrderStressNormdHigherOrderStress2, 3, 27 * 27 );
+
+        return error;
+
+    }
+
+    errorOut computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
+                                           variableVector &dHigherOrderStressNormdHigherOrderStress,
+                                           variableVector &d2HigherOrderStressNormdHigherOrderStress2,
+                                           double tol ){
+        /*!
+         * Compute the norm of the higher order stress which is defined as
+         * || M ||_K = \sqrt{ M_{IJK} M_{IJK} }
+         *
+         * where K is not summed over.
+         *
+         * Also computes the Jacobians
+         *
+         * \frac{ \partial || M ||_K }{ \partial M_{LMN} } = \frac{ M_{LMK} \delta_{KN} }{ || M ||_K }
+         * \frac{ \partial^2 || M ||_K }{ \partial M_{LMN} \partial M_{OPQ} } = \frac{1}{ || M ||_K } \left[ \delta_{LO} \delta_{MP} \delta_{KQ} \delta_{KN} - \frac{ M_{LMK} \delta_{KN} }{ || M ||_K } \frac{ M_{OPK} \delta_{KQ} }{ || M ||_K } \right]
+         *
+         * where K is not summed over
+         *
+         * \param const variableVector &higherOrderStress: The higher order stress tensor.
+         * \param variableVector &higherOrderStressNorm: The norm of the higher order stress.
+         * \param variableMatrix &dHigherOrderSTressNormdHigherOrderStress: The Jacobian of the higher order
+         *     stress norm w.r.t. the higher order stress.
+         * \param variableMatrix &d2HigherOrderStressNormdHigherOrderStress2: The second order Jacobian of the 
+         *     higher order stress norm w.r.t. the higher order stress.
+         * \param double tol: The tolerance of the higher order stress norm when computing the derivatives.
          *     Prevents nans.
          */
 
         //Assume 3D
-        unsigned int dim = 3;
+        const unsigned int dim = 3;
+        const unsigned int sot_dim = dim * dim;
+        const unsigned int tot_dim = sot_dim * dim;
 
         errorOut error = computeHigherOrderStressNorm( higherOrderStress, higherOrderStressNorm, dHigherOrderStressNormdHigherOrderStress, tol );
 
@@ -2501,7 +3468,7 @@ namespace tardigradeMicromorphicTools{
         constantVector eye( dim * dim );
         tardigradeVectorTools::eye( eye );
 
-        d2HigherOrderStressNormdHigherOrderStress2 = variableMatrix( dim, variableVector( dim * dim * dim * dim * dim * dim, 0 ) );
+        d2HigherOrderStressNormdHigherOrderStress2 = variableVector( dim * tot_dim * tot_dim, 0 );
 
         for ( unsigned int K = 0; K < dim; K++ ){
             for ( unsigned int L = 0; L < dim; L++ ){
@@ -2510,10 +3477,10 @@ namespace tardigradeMicromorphicTools{
                         for ( unsigned int O = 0; O < dim; O++ ){
                             for ( unsigned int P = 0; P < dim; P++ ){
                                 for ( unsigned int Q = 0; Q < dim; Q++ ){
-                                    d2HigherOrderStressNormdHigherOrderStress2[ K ][ dim * dim * dim * dim * dim * L + dim * dim * dim * dim * M + dim * dim * dim * N + dim * dim * O + dim * P + Q ]
+                                    d2HigherOrderStressNormdHigherOrderStress2[ tot_dim * tot_dim * K + dim * dim * dim * dim * dim * L + dim * dim * dim * dim * M + dim * dim * dim * N + dim * dim * O + dim * P + Q ]
                                         = ( eye[ dim * L + O ] * eye[ dim * M + P ] * eye[ dim * K + Q ] * eye[ dim * K + N ]
-                                        -   dHigherOrderStressNormdHigherOrderStress[ K ][ dim * dim * L + dim * M + N ]
-                                        *   dHigherOrderStressNormdHigherOrderStress[ K ][ dim * dim * O + dim * P + Q ] )
+                                        -   dHigherOrderStressNormdHigherOrderStress[ tot_dim * K + dim * dim * L + dim * M + N ]
+                                        *   dHigherOrderStressNormdHigherOrderStress[ tot_dim * K + dim * dim * O + dim * P + Q ] )
                                         / ( higherOrderStressNorm[ K ] + tol );
                                 }
                             }
