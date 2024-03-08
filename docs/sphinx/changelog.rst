@@ -9,6 +9,10 @@ Changelog
 1.4.0 (unreleased)
 ******************
 
+Internal Changes
+================
+- Changed the fuzzyEquals in the tests to use BOOST_TEST (:pull:`7`). By `Nathan Miller`_.
+
 Breaking changes
 ================
 - Added vector-based Jacobians (:pull:`1`, :pull:`4`, :pull:`5`). By `Nathan Miller`_.
