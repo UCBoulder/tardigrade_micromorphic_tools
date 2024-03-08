@@ -8,6 +8,9 @@
 #define BOOST_TEST_MODULE test_tardigrade_micromorphic_tools
 #include <boost/test/included/unit_test.hpp>
 
+#define DEFAULT_TEST_TOLERANCE 1e-6
+#define CHECK_PER_ELEMENT boost::test_tools::per_element( )
+
 typedef tardigradeMicromorphicTools::constantType constantType;
 typedef tardigradeMicromorphicTools::constantVector constantVector;
 typedef tardigradeMicromorphicTools::constantMatrix constantMatrix;
@@ -49,7 +52,7 @@ struct cerr_redirect{
         std::streambuf * old;
 };
 
-BOOST_AUTO_TEST_CASE( test_computePsi ){
+BOOST_AUTO_TEST_CASE( test_computePsi, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
      * Tests of the compute Psi function.
      *
@@ -67,7 +70,7 @@ BOOST_AUTO_TEST_CASE( test_computePsi ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( result, answer ) );
+    BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
     //Test Jacobians
     variableVector resultJ;
@@ -77,7 +80,7 @@ BOOST_AUTO_TEST_CASE( test_computePsi ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ, answer ) );
+    BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
     //Test dPsidF
     
@@ -94,7 +97,7 @@ BOOST_AUTO_TEST_CASE( test_computePsi ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dPsidF[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dPsidF[ j ][ i ] );
 
         }
 
@@ -112,7 +115,7 @@ BOOST_AUTO_TEST_CASE( test_computePsi ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dPsidChi[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dPsidChi[ j ][ i ] );
         }
     }
 
@@ -120,7 +123,7 @@ BOOST_AUTO_TEST_CASE( test_computePsi ){
 
 }
 
-BOOST_AUTO_TEST_CASE( test_computeMicroStrain ){
+BOOST_AUTO_TEST_CASE( test_computeMicroStrain, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
      * Test the computation of the micro-strain
      *
@@ -137,7 +140,7 @@ BOOST_AUTO_TEST_CASE( test_computeMicroStrain ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( result, answer ) );
+    BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
     //Test Jacobians 
     
@@ -147,7 +150,7 @@ BOOST_AUTO_TEST_CASE( test_computeMicroStrain ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ, answer ) );
+    BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
     constantType eps = 1e-6;
     for ( unsigned int i = 0; i < Psi.size(); i++ ){
@@ -162,7 +165,7 @@ BOOST_AUTO_TEST_CASE( test_computeMicroStrain ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dMicroStraindPsi[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dMicroStraindPsi[ j ][ i ] );
 
         }
 
@@ -171,7 +174,7 @@ BOOST_AUTO_TEST_CASE( test_computeMicroStrain ){
     return;
 }
 
-BOOST_AUTO_TEST_CASE( test_pushForwardPK2Stress ){
+BOOST_AUTO_TEST_CASE( test_pushForwardPK2Stress, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
      * Test the computation of the push-foward operation on the PK2 Stress.
      *
@@ -193,7 +196,7 @@ BOOST_AUTO_TEST_CASE( test_pushForwardPK2Stress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( result, answer ) );
+    BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
     //Test Jacobian
     variableVector resultJ;
@@ -204,7 +207,7 @@ BOOST_AUTO_TEST_CASE( test_pushForwardPK2Stress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ, answer ) );
+    BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
     //Test dCauchydPK2
     constantType eps = 1e-6;
@@ -220,7 +223,7 @@ BOOST_AUTO_TEST_CASE( test_pushForwardPK2Stress ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dCauchydPK2[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dCauchydPK2[ j ][ i ] );
         }
     }
 
@@ -242,14 +245,14 @@ BOOST_AUTO_TEST_CASE( test_pushForwardPK2Stress ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dCauchydF[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dCauchydF[ j ][ i ] );
         }
     }
 
     return;
 }
 
-BOOST_AUTO_TEST_CASE( test_pushForwardReferenceMicroStress ){
+BOOST_AUTO_TEST_CASE( test_pushForwardReferenceMicroStress, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
      * Test the computation of the push-foward operation on the reference micro-stress.
      *
@@ -271,7 +274,7 @@ BOOST_AUTO_TEST_CASE( test_pushForwardReferenceMicroStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( result, answer ) );
+    BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
     //Test Jacobian
     variableVector resultJ;
@@ -282,7 +285,7 @@ BOOST_AUTO_TEST_CASE( test_pushForwardReferenceMicroStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ, answer ) );
+    BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
     //Test dsdS
     constantType eps = 1e-6;
@@ -298,7 +301,7 @@ BOOST_AUTO_TEST_CASE( test_pushForwardReferenceMicroStress ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dsdS[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dsdS[ j ][ i ] );
 
         }
     }
@@ -321,14 +324,14 @@ BOOST_AUTO_TEST_CASE( test_pushForwardReferenceMicroStress ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dsdF[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dsdF[ j ][ i ] );
         }
     }
 
     return;
 }
 
-BOOST_AUTO_TEST_CASE( test_computeGamma ){
+BOOST_AUTO_TEST_CASE( test_computeGamma, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
      * Test the computation of the deformation gradient Gamma
      *
@@ -350,7 +353,7 @@ BOOST_AUTO_TEST_CASE( test_computeGamma ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( result, answer ) );
+    BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
     //Test Jacobian
     variableVector resultJ;
@@ -361,7 +364,7 @@ BOOST_AUTO_TEST_CASE( test_computeGamma ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ, answer ) );
+    BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
     //Test dGammadF
     constantType eps = 1e-6;
@@ -383,7 +386,7 @@ BOOST_AUTO_TEST_CASE( test_computeGamma ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dGammadF[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dGammadF[ j ][ i ] );
 
         }
     }
@@ -407,7 +410,7 @@ BOOST_AUTO_TEST_CASE( test_computeGamma ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dGammadGradChi[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dGammadGradChi[ j ][ i ] );
         }
     }
 
@@ -415,7 +418,7 @@ BOOST_AUTO_TEST_CASE( test_computeGamma ){
 
 }
 
-BOOST_AUTO_TEST_CASE( test_pushForwardHigherOrderStress ){
+BOOST_AUTO_TEST_CASE( test_pushForwardHigherOrderStress, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
      * Tests for the push-forward operation of the higher order stress.
      *
@@ -449,7 +452,7 @@ BOOST_AUTO_TEST_CASE( test_pushForwardHigherOrderStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( result, answer ) );
+    BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
     //Test Jacobian
     variableVector resultJ;
@@ -466,7 +469,7 @@ BOOST_AUTO_TEST_CASE( test_pushForwardHigherOrderStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ, answer ) );
+    BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
     //Test dHigherOrderStressdReferenceHigherOrderStress
     constantType eps = 1e-6;
@@ -492,7 +495,7 @@ BOOST_AUTO_TEST_CASE( test_pushForwardHigherOrderStress ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ],  dHigherOrderStressdReferenceHigherOrderStress[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] ==  dHigherOrderStressdReferenceHigherOrderStress[ j ][ i ] );
 
         }
 
@@ -521,7 +524,7 @@ BOOST_AUTO_TEST_CASE( test_pushForwardHigherOrderStress ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dHigherOrderStressdDeformationGradient[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dHigherOrderStressdDeformationGradient[ j ][ i ] );
 
         }
 
@@ -550,7 +553,7 @@ BOOST_AUTO_TEST_CASE( test_pushForwardHigherOrderStress ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dHigherOrderStressdMicroDeformation[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dHigherOrderStressdMicroDeformation[ j ][ i ] );
 
         }
 
@@ -560,7 +563,7 @@ BOOST_AUTO_TEST_CASE( test_pushForwardHigherOrderStress ){
 
 }
 
-BOOST_AUTO_TEST_CASE( test_computeDeviatoricHigherOrderStress ){
+BOOST_AUTO_TEST_CASE( test_computeDeviatoricHigherOrderStress, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
      * Test the computation of the deviatoric higher order stress.
      *
@@ -581,7 +584,7 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricHigherOrderStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( answer, result ) );
+    BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
     //Test Jacobians
     
@@ -593,7 +596,7 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricHigherOrderStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( answer, resultJ ) );
+    BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
     constantType eps = 1e-6;
     for ( unsigned int i = 0; i < higherOrderStress.size(); i++ ){
@@ -614,7 +617,7 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricHigherOrderStress ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals(  gradCol[ j ], dDeviatoricHigherOrderStressdHigherOrderStress[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDeviatoricHigherOrderStressdHigherOrderStress[ j ][ i ] );
 
         }
 
@@ -624,7 +627,7 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricHigherOrderStress ){
 
 }
 
-BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceHigherOrderStress ){
+BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceHigherOrderStress, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
      * Test the computation of the deviatoric part of the reference higher order stress.
      *
@@ -660,13 +663,13 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceHigherOrderStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( result, answer ) );
+    BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
     error = tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C, pressure, result );
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( result, answer ) );
+    BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
     variableVector resultJ;
     variableMatrix dDevMdM, dDevMdC;
@@ -675,7 +678,7 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceHigherOrderStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ, answer ) );
+    BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
     variableVector resultJP;
     variableVector _dDevMdMP, _dDevMdCP;
@@ -688,7 +691,7 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceHigherOrderStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJP, answer ) );
+    BOOST_TEST( resultJP == answer, CHECK_PER_ELEMENT );
 
     variableVector resultJ2;
     variableMatrix dDevMdMJ2, dDevMdCJ2, d2DevMdMdC;
@@ -697,7 +700,7 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceHigherOrderStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ, answer ) );
+    BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
     variableVector resultJ2P;
     variableVector _dDevMdMJ2P, _dDevMdCJ2P, _d2DevMdMdCP;
@@ -713,7 +716,7 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceHigherOrderStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ2P, answer ) );
+    BOOST_TEST( resultJ2P == answer, CHECK_PER_ELEMENT );
 
     //Test dDevMdM
     constantType eps = 1e-6;
@@ -735,25 +738,25 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceHigherOrderStress ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevMdM[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevMdM[ j ][ i ] );
 
         }
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevMdMP[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevMdMP[ j ][ i ] );
 
         }
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevMdMJ2[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevMdMJ2[ j ][ i ] );
 
         }
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevMdMJ2P[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevMdMJ2P[ j ][ i ] );
 
         }
 
@@ -778,25 +781,25 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceHigherOrderStress ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevMdC[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevMdC[ j ][ i ] );
 
         }
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevMdCP[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevMdCP[ j ][ i ] );
 
         }
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevMdCJ2[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevMdCJ2[ j ][ i ] );
 
         }
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevMdCJ2P[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevMdCJ2P[ j ][ i ] );
 
         }
 
@@ -825,11 +828,9 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceHigherOrderStress ){
                     for ( unsigned int m = 0; m < 3; m++ ){
                         for ( unsigned int n = 0; n < 3; n++ ){
                             for ( unsigned int o = 0; o < 3; o++ ){
-                                BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ 9 * j + 3 * k + l ][ 9 * m + 3 * n + o ],
-                                                                       d2DevMdMdC[ 9 * j + 3 * k + l ][ 81 * m + 27 * n + 9 * o + 3 * (int)( i / 3 ) + i % 3 ] ) );
+                                BOOST_TEST( gradCol[ 9 * j + 3 * k + l ][ 9 * m + 3 * n + o ] == d2DevMdMdC[ 9 * j + 3 * k + l ][ 81 * m + 27 * n + 9 * o + 3 * (int)( i / 3 ) + i % 3 ] );
 
-                                BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ 9 * j + 3 * k + l ][ 9 * m + 3 * n + o ],
-                                                                       d2DevMdMdCP[ 9 * j + 3 * k + l ][ 81 * m + 27 * n + 9 * o + 3 * (int)( i / 3 ) + i % 3 ] ) );
+                                BOOST_TEST( gradCol[ 9 * j + 3 * k + l ][ 9 * m + 3 * n + o ] == d2DevMdMdCP[ 9 * j + 3 * k + l ][ 81 * m + 27 * n + 9 * o + 3 * (int)( i / 3 ) + i % 3 ] );
                             }
                         }
                     }
@@ -842,7 +843,7 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceHigherOrderStress ){
 
 }
 
-BOOST_AUTO_TEST_CASE( test_computeDeviatoricSecondOrderStress ){
+BOOST_AUTO_TEST_CASE( test_computeDeviatoricSecondOrderStress, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
      * Test the computation the deviatoric part of a second order 
      * stress tensor in the current configuration.
@@ -860,7 +861,7 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricSecondOrderStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( answer, result ) );
+    BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
     variableVector resultJ;
     variableMatrix jacobian;
@@ -869,7 +870,7 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricSecondOrderStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( answer, resultJ ) );
+    BOOST_TEST( answer == resultJ, CHECK_PER_ELEMENT );
 
     constantType eps = 1e-6;
     for ( unsigned int i = 0; i < stress.size(); i++ ){
@@ -890,7 +891,7 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricSecondOrderStress ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], jacobian[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == jacobian[ j ][ i ] );
 
         }
 
@@ -900,7 +901,7 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricSecondOrderStress ){
 
 }
 
-BOOST_AUTO_TEST_CASE( test_computeReferenceSecondOrderStressPressure ){
+BOOST_AUTO_TEST_CASE( test_computeReferenceSecondOrderStressPressure, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
      * Test the computation of the pressure of a second order stress in the 
      * reference configuration.
@@ -924,7 +925,7 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceSecondOrderStressPressure ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( answer, result ) );
+    BOOST_TEST( answer == result );
 
     //Test the Jacobians
 
@@ -935,7 +936,7 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceSecondOrderStressPressure ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ, answer ) );
+    BOOST_TEST( resultJ == answer );
 
     variableType resultJ2;
     variableVector dpdSJ2, dpdCJ2;
@@ -945,7 +946,7 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceSecondOrderStressPressure ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ2, answer ) );
+    BOOST_TEST( resultJ2 == answer );
 
     //Test dpdS
     constantType eps = 1e-6;
@@ -965,9 +966,9 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceSecondOrderStressPressure ){
 
         constantType gradCol = ( resultp - resultm ) / ( 2 * delta[i] );
 
-        BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol, dpdS[ i ] ) );
+        BOOST_TEST( gradCol == dpdS[ i ] );
 
-        BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol, dpdSJ2[ i ] ) );
+        BOOST_TEST( gradCol == dpdSJ2[ i ] );
 
     }
 
@@ -988,9 +989,9 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceSecondOrderStressPressure ){
 
         constantType gradCol = ( resultp - resultm ) / ( 2 * delta[ i ] );
 
-        BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol, dpdC[ i ] ) );
+        BOOST_TEST( gradCol == dpdC[ i ] );
 
-        BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol, dpdCJ2[ i ] ) );
+        BOOST_TEST( gradCol == dpdCJ2[ i ] );
 
     }
 
@@ -1013,7 +1014,7 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceSecondOrderStressPressure ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], d2pdSdC[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == d2pdSdC[ j ][ i ] );
 
         }
 
@@ -1023,7 +1024,7 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceSecondOrderStressPressure ){
 
 }
 
-BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceSecondOrderStress ){
+BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceSecondOrderStress, * boost::unit_test::tolerance( 1e-5 ) ){
     /*!
      * Test the computation of the deviatoric part of the second higher order stress.
      *
@@ -1056,13 +1057,13 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceSecondOrderStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( result, answer ) );
+    BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
     error = tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C, pressure, result );
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( result, answer ) );
+    BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
     //Test the jacobians
     variableVector resultJ;
@@ -1072,7 +1073,7 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceSecondOrderStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ, answer ) );
+    BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
     variableVector resultJP;
     variableVector _dDevSdSJP, _dDevSdCJP;
@@ -1085,7 +1086,7 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceSecondOrderStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJP, answer ) );
+    BOOST_TEST( resultJP == answer, CHECK_PER_ELEMENT );
 
     variableVector resultJ2;
     variableMatrix dDevSdSJ2, dDevSdCJ2, d2DevSdSdC;
@@ -1094,7 +1095,7 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceSecondOrderStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ2, answer ) );
+    BOOST_TEST( resultJ2 == answer, CHECK_PER_ELEMENT );
 
     variableVector resultJ2P;
     variableVector _dDevSdSJ2P, _dDevSdCJ2P, _d2DevSdSdCP;
@@ -1108,7 +1109,7 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceSecondOrderStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ2P, answer ) );
+    BOOST_TEST( resultJ2P == answer, CHECK_PER_ELEMENT );
 
     //Test of dpdS
     constantType eps = 1e-6;
@@ -1130,25 +1131,25 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceSecondOrderStress ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevSdS[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevSdS[ j ][ i ] );
 
         }
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevSdSJP[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevSdSJP[ j ][ i ] );
 
         }
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevSdSJ2[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevSdSJ2[ j ][ i ] );
 
         }
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevSdSJ2P[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevSdSJ2P[ j ][ i ] );
 
         }
 
@@ -1173,25 +1174,25 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceSecondOrderStress ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevSdC[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevSdC[ j ][ i ] );
 
         }
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevSdCJP[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevSdCJP[ j ][ i ] );
 
         }
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevSdCJ2[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevSdCJ2[ j ][ i ] );
 
         }
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevSdCJ2P[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevSdCJ2P[ j ][ i ] );
 
         }
 
@@ -1219,11 +1220,9 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceSecondOrderStress ){
                 for ( unsigned int l = 0; l < 3; l++ ){
                     for ( unsigned int m = 0; m < 3; m++ ){
 
-                        BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ 3 * j + k ][ 3 * l + m ],
-                                                               d2DevSdSdC[ 3 * j + k ][ 27 * l + 9 * m + 3 * ( int )( i / 3 ) + i % 3 ] ) );
+                        BOOST_TEST( gradCol[ 3 * j + k ][ 3 * l + m ] == d2DevSdSdC[ 3 * j + k ][ 27 * l + 9 * m + 3 * ( int )( i / 3 ) + i % 3 ] );
 
-                        BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ 3 * j + k ][ 3 * l + m ],
-                                                               d2DevSdSdCP[ 3 * j + k ][ 27 * l + 9 * m + 3 * ( int )( i / 3 ) + i % 3 ] ) );
+                        BOOST_TEST( gradCol[ 3 * j + k ][ 3 * l + m ] == d2DevSdSdCP[ 3 * j + k ][ 27 * l + 9 * m + 3 * ( int )( i / 3 ) + i % 3 ] );
 
                     }
 
@@ -1239,7 +1238,7 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceSecondOrderStress ){
 
 }
 
-BOOST_AUTO_TEST_CASE( test_computeSecondOrderReferenceStressDecomposition ){
+BOOST_AUTO_TEST_CASE( test_computeSecondOrderReferenceStressDecomposition, * boost::unit_test::tolerance( 1e-5 ) ){
     /*!
      * Test the computation of the deviatoric - volumetric (pressure) stress 
      * decomposition.
@@ -1268,9 +1267,9 @@ BOOST_AUTO_TEST_CASE( test_computeSecondOrderReferenceStressDecomposition ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( pressureResult, pressureAnswer ) );
+    BOOST_TEST( pressureResult == pressureAnswer );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( deviatoricResult, deviatoricAnswer ) );
+    BOOST_TEST( deviatoricResult == deviatoricAnswer, CHECK_PER_ELEMENT );
 
     //Test the Jacobians
     variableType pressureResultJ;
@@ -1285,9 +1284,9 @@ BOOST_AUTO_TEST_CASE( test_computeSecondOrderReferenceStressDecomposition ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( pressureResultJ, pressureAnswer ) );
+    BOOST_TEST( pressureResultJ == pressureAnswer );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( deviatoricResultJ, deviatoricAnswer ) );
+    BOOST_TEST( deviatoricResultJ == deviatoricAnswer, CHECK_PER_ELEMENT );
 
     variableType pressureResultJ2;
     variableVector deviatoricResultJ2;
@@ -1304,9 +1303,9 @@ BOOST_AUTO_TEST_CASE( test_computeSecondOrderReferenceStressDecomposition ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( pressureResultJ2, pressureAnswer ) );
+    BOOST_TEST( pressureResultJ2 == pressureAnswer );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( deviatoricResultJ2, deviatoricAnswer ) );
+    BOOST_TEST( deviatoricResultJ2 == deviatoricAnswer, CHECK_PER_ELEMENT );
 
     //Test deriatives w.r.t. the stress.
     constantType eps = 1e-6;
@@ -1329,17 +1328,17 @@ BOOST_AUTO_TEST_CASE( test_computeSecondOrderReferenceStressDecomposition ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevStressdStress[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevStressdStress[ j ][ i ] );
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevStressdStressJ2[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevStressdStressJ2[ j ][ i ] );
 
         }
 
         constantType gradScalar = ( sca_resultp - sca_resultm ) / ( 2 * delta[ i ] );
 
-        BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradScalar, dPressuredStress[ i ] ) );
+        BOOST_TEST( gradScalar == dPressuredStress[ i ] );
 
-        BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradScalar, dPressuredStressJ2[ i ] ) );
+        BOOST_TEST( gradScalar == dPressuredStressJ2[ i ] );
 
     }
 
@@ -1365,17 +1364,17 @@ BOOST_AUTO_TEST_CASE( test_computeSecondOrderReferenceStressDecomposition ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevStressdRCG[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevStressdRCG[ j ][ i ] );
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevStressdRCGJ2[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevStressdRCGJ2[ j ][ i ] );
 
         }
 
         constantType gradScalar = ( sca_resultp - sca_resultm ) / ( 2 * delta[i] );
 
-        BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradScalar, dPressuredRCG[ i ] ) );
+        BOOST_TEST( gradScalar == dPressuredRCG[ i ] );
 
-        BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradScalar, dPressuredRCGJ2[ i ] ) );
+        BOOST_TEST( gradScalar == dPressuredRCGJ2[ i ] );
 
         variableMatrix mat_resultp, mat_resultm;
 
@@ -1398,8 +1397,7 @@ BOOST_AUTO_TEST_CASE( test_computeSecondOrderReferenceStressDecomposition ){
                 for ( unsigned int l = 0; l < 3; l++ ){
                     for ( unsigned int m = 0; m < 3; m++ ){
                         
-                        BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradMat[ 3 * j + k ][ 3 * l + m ],
-                                                               d2DevStressdStressdRCGJ2[ 3 * j + k ][ 27 * l + 9 * m + 3 * ( int )( i / 3 ) + i % 3 ] ) );
+                        BOOST_TEST( gradMat[ 3 * j + k ][ 3 * l + m ] == d2DevStressdStressdRCGJ2[ 3 * j + k ][ 27 * l + 9 * m + 3 * ( int )( i / 3 ) + i % 3 ] );
 
                     }
                 }
@@ -1410,7 +1408,7 @@ BOOST_AUTO_TEST_CASE( test_computeSecondOrderReferenceStressDecomposition ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], d2PressuredStressdRCGJ2[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == d2PressuredStressdRCGJ2[ j ][ i ] );
 
         }
 
@@ -1420,7 +1418,7 @@ BOOST_AUTO_TEST_CASE( test_computeSecondOrderReferenceStressDecomposition ){
 
 }
 
-BOOST_AUTO_TEST_CASE( test_computeReferenceHigherOrderStressPressure ){
+BOOST_AUTO_TEST_CASE( test_computeReferenceHigherOrderStressPressure, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
      * Test the computation of the higher order stress pressure.
      *
@@ -1443,7 +1441,7 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceHigherOrderStressPressure ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( answer, result ) );
+    BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
     //Test the Jacobians
     
@@ -1453,7 +1451,7 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceHigherOrderStressPressure ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( answer, resultJ ) );
+    BOOST_TEST( answer == resultJ, CHECK_PER_ELEMENT );
 
     variableVector resultJ2;
     variableMatrix dpdMJ2, dpdCJ2, d2pdMdC;
@@ -1461,7 +1459,7 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceHigherOrderStressPressure ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( answer, resultJ2 ) );
+    BOOST_TEST( answer == resultJ2, CHECK_PER_ELEMENT );
 
     //Test dpdM
     constantType eps = 1e-6;
@@ -1483,13 +1481,13 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceHigherOrderStressPressure ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dpdM[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dpdM[ j ][ i ] );
 
         }
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dpdMJ2[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dpdMJ2[ j ][ i ] );
 
         }
 
@@ -1514,13 +1512,13 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceHigherOrderStressPressure ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dpdC[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dpdC[ j ][ i ] );
 
         }
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dpdCJ2[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dpdCJ2[ j ][ i ] );
 
         }
 
@@ -1547,8 +1545,7 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceHigherOrderStressPressure ){
             for ( unsigned int k = 0; k < 3; k++ ){
                 for ( unsigned int l = 0; l < 3; l++ ){
                     for ( unsigned int m = 0; m < 3; m++ ){
-                        BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ][ 9 * k + 3 * l + m ], 
-                                                               d2pdMdC[ j ][ 81 * k + 27 * l + 9 * m + 3 * (int)( i / 3 ) + i % 3 ] ) );
+                        BOOST_TEST( gradCol[ j ][ 9 * k + 3 * l + m ] == d2pdMdC[ j ][ 81 * k + 27 * l + 9 * m + 3 * (int)( i / 3 ) + i % 3 ] );
                     }
                 }
             }
@@ -1559,7 +1556,7 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceHigherOrderStressPressure ){
 
 }
 
-BOOST_AUTO_TEST_CASE( test_computeHigherOrderReferenceStressDecomposition ){
+BOOST_AUTO_TEST_CASE( test_computeHigherOrderReferenceStressDecomposition, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
      * Test the computation of the decomposition of the higher order stress
      * into deviatoric and volumetric (pressure) parts.
@@ -1593,9 +1590,9 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderReferenceStressDecomposition ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( deviatoricResult, deviatoricAnswer ) );
+    BOOST_TEST( deviatoricResult == deviatoricAnswer, CHECK_PER_ELEMENT );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( pressureResult, pressureAnswer ) );
+    BOOST_TEST( pressureResult == pressureAnswer, CHECK_PER_ELEMENT );
 
     //Test the Jacobians
     variableVector pressureResultJ;
@@ -1610,9 +1607,9 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderReferenceStressDecomposition ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( pressureResultJ, pressureAnswer ) );
+    BOOST_TEST( pressureResultJ == pressureAnswer, CHECK_PER_ELEMENT );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( deviatoricResultJ, deviatoricAnswer ) );
+    BOOST_TEST( deviatoricResultJ == deviatoricAnswer, CHECK_PER_ELEMENT );
 
     variableVector pressureResultJ2;
     variableVector deviatoricResultJ2;
@@ -1629,9 +1626,9 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderReferenceStressDecomposition ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( pressureResultJ2, pressureAnswer ) );
+    BOOST_TEST( pressureResultJ2 == pressureAnswer, CHECK_PER_ELEMENT );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( deviatoricResultJ2, deviatoricAnswer ) );
+    BOOST_TEST( deviatoricResultJ2 == deviatoricAnswer, CHECK_PER_ELEMENT );
 
     //Test deriatives w.r.t. the stress.
     constantType eps = 1e-6;
@@ -1654,9 +1651,9 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderReferenceStressDecomposition ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevStressdStress[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevStressdStress[ j ][ i ] );
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevStressdStressJ2[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevStressdStressJ2[ j ][ i ] );
 
         }
 
@@ -1664,9 +1661,9 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderReferenceStressDecomposition ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dPressuredStress[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dPressuredStress[ j ][ i ] );
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dPressuredStressJ2[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dPressuredStressJ2[ j ][ i ] );
 
         }
 
@@ -1694,9 +1691,9 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderReferenceStressDecomposition ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevStressdRCG[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevStressdRCG[ j ][ i ] );
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dDevStressdRCGJ2[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dDevStressdRCGJ2[ j ][ i ] );
 
         }
 
@@ -1704,9 +1701,9 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderReferenceStressDecomposition ){
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dPressuredRCG[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dPressuredRCG[ j ][ i ] );
 
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dPressuredRCGJ2[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dPressuredRCGJ2[ j ][ i ] );
 
         }
 
@@ -1733,8 +1730,7 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderReferenceStressDecomposition ){
                     for ( unsigned int m = 0; m < 3; m++ ){
                         for ( unsigned int n = 0; n < 3; n++ ){
                             for ( unsigned int o = 0; o < 3; o++ ){
-                                BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradMat[ 9 * j + 3 * k + l ][ 9 * m + 3 * n + o ],
-                                                                       d2DevStressdStressdRCGJ2[ 9 * j + 3 * k + l ][ 81 * m + 27 * n + + 9 * o + 3 * ( int )( i / 3 ) + i % 3 ] ) );
+                                BOOST_TEST( gradMat[ 9 * j + 3 * k + l ][ 9 * m + 3 * n + o ] == d2DevStressdStressdRCGJ2[ 9 * j + 3 * k + l ][ 81 * m + 27 * n + + 9 * o + 3 * ( int )( i / 3 ) + i % 3 ] );
                             }
                         }
                     }
@@ -1748,8 +1744,7 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderReferenceStressDecomposition ){
             for ( unsigned int k = 0; k < 3; k++ ){
                 for ( unsigned int l = 0; l < 3; l++ ){
                     for ( unsigned int m = 0; m < 3; m++ ){
-                        BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradMat[ j ][ 9 * k + 3 * l + m ],
-                                                               d2PressuredStressdRCGJ2[ j ][ 81 * k + 27 * l + 9 * m + 3 * ( int )( i / 3 ) + i % 3 ] ) );
+                        BOOST_TEST( gradMat[ j ][ 9 * k + 3 * l + m ] == d2PressuredStressdRCGJ2[ j ][ 81 * k + 27 * l + 9 * m + 3 * ( int )( i / 3 ) + i % 3 ] );
                     }
                 }
             }
@@ -1760,7 +1755,7 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderReferenceStressDecomposition ){
     
 }
 
-BOOST_AUTO_TEST_CASE( test_computeHigherOrderStressNorm ){
+BOOST_AUTO_TEST_CASE( test_computeHigherOrderStressNorm, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
      * Test the computation of the special higher order stress norm.
      *
@@ -1782,7 +1777,7 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderStressNorm ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( answer, result ) );
+    BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
     //Test the Jacobians
     variableVector resultJ;
@@ -1792,7 +1787,7 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderStressNorm ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( answer, resultJ ) );
+    BOOST_TEST( answer == resultJ, CHECK_PER_ELEMENT );
 
     variableVector resultJ2;
     variableMatrix dNormMdMJ2, d2NormMdM2J2;
@@ -1801,7 +1796,7 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderStressNorm ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( answer, resultJ2 ) );
+    BOOST_TEST( answer == resultJ2, CHECK_PER_ELEMENT );
 
     //Test dNormMdM
     constantType eps = 1e-6;
@@ -1822,11 +1817,11 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderStressNorm ){
         variableVector gradCol = ( resultP - resultM ) / ( 2 * delta[i] );
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dNormMdMJ[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dNormMdMJ[ j ][ i ] );
         }
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dNormMdMJ2[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dNormMdMJ2[ j ][ i ] );
         }
 
         variableMatrix derP, derM;
@@ -1849,8 +1844,7 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderStressNorm ){
             for ( unsigned int k = 0; k < 3; k++ ){
                 for ( unsigned int l = 0; l < 3; l++ ){
                     for ( unsigned int m = 0; m < 3; m++ ){
-                        BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradMat[ j ][ 9 * k + 3 * l + m ],
-                                                               d2NormMdM2J2[ j ][ 243 * k + 81 * l + 27 * m + 9 * n + 3 * o + p ] ) );
+                        BOOST_TEST( gradMat[ j ][ 9 * k + 3 * l + m ] == d2NormMdM2J2[ j ][ 243 * k + 81 * l + 27 * m + 9 * n + 3 * o + p ] );
                     }
                 }
             }
@@ -1861,7 +1855,7 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderStressNorm ){
 
 }
 
-BOOST_AUTO_TEST_CASE( test_assembleDeformationGradient ){
+BOOST_AUTO_TEST_CASE( test_assembleDeformationGradient, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
      * Test the assembly of the deformation gradient from the gradient of the displacement.
      *
@@ -1880,7 +1874,7 @@ BOOST_AUTO_TEST_CASE( test_assembleDeformationGradient ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( answer, result ) );
+    BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
     //Tests of the Jacobians
     variableVector resultJ;
@@ -1889,7 +1883,7 @@ BOOST_AUTO_TEST_CASE( test_assembleDeformationGradient ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( answer, resultJ ) );
+    BOOST_TEST( answer == resultJ, CHECK_PER_ELEMENT );
 
     //Test the Jacobian w.r.t. the displacement gradient
     constantType eps = 1e-6;
@@ -1910,7 +1904,7 @@ BOOST_AUTO_TEST_CASE( test_assembleDeformationGradient ){
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dFdGradU[ 9 * j + i ] ) );
+            BOOST_TEST( gradCol[ j ] == dFdGradU[ 9 * j + i ] );
         }
     }
 
@@ -1918,7 +1912,7 @@ BOOST_AUTO_TEST_CASE( test_assembleDeformationGradient ){
 
 }
 
-BOOST_AUTO_TEST_CASE( test_assembleMicroDeformation ){
+BOOST_AUTO_TEST_CASE( test_assembleMicroDeformation, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
      * Test the assembly of the micro deformation from the micro displacement
      *
@@ -1935,7 +1929,7 @@ BOOST_AUTO_TEST_CASE( test_assembleMicroDeformation ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( answer, result ) );
+    BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
     //Test the Jacobians
     variableVector resultJ;
@@ -1945,7 +1939,7 @@ BOOST_AUTO_TEST_CASE( test_assembleMicroDeformation ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( answer, resultJ ) );
+    BOOST_TEST( answer == resultJ, CHECK_PER_ELEMENT );
 
     //Test the jacobians w.r.t. phi
     constantType eps = 1e-6;
@@ -1966,7 +1960,7 @@ BOOST_AUTO_TEST_CASE( test_assembleMicroDeformation ){
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dChidPhi[ 9 * j + i ] ) );
+            BOOST_TEST( gradCol[ j ] == dChidPhi[ 9 * j + i ] );
         }
     }
 
@@ -1974,7 +1968,7 @@ BOOST_AUTO_TEST_CASE( test_assembleMicroDeformation ){
 
 }
 
-BOOST_AUTO_TEST_CASE( test_assembleGradientMicroDeformation ){
+BOOST_AUTO_TEST_CASE( test_assembleGradientMicroDeformation, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
      * Test the assembly of the micro deformation gradient
      *
@@ -2001,7 +1995,7 @@ BOOST_AUTO_TEST_CASE( test_assembleGradientMicroDeformation ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( answer, result ) );
+    BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
     //Test the Jacobians
     variableVector resultJ;
@@ -2011,7 +2005,7 @@ BOOST_AUTO_TEST_CASE( test_assembleGradientMicroDeformation ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( answer, resultJ ) );
+    BOOST_TEST( answer == resultJ, CHECK_PER_ELEMENT );
 
     //Test the Jacobian w.r.t. the micro displacement gradient
     constantType eps = 1e-6;
@@ -2032,7 +2026,7 @@ BOOST_AUTO_TEST_CASE( test_assembleGradientMicroDeformation ){
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dGradChidGradPhi[ 27 * j + i ] ) );
+            BOOST_TEST( gradCol[ j ] == dGradChidGradPhi[ 27 * j + i ] );
         }
     }
 
@@ -2040,7 +2034,7 @@ BOOST_AUTO_TEST_CASE( test_assembleGradientMicroDeformation ){
 
 }
 
-BOOST_AUTO_TEST_CASE( test_pullBackCauchyStress ){
+BOOST_AUTO_TEST_CASE( test_pullBackCauchyStress, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
      * Test the pull back operation on the Cauchy stress
      *
@@ -2062,13 +2056,13 @@ BOOST_AUTO_TEST_CASE( test_pullBackCauchyStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( result, answer ) );
+    BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
     error = tardigradeMicromorphicTools::pushForwardPK2Stress( result, deformationGradient, resultPF );
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultPF, cauchyStress ) );
+    BOOST_TEST( resultPF == cauchyStress, CHECK_PER_ELEMENT );
 
     //Test the Jacobians
     variableVector resultJ;
@@ -2078,7 +2072,7 @@ BOOST_AUTO_TEST_CASE( test_pullBackCauchyStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ, answer ) );
+    BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
     //Test the Jacobian w.r.t. the Cauchy stress
     constantType eps = 1e-6;
@@ -2099,7 +2093,7 @@ BOOST_AUTO_TEST_CASE( test_pullBackCauchyStress ){
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dPK2dCauchy[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dPK2dCauchy[ j ][ i ] );
         }
     }
 
@@ -2121,7 +2115,7 @@ BOOST_AUTO_TEST_CASE( test_pullBackCauchyStress ){
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dPK2dF[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dPK2dF[ j ][ i ] );
         }
     }
 
@@ -2129,7 +2123,7 @@ BOOST_AUTO_TEST_CASE( test_pullBackCauchyStress ){
 
 }
 
-BOOST_AUTO_TEST_CASE( test_pullBackMicroStress ){
+BOOST_AUTO_TEST_CASE( test_pullBackMicroStress, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
      * Test the pull back operation on the micro stress
      *
@@ -2151,13 +2145,13 @@ BOOST_AUTO_TEST_CASE( test_pullBackMicroStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( result, answer ) );
+    BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
     error = tardigradeMicromorphicTools::pushForwardReferenceMicroStress( result, deformationGradient, resultPF );
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultPF, microStress ) );
+    BOOST_TEST( resultPF == microStress, CHECK_PER_ELEMENT );
 
     //Test the Jacobians
     variableVector resultJ;
@@ -2167,7 +2161,7 @@ BOOST_AUTO_TEST_CASE( test_pullBackMicroStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( resultJ, answer ) );
+    BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
     //Test the Jacobian w.r.t. the micro stress
     constantType eps = 1e-6;
@@ -2188,7 +2182,7 @@ BOOST_AUTO_TEST_CASE( test_pullBackMicroStress ){
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dSigmads[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dSigmads[ j ][ i ] );
         }
     }
 
@@ -2210,7 +2204,7 @@ BOOST_AUTO_TEST_CASE( test_pullBackMicroStress ){
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dSigmadF[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ], dSigmadF[ j ][ i ] );
         }
     }
 
@@ -2218,7 +2212,7 @@ BOOST_AUTO_TEST_CASE( test_pullBackMicroStress ){
 
 }
 
-BOOST_AUTO_TEST_CASE( test_pullBackHigherOrderStress ){
+BOOST_AUTO_TEST_CASE( test_pullBackHigherOrderStress, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
      * Test the push forward operation on the higher order stress tensor.
      *
@@ -2252,7 +2246,7 @@ BOOST_AUTO_TEST_CASE( test_pullBackHigherOrderStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( answer, result ) );
+    BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
     variableVector resultPF;
 
@@ -2260,7 +2254,7 @@ BOOST_AUTO_TEST_CASE( test_pullBackHigherOrderStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( higherOrderStress, resultPF ) );
+    BOOST_TEST( higherOrderStress == resultPF, CHECK_PER_ELEMENT );
 
     //Test the Jacobian
     variableVector resultJ;
@@ -2271,10 +2265,10 @@ BOOST_AUTO_TEST_CASE( test_pullBackHigherOrderStress ){
 
     BOOST_CHECK( !error );
 
-    BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( answer, resultJ ) );
+    BOOST_TEST( answer == resultJ, CHECK_PER_ELEMENT );
 
     //Test the jacobian w.r.t. the higher order stress
-    constantType eps = 1e-6;
+    constantType eps = 1e-5;
     for ( unsigned int i = 0; i < higherOrderStress.size(); i++ ){
         constantVector delta( higherOrderStress.size(), 0 );
         delta[ i ] = eps * fabs( higherOrderStress[ i ] ) + eps;
@@ -2294,7 +2288,7 @@ BOOST_AUTO_TEST_CASE( test_pullBackHigherOrderStress ){
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dMdm[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dMdm[ j ][ i ] );
         }
     }
 
@@ -2318,7 +2312,7 @@ BOOST_AUTO_TEST_CASE( test_pullBackHigherOrderStress ){
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dMdF[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dMdF[ j ][ i ] );
         }
     }
 
@@ -2342,7 +2336,7 @@ BOOST_AUTO_TEST_CASE( test_pullBackHigherOrderStress ){
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
-            BOOST_CHECK( tardigradeVectorTools::fuzzyEquals( gradCol[ j ], dMdChi[ j ][ i ] ) );
+            BOOST_TEST( gradCol[ j ] == dMdChi[ j ][ i ] );
         }
     }
 
