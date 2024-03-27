@@ -54,8 +54,10 @@ namespace tardigradeMicromorphicTools{
     errorOut computeMicroStrain( const variableVector &Psi, variableVector &microStrain );
 
     errorOut computeMicroStrain( const variableVector &Psi, variableVector &microStrain,
-                                 variableMatrix &dMicroStraindPsi );
+                                 variableVector &dMicroStraindPsi );
 
+    errorOut computeMicroStrain( const variableVector &Psi, variableVector &microStrain,
+                                 variableMatrix &dMicroStraindPsi );
 
     errorOut pushForwardPK2Stress( const variableVector &PK2Stress,
                                    const variableVector &deformationGradient,

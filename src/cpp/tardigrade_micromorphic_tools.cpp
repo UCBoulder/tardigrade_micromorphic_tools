@@ -282,6 +282,38 @@ namespace tardigradeMicromorphicTools{
     }
 
     errorOut computeMicroStrain( const variableVector &Psi, variableVector &microStrain,
+                                 variableVector &dMicroStraindPsi ){
+        /*!
+         * Compute the microstrain defined as:
+         * \f$ \Epsilon_{IJ} = \Psi_{IJ} - eye_{IJ} \f$
+         *
+         * and also compute the jacobian
+         * \f$ \frac{ \partial \Epsilon_{IJ} }{ \partial \Psi_{KL} } = \delta_{IK} \delta_{JL} \f$
+         *
+         * \param &Psi: The micro-deformation metric Psi.
+         * \param &microStrain: The micro-strain.
+         * \param &dMicroStraindPsi: The jacobian of the micro-strain.
+         */
+
+        constexpr unsigned int dim = 3;
+        constexpr unsigned int sot_dim = dim * dim;
+
+        errorOut error = computeMicroStrain( Psi, microStrain );
+
+        if (error){
+            errorOut result = new errorNode( "computeMicroStrain (jacobian)", "Error in computation of micro-strain" );
+            result->addNext( error );
+            return result;
+        }
+
+        dMicroStraindPsi = variableVector( sot_dim * sot_dim, 0 );
+        for ( unsigned int i = 0; i < sot_dim; i++ ){ dMicroStraindPsi[ sot_dim * i + i ] = 1; };
+
+        return NULL;
+
+    }
+
+    errorOut computeMicroStrain( const variableVector &Psi, variableVector &microStrain,
                                  variableMatrix &dMicroStraindPsi ){
         /*!
          * Compute the microstrain defined as:
@@ -298,18 +330,22 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int dim = 3;
         constexpr unsigned int sot_dim = dim * dim;
 
-        errorOut error = computeMicroStrain( Psi, microStrain );
+        variableVector _dMicroStraindPsi;
 
-        if (error){
+        errorOut error = computeMicroStrain( Psi, microStrain, _dMicroStraindPsi );
+
+        if ( error ){
+
             errorOut result = new errorNode( "computeMicroStrain (jacobian)", "Error in computation of micro-strain" );
             result->addNext( error );
             return result;
+
         }
 
-        dMicroStraindPsi = variableMatrix( sot_dim, variableVector( sot_dim, 0 ) );
-        for ( unsigned int i = 0; i < sot_dim; i++ ){ dMicroStraindPsi[ i ][ i ] = 1; };
+        dMicroStraindPsi = tardigradeVectorTools::inflate( _dMicroStraindPsi, sot_dim, sot_dim );
 
         return NULL;
+
     }
 
     errorOut pushForwardPK2Stress( const variableVector &PK2Stress,
