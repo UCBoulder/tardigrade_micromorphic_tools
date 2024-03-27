@@ -3764,15 +3764,13 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int dim = 3;
         constexpr unsigned int sot_dim = dim * dim;
 
-        if ( displacementGradient.size() != dim * dim ){
+        if ( displacementGradient.size() != sot_dim ){
             return new errorNode( "assembleDeformationGradient",
                                   "The gradient of the deformation is not 3D" );
         }
 
-        variableVector eye( sot_dim );
-        tardigradeVectorTools::eye( eye );
-
-        deformationGradient = displacementGradient + eye;
+        deformationGradient = displacementGradient;
+        for ( unsigned int i = 0; i < dim; i++ ){ deformationGradient[ dim * i + i ] += 1; }
 
         return NULL;
     }
@@ -3801,7 +3799,7 @@ namespace tardigradeMicromorphicTools{
         }
 
         dFdGradU = variableVector( sot_dim * sot_dim, 0 );
-        tardigradeVectorTools::eye( dFdGradU );
+        for ( unsigned int i = 0; i < sot_dim; i++ ){ dFdGradU[ sot_dim * i + i ] = 1; }
 
         return NULL;
     }
@@ -3823,10 +3821,8 @@ namespace tardigradeMicromorphicTools{
                                   "The micro degrees of freedom must be 3D" );
         }
 
-        constantVector eye( sot_dim );
-        tardigradeVectorTools::eye( eye );
-
-        microDeformation = microDisplacement + eye;
+        microDeformation = microDisplacement;
+        for ( unsigned int i = 0; i < dim; i++ ){ microDeformation[ dim * i + i ] += 1; }
 
         return NULL;
     }
@@ -3855,7 +3851,7 @@ namespace tardigradeMicromorphicTools{
         }
 
         dChidPhi = variableVector( sot_dim * sot_dim, 0 );
-        tardigradeVectorTools::eye( dChidPhi );
+        for ( unsigned int i = 0; i < sot_dim; i++ ){ dChidPhi[ sot_dim * i + i ] = 1; }
 
         return NULL;
     }
@@ -3912,7 +3908,7 @@ namespace tardigradeMicromorphicTools{
         }
         
         dGradChidGradPhi = variableVector( tot_dim * tot_dim, 0 );
-        tardigradeVectorTools::eye( dGradChidGradPhi );
+        for ( unsigned int i = 0; i < tot_dim; i++ ){ dGradChidGradPhi[ tot_dim * i + i ] = 1; }
 
         return NULL;
     }
