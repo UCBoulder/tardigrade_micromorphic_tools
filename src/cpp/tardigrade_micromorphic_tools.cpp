@@ -101,7 +101,7 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3d
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
 
         errorOut error = computePsi( deformationGradient, microDeformation, Psi );
 
@@ -140,7 +140,7 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3d
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
         if ( deformationGradient.size() != sot_dim ){
@@ -188,7 +188,7 @@ namespace tardigradeMicromorphicTools{
          */
 
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
         variableVector _dGammadF;
@@ -232,7 +232,7 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3d
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
         errorOut error = computeGamma( deformationGradient, gradChi, Gamma );
@@ -712,7 +712,7 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3d
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
 
         variableType detF;
         errorOut error = pushForwardReferenceMicroStress( referenceMicroStress, deformationGradient,
@@ -928,7 +928,7 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3d
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
 
         variableType detF;
         variableVector inverseDeformationGradient;
@@ -1278,6 +1278,8 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3d
         constexpr unsigned int dim = 3;
+        constexpr unsigned int sot_dim = dim * dim;
+        constexpr unsigned int tot_dim = sot_dim * dim;
 
         if ( higherOrderStress.size() != dim * dim * dim ){
             return new errorNode( "pullBackHigherOrderStress", "The current higher order stress doesn't have the correct size" );
@@ -1295,23 +1297,47 @@ namespace tardigradeMicromorphicTools{
         inverseDeformationGradient = tardigradeVectorTools::inverse( deformationGradient, dim, dim );
         inverseMicroDeformation = tardigradeVectorTools::inverse( microDeformation, dim, dim );
 
-        referenceHigherOrderStress = variableVector( dim * dim * dim, 0 );
+        referenceHigherOrderStress = variableVector( tot_dim, 0 );
+
+        variableVector temp_tot1( tot_dim, 0 );
 
         for ( unsigned int I = 0; I < dim; I++ ){
             for ( unsigned int J = 0; J < dim; J++ ){
                 for ( unsigned int K = 0; K < dim; K++ ){
                     for ( unsigned int i = 0; i < dim; i++ ){
-                        for ( unsigned int j = 0; j < dim; j++ ){
-                            for ( unsigned int k = 0; k < dim; k++ ){
-                                referenceHigherOrderStress[ dim * dim * I + dim * J + K ]
-                                    += inverseDeformationGradient[ dim * I + i ]
-                                     * inverseDeformationGradient[ dim * J + j ]
-                                     * inverseMicroDeformation[ dim * K + k ]
-                                     * higherOrderStress[ dim * dim * i + dim * j + k ];
-                            }
-                        }
+                        referenceHigherOrderStress[ dim * dim * I + dim * J + K ]
+                            += inverseDeformationGradient[ dim * I + i ]
+                             * higherOrderStress[ dim * dim * i + dim * J + K ];
                     }
-                    referenceHigherOrderStress[ dim * dim * I + dim * J + K ] *= detF;
+                }
+            }
+        }
+        referenceHigherOrderStress *= detF;
+
+        for ( unsigned int I = 0; I < dim; I++ ){
+            for ( unsigned int J = 0; J < dim; J++ ){
+                for ( unsigned int K = 0; K < dim; K++ ){
+                    for ( unsigned int i = 0; i < dim; i++ ){
+                        temp_tot1[ dim * dim * I + dim * J + K ]
+                            += inverseDeformationGradient[ dim * J + i ]
+                             * referenceHigherOrderStress[ dim * dim * I + dim * i + K ];
+                    }
+                }
+            }
+        }
+
+        std::fill( referenceHigherOrderStress.begin( ),
+                   referenceHigherOrderStress.end( ),
+                   0. );
+
+        for ( unsigned int I = 0; I < dim; I++ ){
+            for ( unsigned int J = 0; J < dim; J++ ){
+                for ( unsigned int K = 0; K < dim; K++ ){
+                    for ( unsigned int i = 0; i < dim; i++ ){
+                        referenceHigherOrderStress[ dim * dim * I + dim * J + K ]
+                            += inverseMicroDeformation[ dim * K + i ]
+                             * temp_tot1[ dim * dim * I + dim * J + i ];
+                    }
                 }
             }
         }
@@ -1406,7 +1432,7 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3d
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
         variableType detF;
@@ -1517,9 +1543,6 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        constantVector eye( dim * dim );
-        tardigradeVectorTools::eye( eye );
-
         dDeviatoricHigherOrderStressdHigherOrderStress = variableVector( tot_dim * tot_dim, 0 );
 
         for ( unsigned int i = 0; i < dim; i++ ){
@@ -1593,7 +1616,7 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3D
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
         if ( rightCauchyGreenDeformation.size() != sot_dim ){
@@ -1694,7 +1717,7 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3D
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
         errorOut error = computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation,
@@ -1811,7 +1834,7 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3D
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
         errorOut error = computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation,
@@ -2024,10 +2047,10 @@ namespace tardigradeMicromorphicTools{
          * \param &dDeviatoricReferenceHigherOrderStressdRCG: The Jacobian of the 
          *     deviatoric part of the reference higher order stress w.r.t. the right Cauchy-Green deformation tensor.
          */
-        
+
         //Assume 3d
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
         deviatoricReferenceHigherOrderStress = referenceHigherOrderStress;
@@ -2044,11 +2067,12 @@ namespace tardigradeMicromorphicTools{
         }
 
         //Compute the jacobians
-        constantVector eye( dim * dim );
-        tardigradeVectorTools::eye( eye );
-
         dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress = variableVector( tot_dim * tot_dim, 0 );
         dDeviatoricReferenceHigherOrderStressdRCG = variableVector( tot_dim * sot_dim, 0 );
+
+        for ( unsigned int I = 0; I < tot_dim; I++ ){
+            dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress[ tot_dim * I + I ] = 1.;
+        }
 
         for ( unsigned int I = 0; I < dim; I++ ){
             for ( unsigned int J = 0; J < dim; J++ ){
@@ -2057,7 +2081,7 @@ namespace tardigradeMicromorphicTools{
                         for ( unsigned int M = 0; M < dim; M++ ){
                             for ( unsigned int N = 0; N < dim; N++ ){
                                 dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress[ dim * dim * tot_dim * I + dim * tot_dim * J + tot_dim * K + dim * dim * L + dim * M + N ]
-                                    = eye[ dim * I + L ] * eye[ dim * J + M ] * eye[ dim * K + N ] - invRCG[ dim * I + J ] * dPressuredStress[ tot_dim * K + dim * dim * L + dim * M + N ];
+                                    -= invRCG[ dim * I + J ] * dPressuredStress[ tot_dim * K + dim * dim * L + dim * M + N ];
                             }
 
                             dDeviatoricReferenceHigherOrderStressdRCG[ dim * dim * sot_dim * I + dim * sot_dim * J + sot_dim * K + dim * L + M ]
@@ -2221,7 +2245,7 @@ namespace tardigradeMicromorphicTools{
         
         //Assume 3d
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
         deviatoricReferenceHigherOrderStress = referenceHigherOrderStress;
@@ -2244,6 +2268,10 @@ namespace tardigradeMicromorphicTools{
         dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress = variableVector( tot_dim * tot_dim, 0 );
         dDeviatoricReferenceHigherOrderStressdRCG = variableVector( tot_dim * sot_dim, 0 );
 
+        for ( unsigned int I = 0; I < tot_dim; I++ ){
+            dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress[ tot_dim * I + I ] = 1.;
+        }
+
         for ( unsigned int I = 0; I < dim; I++ ){
             for ( unsigned int J = 0; J < dim; J++ ){
                 for ( unsigned int K = 0; K < dim; K++ ){
@@ -2251,7 +2279,7 @@ namespace tardigradeMicromorphicTools{
                         for ( unsigned int M = 0; M < dim; M++ ){
                             for ( unsigned int N = 0; N < dim; N++ ){
                                 dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress[ dim * dim * tot_dim * I + dim * tot_dim * J + tot_dim * K + dim * dim * L + dim * M + N ]
-                                    = eye[ dim * I + L ] * eye[ dim * J + M ] * eye[ dim * K + N ] - invRCG[ dim * I + J ] * dPressuredStress[ tot_dim * K + dim * dim * L + dim * M + N ];
+                                    -= invRCG[ dim * I + J ] * dPressuredStress[ tot_dim * K + dim * dim * L + dim * M + N ];
                             }
 
                             dDeviatoricReferenceHigherOrderStressdRCG[ dim * dim * sot_dim * I + dim * sot_dim * J + sot_dim * K + dim * L + M ]
@@ -2689,7 +2717,7 @@ namespace tardigradeMicromorphicTools{
          */
         //Assume 3d
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
 
         variableVector invRCG = tardigradeVectorTools::inverse( rightCauchyGreenDeformation, dim, dim );
 
@@ -2754,7 +2782,7 @@ namespace tardigradeMicromorphicTools{
          */
         //Assume 3d
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
 
         variableVector invRCG = tardigradeVectorTools::inverse( rightCauchyGreenDeformation, dim, dim );
 
@@ -3732,7 +3760,7 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3D
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
 
         errorOut error = assembleDeformationGradient( displacementGradient, deformationGradient );
 
@@ -3759,7 +3787,7 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3D
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
 
         if ( microDisplacement.size() != sot_dim ){
             return new errorNode( "assembleMicroDeformation",
@@ -3786,7 +3814,7 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3D
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
 
         errorOut error = assembleMicroDeformation( microDisplacement, microDeformation );
 
@@ -3815,7 +3843,7 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3D
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
 
         if ( gradientMicroDisplacement.size() != sot_dim * dim ){
             return new errorNode( "assembleGradientMicroDeformation",
@@ -3842,7 +3870,7 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3D
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
         errorOut error = assembleGradientMicroDeformation( gradientMicroDisplacement, gradientMicroDeformation );
