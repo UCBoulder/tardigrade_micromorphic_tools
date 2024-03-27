@@ -109,19 +109,14 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        constantVector eye( dim * dim, 0 );
-        tardigradeVectorTools::eye( eye );
-
         dPsidF   = variableVector( sot_dim * sot_dim, 0 );
         dPsidChi = variableVector( sot_dim * sot_dim, 0 );
 
         for ( unsigned int I = 0; I < dim; I++ ){
             for ( unsigned int J = 0; J < dim; J++ ){
                 for ( unsigned int k = 0; k < dim; k++ ){
-                    for ( unsigned int K = 0; K < dim; K++ ){
-                        dPsidF[ dim * sot_dim * I + sot_dim * J + dim * k + K ] = eye[ dim * I + K ] * microDeformation[ dim * k + J ];
-                        dPsidChi[ dim * sot_dim * I + sot_dim * J + dim * k + K ] = deformationGradient[ dim * k + I ] * eye[ dim * J + K ];
-                    }
+                    dPsidF[ dim * sot_dim * I + sot_dim * J + dim * k + I ] = microDeformation[ dim * k + J ];
+                    dPsidChi[ dim * sot_dim * I + sot_dim * J + dim * k + J ] = deformationGradient[ dim * k + I ];
                 }
             }
         }
