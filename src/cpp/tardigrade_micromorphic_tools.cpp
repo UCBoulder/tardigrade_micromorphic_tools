@@ -2262,9 +2262,6 @@ namespace tardigradeMicromorphicTools{
         }
 
         //Compute the first order Jacobians
-        constantVector eye( sot_dim );
-        tardigradeVectorTools::eye( eye );
-
         dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress = variableVector( tot_dim * tot_dim, 0 );
         dDeviatoricReferenceHigherOrderStressdRCG = variableVector( tot_dim * sot_dim, 0 );
 
@@ -2331,12 +2328,10 @@ namespace tardigradeMicromorphicTools{
         //Assume 3d
         constexpr unsigned int dim = 3;
 
-        variableVector eye( dim * dim );
-        tardigradeVectorTools::eye( eye );
-
         variableType trace = tardigradeVectorTools::trace( secondOrderStress );
 
-        deviatoricSecondOrderStress = secondOrderStress - trace * eye / 3.;
+        deviatoricSecondOrderStress = secondOrderStress;
+        for ( unsigned int i = 0; i < dim; i++ ){ deviatoricSecondOrderStress[ dim * i + i ] -= trace / 3.; }
 
         return NULL;
     }
@@ -2360,9 +2355,6 @@ namespace tardigradeMicromorphicTools{
         //Assume 3d
         constexpr unsigned int dim = 3;
         constexpr unsigned int sot_dim = dim * dim;
-
-        variableVector eye( dim * dim );
-        tardigradeVectorTools::eye( eye );
 
         errorOut error = computeDeviatoricSecondOrderStress( secondOrderStress, deviatoricSecondOrderStress );
 
@@ -2570,8 +2562,7 @@ namespace tardigradeMicromorphicTools{
         }
 
         d2pdStressdRCG = variableVector( sot_dim * sot_dim, 0 );
-        tardigradeVectorTools::eye( d2pdStressdRCG );
-        d2pdStressdRCG /= 3;
+        for ( unsigned int i = 0; i < sot_dim; i++ ){ d2pdStressdRCG[ sot_dim * i + i ] = 1./3; }
 
         return NULL;
     }
@@ -2760,7 +2751,8 @@ namespace tardigradeMicromorphicTools{
 
         //Compute the first order jacobians
         dDeviatoricReferenceStressdReferenceStress = variableVector( sot_dim * sot_dim, 0 );
-        tardigradeVectorTools::eye( dDeviatoricReferenceStressdReferenceStress );
+        for ( unsigned int i = 0; i < sot_dim; i++ ){ dDeviatoricReferenceStressdReferenceStress[ sot_dim * i + i ] = 1.; }
+
         dDeviatoricReferenceStressdReferenceStress -= tardigradeVectorTools::matrixMultiply( invRCG, dPressuredStress, sot_dim, 1, 1, sot_dim );
 
         dDeviatoricReferenceStressdRCG = -tardigradeVectorTools::matrixMultiply( invRCG, dPressuredRCG, sot_dim, 1, 1, sot_dim );
@@ -2825,7 +2817,8 @@ namespace tardigradeMicromorphicTools{
 
         //Compute the first order jacobians
         dDeviatoricReferenceStressdReferenceStress = variableVector( sot_dim * sot_dim, 0 );
-        tardigradeVectorTools::eye( dDeviatoricReferenceStressdReferenceStress );
+        for ( unsigned int i = 0; i < sot_dim; i++ ){ dDeviatoricReferenceStressdReferenceStress[ sot_dim * i + i ] = 1.; }
+
         dDeviatoricReferenceStressdReferenceStress -= tardigradeVectorTools::matrixMultiply( invRCG, dPressuredStress, sot_dim, 1, 1, sot_dim );
 
         dDeviatoricReferenceStressdRCG = - tardigradeVectorTools::matrixMultiply( invRCG, dPressuredRCG, sot_dim, 1, 1, sot_dim );
