@@ -739,16 +739,28 @@ namespace tardigradeMicromorphicTools{
         dMicroStressdReferenceMicroStress = variableVector( sot_dim * sot_dim, 0 );
         dMicroStressdDeformationGradient  = variableVector( sot_dim * sot_dim, 0 );
 
+        variableVector temp_sot1( sot_dim, 0 );
+        variableVector temp_sot2( sot_dim, 0 );
+
         for ( unsigned int i = 0; i < dim; i++ ){
             for ( unsigned int j = 0; j < dim; j++ ){
                 for ( unsigned int k = 0; k < dim; k++ ){
+                    temp_sot1[ dim * i + j ] += referenceMicroStress[ dim * j + k ] * deformationGradient[ dim * i + k ] / detF;
+                    temp_sot2[ dim * i + j ] += referenceMicroStress[ dim * k + j ] * deformationGradient[ dim * i + k ] / detF;
+                }
+            }
+        }
+
+        for ( unsigned int i = 0; i < dim; i++ ){
+            for ( unsigned int j = 0; j < dim; j++ ){
+                for ( unsigned int k = 0; k < dim; k++ ){
+                    dMicroStressdDeformationGradient[ dim * sot_dim * i + sot_dim * j + dim * i + k] += temp_sot1[ dim * j + k ];
+                    dMicroStressdDeformationGradient[ dim * sot_dim * i + sot_dim * j + dim * j + k] += temp_sot2[ dim * i + k ];
+
                     for ( unsigned int K = 0; K < dim; K++ ){
                         dMicroStressdReferenceMicroStress[ dim * sot_dim * i + sot_dim * j + dim * k + K ] = deformationGradient[ dim * i + k ]
                                                                                                            * deformationGradient[ dim * j + K ] / detF;
                         
-                        dMicroStressdDeformationGradient[ dim * sot_dim * i + sot_dim * j + dim * i + k] += referenceMicroStress[ dim * k + K ] * deformationGradient[ dim * j + K ] / detF;
-                        dMicroStressdDeformationGradient[ dim * sot_dim * i + sot_dim * j + dim * j + k] += deformationGradient[ dim * i + K ] * referenceMicroStress[ dim * K + k ] / detF;
-
                         dMicroStressdDeformationGradient[ dim * sot_dim * i + sot_dim * j + dim * k + K] -= microStress[ dim * i + j ] * dDetFdF[ dim * k + K ] / detF;
 
                     }
