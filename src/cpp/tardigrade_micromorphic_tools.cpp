@@ -128,7 +128,7 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the deformation metric Gamma:
          *
-         * \f$ \Gamma_{IJK} = F_{iI} \Chi_{iJ,K}\f$
+         * \f$ \Gamma_{IJK} = F_{iI} \Chi_{iJ,K} \f$
          *
          * \param &deformationGradient: The deformation gradient.
          * \param &gradChi: The gradient of the micro-deformation tensor
@@ -169,11 +169,12 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the deformation metric Gamma:
          *
-         * Gamma_{IJK} = F_{iI} \Chi_{iJ,K}
+         * \f$ Gamma_{IJK} = F_{iI} \Chi_{iJ,K} \f$
          *
          * Also return the Jacobians
-         * \frac{ \partial Gamma_{IJK} }{ \partial F_{lL} } = \delta_{IL} \Chi_{lJ,K}
-         * \frac{ \partial Gamma_{IJK} }{ \partial \Chi_{lL,M} } = F_{lI} \delta_{JL} \delta_{KM}
+         * \f$ \frac{ \partial Gamma_{IJK} }{ \partial F_{lL} } = \delta_{IL} \Chi_{lJ,K} \f$
+         * 
+         * \f$ \frac{ \partial Gamma_{IJK} }{ \partial \Chi_{lL,M} } = F_{lI} \delta_{JL} \delta_{KM} \f$
          *
          * :param const variableVector &deformationGradient: The deformation gradient.
          * :param const variableVector &gradChi: The gradient of the micro-deformation tensor
@@ -214,8 +215,9 @@ namespace tardigradeMicromorphicTools{
          * \f$\Gamma_{IJK} = F_{iI} \Chi_{iJ,K}\f$
          *
          * Also return the Jacobians
-         * \f$\frac{ \partial Gamma_{IJK} }{ \partial F_{lL} } = \delta_{IL} \Chi_{lJ,K}\f
-         * \f$\frac{ \partial Gamma_{IJK} }{ \partial \Chi_{lL,M} } = F_{lI} \delta_{JL} \delta_{KM}\f
+         * \f$\frac{ \partial Gamma_{IJK} }{ \partial F_{lL} } = \delta_{IL} \Chi_{lJ,K}\f$
+         * 
+         * \f$\frac{ \partial Gamma_{IJK} }{ \partial \Chi_{lL,M} } = F_{lI} \delta_{JL} \delta_{KM}\f$
          *
          * \param const variableVector &deformationGradient: The deformation gradient.
          * \param const variableVector &gradChi: The gradient of the micro-deformation tensor
@@ -472,13 +474,13 @@ namespace tardigradeMicromorphicTools{
          * Pull back the Cauchy stress in the configuration indicated by the deformation gradient
          * to the PK2 stress.
          *
-         * S_{IJ} = J F_{Ii}^{-1} \sigma_{ij} F_{Jj}^{-1}
+         * \f$ S_{IJ} = J F_{Ii}^{-1} \sigma_{ij} F_{Jj}^{-1} \f$
          *
-         * :param const variableVector &cauchyStress: The Cauchy stress in the current configuration of
+         * \param &cauchyStress: The Cauchy stress in the current configuration of
          *     the provided deformation gradient.
-         * :param const variableVector &deformationGradient: The deformation gradient mapping between the 
+         * \param &deformationGradient: The deformation gradient mapping between the 
          *     reference configuration and the current configuration.
-         * :param variableVector &PK2Stress: The PK2 stress in the reference configuration.
+         * \param &PK2Stress: The PK2 stress in the reference configuration.
          */
 
         errorOut error = pullBackMicroStress( cauchyStress, deformationGradient, PK2Stress );
@@ -500,12 +502,13 @@ namespace tardigradeMicromorphicTools{
          * Pull back the Cauchy stress in the configuration indicated by the deformation gradient
          * to the PK2 stress.
          *
-         * S_{IJ} = J F_{Ii}^{-1} \sigma_{ij} F_{Jj}^{-1}
+         * \f$ S_{IJ} = J F_{Ii}^{-1} \sigma_{ij} F_{Jj}^{-1} \f$
          *
          * Also computes the Jacobians
          *
-         * \frac{ \partial S_{IJ} }{ \partial \sigma_{kl} } = J F_{Ik}^{-1} F_{Jl}^{-1}
-         * \frac{ \partial S_{IJ} }{ \partial F_{kK} } = F_{Kk}^{-1} S_{IJ} - F_{Ik}^{-1} S_{KJ} - S_{IK} F_{Jk}^{-1}
+         * \f$ \frac{ \partial S_{IJ} }{ \partial \sigma_{kl} } = J F_{Ik}^{-1} F_{Jl}^{-1} \f$
+         * 
+         * \f$ \frac{ \partial S_{IJ} }{ \partial F_{kK} } = F_{Kk}^{-1} S_{IJ} - F_{Ik}^{-1} S_{KJ} - S_{IK} F_{Jk}^{-1} \f$
          *
          * \param &cauchyStress: The Cauchy stress in the current configuration of
          *     the provided deformation gradient.
@@ -535,12 +538,13 @@ namespace tardigradeMicromorphicTools{
          * Pull back the Cauchy stress in the configuration indicated by the deformation gradient
          * to the PK2 stress.
          *
-         * S_{IJ} = J F_{Ii}^{-1} \sigma_{ij} F_{Jj}^{-1}
+         * \f$ S_{IJ} = J F_{Ii}^{-1} \sigma_{ij} F_{Jj}^{-1} \f$
          *
          * Also computes the Jacobians
          *
-         * \frac{ \partial S_{IJ} }{ \partial \sigma_{kl} } = J F_{Ik}^{-1} F_{Jl}^{-1}
-         * \frac{ \partial S_{IJ} }{ \partial F_{kK} } = F_{Kk}^{-1} S_{IJ} - F_{Ik}^{-1} S_{KJ} - S_{IK} F_{Jk}^{-1}
+         * \f$ \frac{ \partial S_{IJ} }{ \partial \sigma_{kl} } = J F_{Ik}^{-1} F_{Jl}^{-1} \f$
+         * 
+         * \f$ \frac{ \partial S_{IJ} }{ \partial F_{kK} } = F_{Kk}^{-1} S_{IJ} - F_{Ik}^{-1} S_{KJ} - S_{IK} F_{Jk}^{-1} \f$
          *
          * :param const variableVector &cauchyStress: The Cauchy stress in the current configuration of
          *     the provided deformation gradient.
@@ -568,7 +572,7 @@ namespace tardigradeMicromorphicTools{
          * Push forward the micro-stress in the reference configuration to the 
          * configuration indicated by the deformation gradient.
          *
-         * s_{ij} = (1 / J ) F_{i I} \Sigma_{I J} F_{j J}
+         * \f$ s_{ij} = (1 / J ) F_{i I} \Sigma_{I J} F_{j J} \f$
          *
          * :param const variableVector &referenceMicroStress: The micro-stress in the 
          *     reference configuration.
@@ -591,7 +595,7 @@ namespace tardigradeMicromorphicTools{
          * Push forward the micro-stress in the reference configuration to the 
          * configuration indicated by the deformation gradient.
          *
-         * s_{ij} = (1 / J ) F_{i I} \Sigma_{I J} F_{j J}
+         * \f$ s_{ij} = (1 / J ) F_{i I} \Sigma_{I J} F_{j J} \f$
          *
          * :param const variableVector &referenceMicroStress: The micro-stress in the 
          *     reference configuration.
@@ -633,13 +637,14 @@ namespace tardigradeMicromorphicTools{
          * Push forward the micro-stress in the reference configuration to the 
          * configuration indicated by the deformation gradient.
          *
-         * s_{ij} = (1 / J ) F_{iI} \Sigma_{IJ} F_{jJ}
+         * \f$ s_{ij} = (1 / J ) F_{iI} \Sigma_{IJ} F_{jJ} \f$
          *
          * Also computes the jacobians:
-         * \frac{ \partial s_{ij} }{\partial \Sigma_{KL} } = ( 1 / J ) F_{iK} F_{jL}
-         * \frac{ \partial s_{ij} }{\partial F_{kK} } = ( \delta_{i k} \delta_{I K} \Sigma_{I J} F_{j J}
+         * \f$ \frac{ \partial s_{ij} }{\partial \Sigma_{KL} } = ( 1 / J ) F_{iK} F_{jL} \f$
+         * 
+         * \f$ \frac{ \partial s_{ij} }{\partial F_{kK} } = ( \delta_{i k} \delta_{I K} \Sigma_{I J} F_{j J}
          *                                              + F_{i I} \Sigma_{I J} \delta_{j k} \delta_{J K}
-         *                                              - s_{i j} dDetFdF_{kK} ) / J
+         *                                              - s_{i j} dDetFdF_{kK} ) / J \f$
          *
          * \param &referenceMicroStress: The micro-stress in the 
          *     reference configuration.
@@ -681,13 +686,14 @@ namespace tardigradeMicromorphicTools{
          * Push forward the micro-stress in the reference configuration to the 
          * configuration indicated by the deformation gradient.
          *
-         * s_{ij} = (1 / J ) F_{iI} \Sigma_{IJ} F_{jJ}
+         * \f$ s_{ij} = (1 / J ) F_{iI} \Sigma_{IJ} F_{jJ} \f$
          *
          * Also computes the jacobians:
-         * \frac{ \partial s_{ij} }{\partial \Sigma_{KL} } = ( 1 / J ) F_{iK} F_{jL}
-         * \frac{ \partial s_{ij} }{\partial F_{kK} } = ( \delta_{i k} \delta_{I K} \Sigma_{I J} F_{j J}
+         * \f$ \frac{ \partial s_{ij} }{\partial \Sigma_{KL} } = ( 1 / J ) F_{iK} F_{jL} \f$
+         * 
+         * \f$ \frac{ \partial s_{ij} }{\partial F_{kK} } = ( \delta_{i k} \delta_{I K} \Sigma_{I J} F_{j J}
          *                                              + F_{i I} \Sigma_{I J} \delta_{j k} \delta_{J K}
-         *                                              - s_{i j} dDetFdF_{kK} ) / J
+         *                                              - s_{i j} dDetFdF_{kK} ) / J \f$
          *
          * \param &referenceMicroStress: The micro-stress in the 
          *     reference configuration.
@@ -763,7 +769,7 @@ namespace tardigradeMicromorphicTools{
          * Push forward the micro-stress in the reference configuration to the 
          * configuration indicated by the deformation gradient.
          *
-         * \Sigma_{IJ} = J F_{I i}^{-1} s_{ij} F_{J j}^{-1}
+         * \f$ \Sigma_{IJ} = J F_{I i}^{-1} s_{ij} F_{J j}^{-1} \f$
          *
          * :param const variableVector &microStress: The micro-stress in the current 
          *     configuration.
@@ -788,7 +794,7 @@ namespace tardigradeMicromorphicTools{
          * Push forward the micro-stress in the reference configuration to the 
          * configuration indicated by the deformation gradient.
          *
-         * \Sigma_{IJ} = J F_{I i}^{-1} s_{ij} F_{J j}^{-1}
+         * \f$ \Sigma_{IJ} = J F_{I i}^{-1} s_{ij} F_{J j}^{-1} \f$
          *
          * :param const variableVector &microStress: The micro-stress in the current 
          *     configuration.
@@ -841,11 +847,12 @@ namespace tardigradeMicromorphicTools{
          * Push forward the micro-stress in the reference configuration to the 
          * configuration indicated by the deformation gradient.
          *
-         * \Sigma_{IJ} = J F_{Ii}^{-1} s_{IJ} F_{Jj}^{-1}
+         * \f$ \Sigma_{IJ} = J F_{Ii}^{-1} s_{IJ} F_{Jj}^{-1} \f$
          *
          * Also computes the jacobians:
-         * \frac{ \partial \Sigma_{IJ} }{ \partial s_{kl} } = J F_{Ik}^{-1} F_{Jl}^{-1}
-         * \frac{ \partial \Sigma_{IJ} }{ \partial F_{kK} } = F_{Kk}^{-1} \Sigma_{IJ} - F_{Ik}^{-1} \Sigma_{KJ} - \Sigma_{IK} F_{Jk}^{-1}
+         * \f$ \frac{ \partial \Sigma_{IJ} }{ \partial s_{kl} } = J F_{Ik}^{-1} F_{Jl}^{-1} \f$
+         * 
+         * \f$\frac{ \partial \Sigma_{IJ} }{ \partial F_{kK} } = F_{Kk}^{-1} \Sigma_{IJ} - F_{Ik}^{-1} \Sigma_{KJ} - \Sigma_{IK} F_{Jk}^{-1}\f$
          *
          * :param const variableVector &microStress: The micro-stress in the current 
          *     configuration.
@@ -889,11 +896,12 @@ namespace tardigradeMicromorphicTools{
          * Push forward the micro-stress in the reference configuration to the 
          * configuration indicated by the deformation gradient.
          *
-         * \Sigma_{IJ} = J F_{Ii}^{-1} s_{IJ} F_{Jj}^{-1}
+         * \f$\Sigma_{IJ} = J F_{Ii}^{-1} s_{IJ} F_{Jj}^{-1}\f$
          *
          * Also computes the jacobians:
-         * \frac{ \partial \Sigma_{IJ} }{ \partial s_{kl} } = J F_{Ik}^{-1} F_{Jl}^{-1}
-         * \frac{ \partial \Sigma_{IJ} }{ \partial F_{kK} } = F_{Kk}^{-1} \Sigma_{IJ} - F_{Ik}^{-1} \Sigma_{KJ} - \Sigma_{IK} F_{Jk}^{-1}
+         * \f$\frac{ \partial \Sigma_{IJ} }{ \partial s_{kl} } = J F_{Ik}^{-1} F_{Jl}^{-1}\f$
+         * 
+         * \f$\frac{ \partial \Sigma_{IJ} }{ \partial F_{kK} } = F_{Kk}^{-1} \Sigma_{IJ} - F_{Ik}^{-1} \Sigma_{KJ} - \Sigma_{IK} F_{Jk}^{-1}\f$
          *
          * :param const variableVector &microStress: The micro-stress in the current 
          *     configuration.
@@ -963,7 +971,7 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the push-forward operation on the higher order stress.
          *
-         * m_{ijk} = \frac{1}{J} F_{iI} F_{jJ} \Chi_{kK} M_{IJK}
+         * \f$m_{ijk} = \frac{1}{J} F_{iI} F_{jJ} \Chi_{kK} M_{IJK}\f$
          *
          * :param const variableVector &referenceHigherOrderStress: The higher order stress in the 
          *     reference configuration.
@@ -986,7 +994,7 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the push-forward operation on the higher order stress.
          *
-         * m_{ijk} = \frac{1}{J} F_{iI} F_{jJ} \Chi_{kK} M_{IJK}
+         * \f$m_{ijk} = \frac{1}{J} F_{iI} F_{jJ} \Chi_{kK} M_{IJK}\f$
          *
          * :param const variableVector &referenceHigherOrderStress: The higher order stress in the 
          *     reference configuration.
@@ -1047,15 +1055,17 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the push-forward operation on the higher order stress.
          *
-         * m_{ijk} = \frac{1}{J} F_{iI} F_{jJ} \Chi_{kK} M_{IJK}
+         * \f$ m_{ijk} = \frac{1}{J} F_{iI} F_{jJ} \Chi_{kK} M_{IJK} \f$
          *
          * Also returns the Jacobians
          *
-         * \frac{ \partial m_{ijk} }{ \partial M_{LMN} } = \frac{1}{J} F_{iL} F_{jM} \Chi_{kN}
-         * \frac{ \partial m_{ijk} }{ \partial F_{lM} } = \left( \delta_{il} F_{jN} \Chi_{kO} M_{MNO}
+         * \f$ \frac{ \partial m_{ijk} }{ \partial M_{LMN} } = \frac{1}{J} F_{iL} F_{jM} \Chi_{kN} \f$
+         * 
+         * \f$ \frac{ \partial m_{ijk} }{ \partial F_{lM} } = \left( \delta_{il} F_{jN} \Chi_{kO} M_{MNO}
          *                                                     + F_{iN} \delta_{jl} \Chi_{kO} M_{NMO}
-         *                                                     - m_{ijk} dDetFdF_{lM} \right)/J
-         * \frac{ \partial m_{ijk} }{ \partial \Chi_{lM} } = \frac{1}{J} F_{iN} F_{jO} \delta_{kl} M_{NOM}
+         *                                                     - m_{ijk} dDetFdF_{lM} \right)/J\f$
+         * 
+         * \f$ \frac{ \partial m_{ijk} }{ \partial \Chi_{lM} } = \frac{1}{J} F_{iN} F_{jO} \delta_{kl} M_{NOM} \f$
          *
          * \param &referenceHigherOrderStress: The higher order stress in the 
          *     reference configuration.
@@ -1103,15 +1113,17 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the push-forward operation on the higher order stress.
          *
-         * m_{ijk} = \frac{1}{J} F_{iI} F_{jJ} \Chi_{kK} M_{IJK}
+         * \f$ m_{ijk} = \frac{1}{J} F_{iI} F_{jJ} \Chi_{kK} M_{IJK} \f$
          *
          * Also returns the Jacobians
          *
-         * \frac{ \partial m_{ijk} }{ \partial M_{LMN} } = \frac{1}{J} F_{iL} F_{jM} \Chi_{kN}
-         * \frac{ \partial m_{ijk} }{ \partial F_{lM} } = \left( \delta_{il} F_{jN} \Chi_{kO} M_{MNO}
+         * \f$ \frac{ \partial m_{ijk} }{ \partial M_{LMN} } = \frac{1}{J} F_{iL} F_{jM} \Chi_{kN} \f$
+         * 
+         * \f$\frac{ \partial m_{ijk} }{ \partial F_{lM} } = \left( \delta_{il} F_{jN} \Chi_{kO} M_{MNO}
          *                                                     + F_{iN} \delta_{jl} \Chi_{kO} M_{NMO}
-         *                                                     - m_{ijk} dDetFdF_{lM} \right)/J
-         * \frac{ \partial m_{ijk} }{ \partial \Chi_{lM} } = \frac{1}{J} F_{iN} F_{jO} \delta_{kl} M_{NOM}
+         *                                                     - m_{ijk} dDetFdF_{lM} \right)/J \f$
+         * 
+         * \f$ \frac{ \partial m_{ijk} }{ \partial \Chi_{lM} } = \frac{1}{J} F_{iN} F_{jO} \delta_{kl} M_{NOM} \f$
          *
          * \param &referenceHigherOrderStress: The higher order stress in the 
          *     reference configuration.
@@ -1191,7 +1203,7 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the pull back operation on the higher order stress.
          *
-         * M_{IJK} = J F_{Ii}^{-1} F_{Jj}^{-1} \chi_{Kk}^{-1} m_{ijk}
+         * \f$ M_{IJK} = J F_{Ii}^{-1} F_{Jj}^{-1} \chi_{Kk}^{-1} m_{ijk} \f$
          *
          * :param const variableVector &higherOrderStress: The higher order stress in the current configuration.
          * :param const variableVector &deformationGradient: The deformation gradient which maps 
@@ -1216,7 +1228,7 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the push-forward operation on the higher order stress.
          *
-         * M_{IJK} = J F_{Ii}^{-1} F_{Jj}^{-1} \chi_{Kk}^{-1} m_{ijk}
+         * \f$ M_{IJK} = J F_{Ii}^{-1} F_{Jj}^{-1} \chi_{Kk}^{-1} m_{ijk} \f$
          *
          * :param const variableVector &higherOrderStress: The higher order stress in the current configuration.
          * :param const variableVector &deformationGradient: The deformation gradient which maps 
@@ -1281,13 +1293,15 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the pull back operation on the higher order stress.
          *
-         * M_{IJK} = J F_{Ii}^{-1} F_{Jj}^{-1} \chi_{Kk}^{-1} m_{ijk}
+         * \f$ M_{IJK} = J F_{Ii}^{-1} F_{Jj}^{-1} \chi_{Kk}^{-1} m_{ijk} \f$
          *
          * Also returns the Jacobians
          *
-         * \frac{ \partial M_{IJK} }{ \partial m_{lmn} } = J F_{Il}^{-1} F_{Jm}^{-1} \chi_{Kn}^{-1}
-         * \frac{ \partial M_{IJK} }{ \partial F_{lL} } = F_{Ll}^{-1} M_{IJK} - F_{Il}^{-1} M_{LJK} - F_{Jl}^{-1} M_{ILK}
-         * \frac{ \partial M_{IJK} }{ \partial \chi_{lL} } = -\chi_{Kl}^{-1} M_{IJL}
+         * \f$ \frac{ \partial M_{IJK} }{ \partial m_{lmn} } = J F_{Il}^{-1} F_{Jm}^{-1} \chi_{Kn}^{-1} \f$
+         * 
+         * \f$ \frac{ \partial M_{IJK} }{ \partial F_{lL} } = F_{Ll}^{-1} M_{IJK} - F_{Il}^{-1} M_{LJK} - F_{Jl}^{-1} M_{ILK} \f$
+         * 
+         * \f$ \frac{ \partial M_{IJK} }{ \partial \chi_{lL} } = -\chi_{Kl}^{-1} M_{IJL} \f$
          *
          * \param &referenceHigherOrderStress: The higher order stress in the 
          *     reference configuration.
@@ -1333,13 +1347,15 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the pull back operation on the higher order stress.
          *
-         * M_{IJK} = J F_{Ii}^{-1} F_{Jj}^{-1} \chi_{Kk}^{-1} m_{ijk}
+         * \f$ M_{IJK} = J F_{Ii}^{-1} F_{Jj}^{-1} \chi_{Kk}^{-1} m_{ijk} \f$
          *
          * Also returns the Jacobians
          *
-         * \frac{ \partial M_{IJK} }{ \partial m_{lmn} } = J F_{Il}^{-1} F_{Jm}^{-1} \chi_{Kn}^{-1}
-         * \frac{ \partial M_{IJK} }{ \partial F_{lL} } = F_{Ll}^{-1} M_{IJK} - F_{Il}^{-1} M_{LJK} - F_{Jl}^{-1} M_{ILK}
-         * \frac{ \partial M_{IJK} }{ \partial \chi_{lL} } = -\chi_{Kl}^{-1} M_{IJL}
+         * \f$ \frac{ \partial M_{IJK} }{ \partial m_{lmn} } = J F_{Il}^{-1} F_{Jm}^{-1} \chi_{Kn}^{-1} \f$
+         * 
+         * \f$ \frac{ \partial M_{IJK} }{ \partial F_{lL} } = F_{Ll}^{-1} M_{IJK} - F_{Il}^{-1} M_{LJK} - F_{Jl}^{-1} M_{ILK} \f$
+         * 
+         * \f$ \frac{ \partial M_{IJK} }{ \partial \chi_{lL} } = -\chi_{Kl}^{-1} M_{IJL} \f$
          *
          * \param &referenceHigherOrderStress: The higher order stress in the 
          *     reference configuration.
@@ -1408,7 +1424,7 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the deviatoric part of the higher order stress.
          *
-         * dev ( m_{ijk} ) = m_{ijk} - ( 1 / 3 ) m_{llk} \delta_{ij}
+         * \f$ \text{dev} ( m_{ijk} ) = m_{ijk} - ( 1 / 3 ) m_{llk} \delta_{ij} \f$
          *
          * :param const variableVector &higherOrderStress: The higher order stress in the current configuration.
          * :param variableVector &deviatoricHigherOrderStress: The deviatoric part of the higher order stress.
@@ -1446,10 +1462,10 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the deviatoric part of the higher order stress.
          *
-         * dev ( m_{ijk} ) = m_{ijk} - ( 1 / 3 ) m_{llk} \delta_{ij}
+         * \f$ \text{dev} ( m_{ijk} ) = m_{ijk} - ( 1 / 3 ) m_{llk} \delta_{ij} \f$
          *
          * Also compute the Jacobian
-         * \frac{ \partial dev ( m_{ijk} ) }{ \partial m_{mno} } = \delta_{im} \delta_{jn} \delta_{ko} - ( 1 / 3 ) \delta_{mn} \delta_{ko} \delta_{ij}
+         * \f$ \frac{ \partial \text{dev} ( m_{ijk} ) }{ \partial m_{mno} } = \delta_{im} \delta_{jn} \delta_{ko} - ( 1 / 3 ) \delta_{mn} \delta_{ko} \delta_{ij} \f$
          *
          * :param const variableVector &higherOrderStress: The higher order stress in the current configuration.
          * :param variableVector &deviatoricHigherOrderStress: The deviatoric part of the higher order stress.
@@ -1496,10 +1512,10 @@ namespace tardigradeMicromorphicTools{
                                                         variableVector &referenceHigherOrderPressure ){
         /*!
          * Compute the pressure for a higher-order stress in the reference configuration.
-         * $p_K = \frac{1}{3} C_{AB} M_{ABK}$
+         * \f$p_K = \frac{1}{3} C_{AB} M_{ABK}\f$
          *
-         * where $C_{AB}$ is the right Cauchy-Green deformation tensor and 
-         * M_{ABK} is the higher order stress tensor in the reference configuration.
+         * where \f$C_{AB}\f$ is the right Cauchy-Green deformation tensor and 
+         * \f$M_{ABK}\f$ is the higher order stress tensor in the reference configuration.
          *
          * :param const variableVector &referenceHigherOrderStress: The higher order stress in the 
          *     reference configuration.
@@ -1544,14 +1560,15 @@ namespace tardigradeMicromorphicTools{
                                                         variableMatrix &dpdM, variableMatrix &dpdC ){
         /*!
          * Compute the pressure for a higher-order stress in the reference configuration.
-         * $p_K = \frac{1}{3} C_{AB} M_{ABK}$
+         * \f$p_K = \frac{1}{3} C_{AB} M_{ABK}\f$
          *
          * Also compute the Jacobians
-         * $\frac{ \partial p_K }{ \partial M_{NOP} } = \frac{1}{3} C_{NO} \delta_{KP}$
-         * $\frac{ \partial p_K }{ \partial C_{NO} } = \frac{1}{3} M_{NOK}$
+         * \f$\frac{ \partial p_K }{ \partial M_{NOP} } = \frac{1}{3} C_{NO} \delta_{KP}\f$
+         * 
+         * \f$\frac{ \partial p_K }{ \partial C_{NO} } = \frac{1}{3} M_{NOK}\f$
          *
-         * where $C_{AB}$ is the right Cauchy-Green deformation tensor and 
-         * M_{ABK} is the higher order stress tensor in the reference configuration.
+         * where \f$C_{AB}\f$ is the right Cauchy-Green deformation tensor and 
+         * \f$M_{ABK}\f$ is the higher order stress tensor in the reference configuration.
          *
          * \param &referenceHigherOrderStress: The higher order stress in the 
          *     reference configuration.
@@ -1590,14 +1607,15 @@ namespace tardigradeMicromorphicTools{
                                                         variableVector &dpdM, variableVector &dpdC ){
         /*!
          * Compute the pressure for a higher-order stress in the reference configuration.
-         * $p_K = \frac{1}{3} C_{AB} M_{ABK}$
+         * \f$p_K = \frac{1}{3} C_{AB} M_{ABK}\f$
          *
          * Also compute the Jacobians
-         * $\frac{ \partial p_K }{ \partial M_{NOP} } = \frac{1}{3} C_{NO} \delta_{KP}$
-         * $\frac{ \partial p_K }{ \partial C_{NO} } = \frac{1}{3} M_{NOK}$
+         * \f$\frac{ \partial p_K }{ \partial M_{NOP} } = \frac{1}{3} C_{NO} \delta_{KP}\f$
+         * 
+         * \f$\frac{ \partial p_K }{ \partial C_{NO} } = \frac{1}{3} M_{NOK}\f$
          *
-         * where $C_{AB}$ is the right Cauchy-Green deformation tensor and 
-         * M_{ABK} is the higher order stress tensor in the reference configuration.
+         * where \f$C_{AB}\f$ is the right Cauchy-Green deformation tensor and 
+         * \f$M_{ABK}\f$ is the higher order stress tensor in the reference configuration.
          *
          * \param &referenceHigherOrderStress: The higher order stress in the 
          *     reference configuration.
@@ -1654,15 +1672,15 @@ namespace tardigradeMicromorphicTools{
                                                         variableMatrix &d2pdMdC ){
         /*!
          * Compute the pressure for a higher-order stress in the reference configuration.
-         * $p_K = \frac{1}{3} C_{AB} M_{ABK}$
+         * \f$p_K = \frac{1}{3} C_{AB} M_{ABK}\f$
          *
          * Also compute the Jacobians
-         * $\frac{ \partial p_K }{ \partial M_{NOP} } = \frac{1}{3} C_{NO} \delta_{KP}$
-         * $\frac{ \partial p_K }{ \partial C_{NO} } = \frac{1}{3} M_{NOK}$
-         * $\frac{ \partial^2 p_K}{ \partial M_{NOP} C_{QR} } = \frac{1}{3} \delta_{NQ} \delta_{OR} \delta_{KP}
+         * \f$\frac{ \partial p_K }{ \partial M_{NOP} } = \frac{1}{3} C_{NO} \delta_{KP}\f$
+         * \f$\frac{ \partial p_K }{ \partial C_{NO} } = \frac{1}{3} M_{NOK}\f$
+         * \f$\frac{ \partial^2 p_K}{ \partial M_{NOP} C_{QR} } = \frac{1}{3} \delta_{NQ} \delta_{OR} \delta_{KP}\f
          *
-         * where $C_{AB}$ is the right Cauchy-Green deformation tensor and
-         * M_{ABK} is the higher order stress tensor in the reference configuration.
+         * where \f$C_{AB}\f$ is the right Cauchy-Green deformation tensor and
+         * \fM_{ABK}\f is the higher order stress tensor in the reference configuration.
          *
          * \param &referenceHigherOrderStress: The higher order stress in the
          *     reference configuration.
@@ -1705,15 +1723,17 @@ namespace tardigradeMicromorphicTools{
                                                         variableVector &d2pdMdC ){
         /*!
          * Compute the pressure for a higher-order stress in the reference configuration.
-         * $p_K = \frac{1}{3} C_{AB} M_{ABK}$
+         * \f$p_K = \frac{1}{3} C_{AB} M_{ABK}\f$
          *
          * Also compute the Jacobians
-         * $\frac{ \partial p_K }{ \partial M_{NOP} } = \frac{1}{3} C_{NO} \delta_{KP}$
-         * $\frac{ \partial p_K }{ \partial C_{NO} } = \frac{1}{3} M_{NOK}$
-         * $\frac{ \partial^2 p_K}{ \partial M_{NOP} C_{QR} } = \frac{1}{3} \delta_{NQ} \delta_{OR} \delta_{KP}
+         * \f$\frac{ \partial p_K }{ \partial M_{NOP} } = \frac{1}{3} C_{NO} \delta_{KP}\f$
+         * 
+         * \f$\frac{ \partial p_K }{ \partial C_{NO} } = \frac{1}{3} M_{NOK}\f$
+         * 
+         * \f$\frac{ \partial^2 p_K}{ \partial M_{NOP} C_{QR} } = \frac{1}{3} \delta_{NQ} \delta_{OR} \delta_{KP}\f$
          *
-         * where $C_{AB}$ is the right Cauchy-Green deformation tensor and
-         * M_{ABK} is the higher order stress tensor in the reference configuration.
+         * where \f$C_{AB}\f$ is the right Cauchy-Green deformation tensor and
+         * \f$M_{ABK}\f$ is the higher order stress tensor in the reference configuration.
          *
          * \param &referenceHigherOrderStress: The higher order stress in the
          *     reference configuration.
@@ -1770,7 +1790,7 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the deviatoric part of the higher order stress in the reference configuration.
          *
-         * dev ( M_{IJK} ) = M_{IJK} - ( 1 / 3 ) (C^{-1})_{IJ} C_{AB} M_{ABK}
+         * \f$ \text{dev} ( M_{IJK} ) = M_{IJK} - ( 1 / 3 ) (C^{-1})_{IJ} C_{AB} M_{ABK} \f$
          *
          * :param const variableVector &referenceHigherOrderStress: The higher order stress in the reference configuration.
          * :param const variableVector &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor.
@@ -1800,7 +1820,7 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the deviatoric part of the higher order stress in the reference configuration.
          *
-         * dev ( M_{IJK} ) = M_{IJK} - ( 1 / 3 ) (C^{-1})_{IJ} C_{AB} M_{ABK}
+         * \f$ \text{dev} ( M_{IJK} ) = M_{IJK} - ( 1 / 3 ) (C^{-1})_{IJ} C_{AB} M_{ABK} \f$
          *
          * :param const variableVector &referenceHigherOrderStress: The higher order stress in the reference configuration.
          * :param const variableVector &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor.
@@ -1835,11 +1855,12 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the deviatoric part of the higher order stress in the reference configuration.
          *
-         * dev ( M_{IJK} ) = M_{IJK} - \frac{1}{3} (C^{-1})_{IJ} C_{AB} M_{ABK} = M_{IJK} - ( C^{-1} )_{IJ} p_{K}
+         * \f$ \text{dev} ( M_{IJK} ) = M_{IJK} - \frac{1}{3} (C^{-1})_{IJ} C_{AB} M_{ABK} = M_{IJK} - ( C^{-1} )_{IJ} p_{K} \f$
          *
          * Also compute Jacobians:
-         * \frac{ \partial dev ( M_{IJK} ) }{ \partial M_{LMN} } = \delta_{IL} \delta_{JM} \delta_{KN} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial M_{LMN} }
-         * \frac{ \partial dev ( M_{IJK} ) }{ \partial C_{LM} } = \left( (C^{-1})_{IL} (C^{-1})_{MJ} p_{K} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial C_{LM} } \right)
+         * \f$ \frac{ \partial dev ( M_{IJK} ) }{ \partial M_{LMN} } = \delta_{IL} \delta_{JM} \delta_{KN} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial M_{LMN} } \f$
+         *
+         * \f$ \frac{ \partial dev ( M_{IJK} ) }{ \partial C_{LM} } = \left( (C^{-1})_{IL} (C^{-1})_{MJ} p_{K} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial C_{LM} } \right) \f$
          *
          * \param &referenceHigherOrderStress: The higher order stress in the reference configuration.
          * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor.
@@ -1881,11 +1902,12 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the deviatoric part of the higher order stress in the reference configuration.
          *
-         * dev ( M_{IJK} ) = M_{IJK} - \frac{1}{3} (C^{-1})_{IJ} C_{AB} M_{ABK} = M_{IJK} - ( C^{-1} )_{IJ} p_{K}
+         * \f$ \text{dev} ( M_{IJK} ) = M_{IJK} - \frac{1}{3} (C^{-1})_{IJ} C_{AB} M_{ABK} = M_{IJK} - ( C^{-1} )_{IJ} p_{K} \f$
          *
          * Also compute Jacobians:
-         * \frac{ \partial dev ( M_{IJK} ) }{ \partial M_{LMN} } = \delta_{IL} \delta_{JM} \delta_{KN} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial M_{LMN} }
-         * \frac{ \partial dev ( M_{IJK} ) }{ \partial C_{LM} } = \left( (C^{-1})_{IL} (C^{-1})_{MJ} p_{K} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial C_{LM} } \right)
+         * \f$ \frac{ \partial \text{ dev } ( M_{IJK} ) }{ \partial M_{LMN} } = \delta_{IL} \delta_{JM} \delta_{KN} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial M_{LMN} } \f$
+         * 
+         * \f$ \frac{ \partial \text{ dev } ( M_{IJK} ) }{ \partial C_{LM} } = \left( (C^{-1})_{IL} (C^{-1})_{MJ} p_{K} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial C_{LM} } \right) \f$
          *
          * \param &referenceHigherOrderStress: The higher order stress in the reference configuration.
          * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor.
@@ -1930,11 +1952,12 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the deviatoric part of the higher order stress in the reference configuration.
          *
-         * dev ( M_{IJK} ) = M_{IJK} - \frac{1}{3} (C^{-1})_{IJ} C_{AB} M_{ABK} = M_{IJK} - ( C^{-1} )_{IJ} p_{K}
+         * \f$ \text{dev} ( M_{IJK} ) = M_{IJK} - \frac{1}{3} (C^{-1})_{IJ} C_{AB} M_{ABK} = M_{IJK} - ( C^{-1} )_{IJ} p_{K} \f$
          *
          * Also compute Jacobians:
-         * \frac{ \partial dev ( M_{IJK} ) }{ \partial M_{LMN} } = \delta_{IL} \delta_{JM} \delta_{KN} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial M_{LMN} }
-         * \frac{ \partial dev ( M_{IJK} ) }{ \partial C_{LM} } = \left( (C^{-1})_{IL} (C^{-1})_{MJ} p_{K} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial C_{LM} } \right)
+         * \f$\frac{ \partial \text{dev} ( M_{IJK} ) }{ \partial M_{LMN} } = \delta_{IL} \delta_{JM} \delta_{KN} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial M_{LMN} }\f$
+         * 
+         * \f$\frac{ \partial \text{dev} ( M_{IJK} ) }{ \partial C_{LM} } = \left( (C^{-1})_{IL} (C^{-1})_{MJ} p_{K} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial C_{LM} } \right)\f$
          *
          * \param &referenceHigherOrderStress: The higher order stress in the reference configuration.
          * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor.
@@ -2005,13 +2028,14 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the deviatoric part of the higher order stress in the reference configuration.
          *
-         * dev ( M_{IJK} ) = M_{IJK} - \frac{1}{3} (C^{-1})_{IJ} C_{AB} M_{ABK} = M_{IJK} - ( C^{-1} )_{IJ} p_{K}
+         * \f$ \text{dev} ( M_{IJK} ) = M_{IJK} - \frac{1}{3} (C^{-1})_{IJ} C_{AB} M_{ABK} = M_{IJK} - ( C^{-1} )_{IJ} p_{K} \f$
          *
          * Also compute Jacobians:
-         * \frac{ \partial dev ( M_{IJK} ) }{ \partial M_{LMN} } = \delta_{IL} \delta_{JM} \delta_{KN} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial M_{LMN} }
-         * \frac{ \partial dev ( M_{IJK} ) }{ \partial C_{LM} } = \left( (C^{-1})_{IL} (C^{-1})_{MJ} p_{K} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial C_{LM} } \right)
+         * \f$ \frac{ \partial \text{dev} ( M_{IJK} ) }{ \partial M_{LMN} } = \delta_{IL} \delta_{JM} \delta_{KN} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial M_{LMN} } \f$
+         * 
+         * \f$ \frac{ \partial \text{dev} ( M_{IJK} ) }{ \partial C_{LM} } = \left( (C^{-1})_{IL} (C^{-1})_{MJ} p_{K} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial C_{LM} } \right) \f$
          *
-         * \frac{ \partial dev( M_{IJK} ) }{ \partial M_{LMN} \partial C_{OP} } = (C^{-1})_{IO} (C^{-1})_{PJ} \frac{ \partial p_{k }{ \partial M_{LMN} } - (C^{-1})_{IJ} \frac{ \partial^2 p_K}{ \partial M_{LMN} \partial C_{OP} } 
+         * \f$ \frac{ \partial \text{dev} ( M_{IJK} ) }{ \partial M_{LMN} \partial C_{OP} } = (C^{-1})_{IO} (C^{-1})_{PJ} \frac{ \partial p_{k }{ \partial M_{LMN} } - (C^{-1})_{IJ} \frac{ \partial^2 p_K}{ \partial M_{LMN} \partial C_{OP} } \f$
          *
          * \param &referenceHigherOrderStress: The higher order stress in the reference configuration.
          * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor.
@@ -2059,13 +2083,14 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the deviatoric part of the higher order stress in the reference configuration.
          *
-         * dev ( M_{IJK} ) = M_{IJK} - \frac{1}{3} (C^{-1})_{IJ} C_{AB} M_{ABK} = M_{IJK} - ( C^{-1} )_{IJ} p_{K}
+         * \f$ \text{dev} ( M_{IJK} ) = M_{IJK} - \frac{1}{3} (C^{-1})_{IJ} C_{AB} M_{ABK} = M_{IJK} - ( C^{-1} )_{IJ} p_{K} \f$
          *
          * Also compute Jacobians:
-         * \frac{ \partial dev ( M_{IJK} ) }{ \partial M_{LMN} } = \delta_{IL} \delta_{JM} \delta_{KN} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial M_{LMN} }
-         * \frac{ \partial dev ( M_{IJK} ) }{ \partial C_{LM} } = \left( (C^{-1})_{IL} (C^{-1})_{MJ} p_{K} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial C_{LM} } \right)
+         * \f$ \frac{ \partial dev ( M_{IJK} ) }{ \partial M_{LMN} } = \delta_{IL} \delta_{JM} \delta_{KN} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial M_{LMN} } \f$
+         * 
+         * \f$ \frac{ \partial dev ( M_{IJK} ) }{ \partial C_{LM} } = \left( (C^{-1})_{IL} (C^{-1})_{MJ} p_{K} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial C_{LM} } \right) \f$
          *
-         * \frac{ \partial dev( M_{IJK} ) }{ \partial M_{LMN} \partial C_{OP} } = (C^{-1})_{IO} (C^{-1})_{PJ} \frac{ \partial p_{k }{ \partial M_{LMN} } - (C^{-1})_{IJ} \frac{ \partial^2 p_K}{ \partial M_{LMN} \partial C_{OP} } 
+         * \f$ \frac{ \partial dev( M_{IJK} ) }{ \partial M_{LMN} \partial C_{OP} } = (C^{-1})_{IO} (C^{-1})_{PJ} \frac{ \partial p_{k }{ \partial M_{LMN} } - (C^{-1})_{IJ} \frac{ \partial^2 p_K}{ \partial M_{LMN} \partial C_{OP} } \f$
          *
          * \param &referenceHigherOrderStress: The higher order stress in the reference configuration.
          * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor.
@@ -2114,13 +2139,14 @@ namespace tardigradeMicromorphicTools{
         /*!
          * Compute the deviatoric part of the higher order stress in the reference configuration.
          *
-         * dev ( M_{IJK} ) = M_{IJK} - \frac{1}{3} (C^{-1})_{IJ} C_{AB} M_{ABK} = M_{IJK} - ( C^{-1} )_{IJ} p_{K}
+         * \f$ \text{dev} ( M_{IJK} ) = M_{IJK} - \frac{1}{3} (C^{-1})_{IJ} C_{AB} M_{ABK} = M_{IJK} - ( C^{-1} )_{IJ} p_{K} \f$
          *
          * Also compute Jacobians:
-         * \frac{ \partial dev ( M_{IJK} ) }{ \partial M_{LMN} } = \delta_{IL} \delta_{JM} \delta_{KN} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial M_{LMN} }
-         * \frac{ \partial dev ( M_{IJK} ) }{ \partial C_{LM} } = \left( (C^{-1})_{IL} (C^{-1})_{MJ} p_{K} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial C_{LM} } \right)
+         * \f$ \frac{ \partial \text{ dev } ( M_{IJK} ) }{ \partial M_{LMN} } = \delta_{IL} \delta_{JM} \delta_{KN} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial M_{LMN} } \f$
+         * 
+         * \f$ \frac{ \partial \text{ dev } ( M_{IJK} ) }{ \partial C_{LM} } = \left( (C^{-1})_{IL} (C^{-1})_{MJ} p_{K} - (C^{-1})_{IJ} \frac{ \partial p_K }{ \partial C_{LM} } \right) \f$
          *
-         * \frac{ \partial dev( M_{IJK} ) }{ \partial M_{LMN} \partial C_{OP} } = (C^{-1})_{IO} (C^{-1})_{PJ} \frac{ \partial p_{k }{ \partial M_{LMN} } - (C^{-1})_{IJ} \frac{ \partial^2 p_K}{ \partial M_{LMN} \partial C_{OP} } 
+         * \f$ \frac{ \partial \text{ dev } ( M_{IJK} ) }{ \partial M_{LMN} \partial C_{OP} } = (C^{-1})_{IO} (C^{-1})_{PJ} \frac{ \partial p_{k }{ \partial M_{LMN} } - (C^{-1})_{IJ} \frac{ \partial^2 p_K}{ \partial M_{LMN} \partial C_{OP} } \f$
          *
          * \param &referenceHigherOrderStress: The higher order stress in the reference configuration.
          * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor.
@@ -2215,7 +2241,7 @@ namespace tardigradeMicromorphicTools{
                                                  variableVector &deviatoricSecondOrderStress ){
         /*!
          * Compute the deviatoric part of a second order stress measure in the current configuration.
-         * \hat{s}_{ij} = s_{ij} - \frac{1}{3} s_{mm} \delta_{ij}
+         * \f$ \hat{s}_{ij} = s_{ij} - \frac{1}{3} s_{mm} \delta_{ij} \f$
          *
          * :param const variableVector &secondOrderStress: The stress measure in the current configuration.
          * :param variableVector &deviatoricSecondOrderStress: The deviatoric part of the second order stress 
@@ -2240,10 +2266,10 @@ namespace tardigradeMicromorphicTools{
                                                  variableMatrix &dDeviatoricStressdStress ){
         /*!
          * Compute the deviatoric part of a second order stress measure in the current configuration.
-         * \hat{s}_{ij} = s_{ij} - \frac{1}{3} s_{mm} \delta_{ij}
+         * \f$ \hat{s}_{ij} = s_{ij} - \frac{1}{3} s_{mm} \delta_{ij} \f$
          *
          * Also return the jacobian
-         * \frac{\partial \hat{s}_{ij}}{\partial s_{kl} } \delta_{ik} \delta_{jl} - \frac{1}{3} \delta_{ij} \delta_{kl}
+         * \f$ \frac{\partial \hat{s}_{ij}}{\partial s_{kl} } \delta_{ik} \delta_{jl} - \frac{1}{3} \delta_{ij} \delta_{kl} \f$
          *
          * :param const variableVector &secondOrderStress: The stress measure in the current configuration.
          * :param variableVector &deviatoricSecondOrderStress: The deviatoric part of the second order stress 
@@ -2286,9 +2312,9 @@ namespace tardigradeMicromorphicTools{
                                                         const variableVector &rightCauchyGreen,  variableType &pressure ){
         /*!
          * Compute the pressure part of a second order stress measure in the reference configuration.
-         * p = \frac{1}{3} C_{IJ} S_{IJ}
+         * \f$ p = \frac{1}{3} C_{IJ} S_{IJ} \f$
          *
-         * where C_{IJ} is the right Cauchy-Green deformation tensor and S_{IJ} is the stress measure.
+         * where \f$ C_{IJ} \f$ is the right Cauchy-Green deformation tensor and \f$ S_{IJ} \f$ is the stress measure.
          *
          * :param const variableVector &referenceStressMeasure: The stress measure in the reference configuration.
          * :param const variableVector &rightCauchyGreen: The right Cauchy-Green deformation tensor between the 
@@ -2311,13 +2337,14 @@ namespace tardigradeMicromorphicTools{
                                                         variableVector &dpdStress, variableVector &dpdRCG ){
         /*!
          * Compute the pressure part of a second order stress measure in the reference configuration.
-         * p = \frac{1}{3} C_{IJ} S_{IJ}
+         * \f$ p = \frac{1}{3} C_{IJ} S_{IJ} \f$
          *
-         * where C_{IJ} is the right Cauchy-Green deformation tensor and S_{IJ} is the stress measure.
+         * where \f$C_{IJ}\f$ is the right Cauchy-Green deformation tensor and \f$ S_{IJ} \f$ is the stress measure.
          *
          * Also compute the Jacobians
-         * \frac{ \partial p }{ \partial C_{IJ} } = \frac{1}{3} S_{IJ}
-         * \frac{ \partial p }{ \partial S_{IJ} } = \frac{1}{3} C_{IJ}
+         * \f$ \frac{ \partial p }{ \partial C_{IJ} } = \frac{1}{3} S_{IJ} \f$
+         * 
+         * \f$ \frac{ \partial p }{ \partial S_{IJ} } = \frac{1}{3} C_{IJ} \f$
          *
          * :param const variableVector &referenceStressMeasure: The stress measure in the reference configuration.
          * :param const variableVector &rightCauchyGreen: The right Cauchy-Green deformation tensor between the 
@@ -2348,15 +2375,16 @@ namespace tardigradeMicromorphicTools{
                                                         variableMatrix &d2pdStressdRCG ){
         /*!
          * Compute the pressure part of a second order stress measure in the reference configuration.
-         * p = \frac{1}{3} C_{IJ} S_{IJ}
+         * \f$ p = \frac{1}{3} C_{IJ} S_{IJ} \f$
          *
          * where C_{IJ} is the right Cauchy-Green deformation tensor and S_{IJ} is the stress measure.
          *
          * Also compute the Jacobians
-         * \frac{ \partial p }{ \partial C_{IJ} } = \frac{1}{3} S_{IJ}
-         * \frac{ \partial p }{ \partial S_{IJ} } = \frac{1}{3} C_{IJ}
+         * \f$ \frac{ \partial p }{ \partial C_{IJ} } = \frac{1}{3} S_{IJ} \f$
+         * 
+         * \f$ \frac{ \partial p }{ \partial S_{IJ} } = \frac{1}{3} C_{IJ} \f$
          *
-         * \frac{ \partial^2 p}{ \partial S_{IJ} \partial C_{KL} } = \frac{1}{3} \delta_{IK} \delta_{JL}
+         * \f$ \frac{ \partial^2 p}{ \partial S_{IJ} \partial C_{KL} } = \frac{1}{3} \delta_{IK} \delta_{JL} \f$
          *
          * \param &referenceStressMeasure: The stress measure in the reference configuration.
          * \param &rightCauchyGreen: The right Cauchy-Green deformation tensor between the 
@@ -2393,15 +2421,15 @@ namespace tardigradeMicromorphicTools{
                                                         variableVector &d2pdStressdRCG ){
         /*!
          * Compute the pressure part of a second order stress measure in the reference configuration.
-         * p = \frac{1}{3} C_{IJ} S_{IJ}
+         * \f$ p = \frac{1}{3} C_{IJ} S_{IJ} \f$
          *
-         * where C_{IJ} is the right Cauchy-Green deformation tensor and S_{IJ} is the stress measure.
+         * where \f$C_{IJ}\f$ is the right Cauchy-Green deformation tensor and \f$S_{IJ}\f$ is the stress measure.
          *
          * Also compute the Jacobians
-         * \frac{ \partial p }{ \partial C_{IJ} } = \frac{1}{3} S_{IJ}
-         * \frac{ \partial p }{ \partial S_{IJ} } = \frac{1}{3} C_{IJ}
+         * \f$\frac{ \partial p }{ \partial C_{IJ} } = \frac{1}{3} S_{IJ}\f$
+         * \f$\frac{ \partial p }{ \partial S_{IJ} } = \frac{1}{3} C_{IJ}\f$
          *
-         * \frac{ \partial^2 p}{ \partial S_{IJ} \partial C_{KL} } = \frac{1}{3} \delta_{IK} \delta_{JL}
+         * \f$\frac{ \partial^2 p}{ \partial S_{IJ} \partial C_{KL} } = \frac{1}{3} \delta_{IK} \delta_{JL}\f$
          *
          * :param const variableVector &referenceStressMeasure: The stress measure in the reference configuration.
          * :param const variableVector &rightCauchyGreen: The right Cauchy-Green deformation tensor between the 
@@ -2438,7 +2466,7 @@ namespace tardigradeMicromorphicTools{
                                                           variableVector &deviatoricSecondOrderReferenceStress ){
         /*!
          * Compute the deviatoric part of a second order stress measure in the reference configuration.
-         * \hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}
+         * \f$\hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}\f$
          *
          * :param const variableVector &secondOrderReferenceStress: The stress measure in the reference configuration.
          * :param const variableVector &rightCauchyGreenDeformation: The right Cauchy Green Deformation tensor of the 
@@ -2467,7 +2495,7 @@ namespace tardigradeMicromorphicTools{
                                                           variableVector &deviatoricSecondOrderReferenceStress ){
         /*!
          * Compute the deviatoric part of a second order stress measure in the reference configuration.
-         * \hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}
+         * \f$\hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}\f$
          *
          * :param const variableVector &secondOrderReferenceStress: The stress measure in the reference configuration.
          * :param const variableVector &rightCauchyGreenDeformation: The right Cauchy Green Deformation tensor of the 
@@ -2494,11 +2522,12 @@ namespace tardigradeMicromorphicTools{
                                                           variableMatrix &dDeviatoricReferenceStressdRCG ){
         /*!
          * Compute the deviatoric part of a second order stress measure in the reference configuration.
-         * \hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}
+         * \f$\hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}\f$
          * 
          * Also compute the Jacobians.
-         * \frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} } = \delta_{IK} \delta_{LJ} - \frac{1}{3} C_{KL} (C^{-1})_{IJ}
-         * \frac{ \partial \hat{S}_{IJ} }{ \partial C_{KL} } = \frac{1}{3} \left( C_{AB} S_{AB} (C^{-1})_{IK} (C^{-1})_{LJ} - S_{KL} (C^{-1}_{IJ}) \right)
+         * \f$\frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} } = \delta_{IK} \delta_{LJ} - \frac{1}{3} C_{KL} (C^{-1})_{IJ}\f$
+         * 
+         * \f$\frac{ \partial \hat{S}_{IJ} }{ \partial C_{KL} } = \frac{1}{3} \left( C_{AB} S_{AB} (C^{-1})_{IK} (C^{-1})_{LJ} - S_{KL} (C^{-1}_{IJ}) \right)\f$
          *
          * :param const variableVector &secondOrderReferenceStress: The stress measure in the reference configuration.
          * :param const variableVector &rightCauchyGreenDeformation: The right Cauchy Green Deformation tensor of the 
@@ -2540,11 +2569,12 @@ namespace tardigradeMicromorphicTools{
                                                           variableVector &dDeviatoricReferenceStressdRCG ){
         /*!
          * Compute the deviatoric part of a second order stress measure in the reference configuration.
-         * \hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}
+         * \f$\hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}\f$
          * 
          * Also compute the Jacobians.
-         * \frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} } = \delta_{IK} \delta_{LJ} - \frac{1}{3} C_{KL} (C^{-1})_{IJ}
-         * \frac{ \partial \hat{S}_{IJ} }{ \partial C_{KL} } = \frac{1}{3} \left( C_{AB} S_{AB} (C^{-1})_{IK} (C^{-1})_{LJ} - S_{KL} (C^{-1}_{IJ}) \right)
+         * \f$\frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} } = \delta_{IK} \delta_{LJ} - \frac{1}{3} C_{KL} (C^{-1})_{IJ}\f$
+         * 
+         * \f$\frac{ \partial \hat{S}_{IJ} }{ \partial C_{KL} } = \frac{1}{3} \left( C_{AB} S_{AB} (C^{-1})_{IK} (C^{-1})_{LJ} - S_{KL} (C^{-1}_{IJ}) \right)\f$
          *
          * \param &secondOrderReferenceStress: The stress measure in the reference configuration.
          * \param &rightCauchyGreenDeformation: The right Cauchy Green Deformation tensor of the 
@@ -2585,11 +2615,12 @@ namespace tardigradeMicromorphicTools{
                                                           variableVector &dDeviatoricReferenceStressdRCG ){
         /*!
          * Compute the deviatoric part of a second order stress measure in the reference configuration.
-         * \hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}
+         * \f$\hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}\f$
          * 
          * Also compute the Jacobians.
-         * \frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} } = \delta_{IK} \delta_{LJ} - \frac{1}{3} C_{KL} (C^{-1})_{IJ}
-         * \frac{ \partial \hat{S}_{IJ} }{ \partial C_{KL} } = \frac{1}{3} \left( C_{AB} S_{AB} (C^{-1})_{IK} (C^{-1})_{LJ} - S_{KL} (C^{-1}_{IJ}) \right)
+         * \f$\frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} } = \delta_{IK} \delta_{LJ} - \frac{1}{3} C_{KL} (C^{-1})_{IJ}\f$
+         * 
+         * \f$\frac{ \partial \hat{S}_{IJ} }{ \partial C_{KL} } = \frac{1}{3} \left( C_{AB} S_{AB} (C^{-1})_{IK} (C^{-1})_{LJ} - S_{KL} (C^{-1}_{IJ}) \right)\f$
          *
          * \param &secondOrderReferenceStress: The stress measure in the reference configuration.
          * \param &rightCauchyGreenDeformation: The right Cauchy Green Deformation tensor of the 
@@ -2643,13 +2674,14 @@ namespace tardigradeMicromorphicTools{
                                                           variableVector &d2DevSdSdRCG ){
         /*!
          * Compute the deviatoric part of a second order stress measure in the reference configuration.
-         * \hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}
+         * \f$\hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}\f$
          * 
          * Also compute the Jacobians.
-         * \frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} } = \delta_{IK} \delta_{LJ} - \frac{1}{3} C_{KL} (C^{-1})_{IJ}
-         * \frac{ \partial \hat{S}_{IJ} }{ \partial C_{KL} } = \frac{1}{3} \left( C_{AB} S_{AB} (C^{-1})_{IK} (C^{-1})_{LJ} - S_{KL} (C^{-1}_{IJ}) \right)
+         * \f$\frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} } = \delta_{IK} \delta_{LJ} - \frac{1}{3} C_{KL} (C^{-1})_{IJ}\f$
+         * 
+         * \f$\frac{ \partial \hat{S}_{IJ} }{ \partial C_{KL} } = \frac{1}{3} \left( C_{AB} S_{AB} (C^{-1})_{IK} (C^{-1})_{LJ} - S_{KL} (C^{-1}_{IJ}) \right)\f$
          *
-         * \frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} \partial C_{MN} } = - \frac{ \partial p^2 }{ \partial S_{KL} \partial C_{MN}} (C^{-1})_{IJ} + \frac{ \partial p }{ \partial S_{KL} } (C^{-1})_{IM} (C^{-1})_{NJ}
+         * \f$\frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} \partial C_{MN} } = - \frac{ \partial p^2 }{ \partial S_{KL} \partial C_{MN}} (C^{-1})_{IJ} + \frac{ \partial p }{ \partial S_{KL} } (C^{-1})_{IM} (C^{-1})_{NJ}\f$
          *
          * \param &secondOrderReferenceStress: The stress measure in the reference configuration.
          * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor of the 
@@ -2721,13 +2753,14 @@ namespace tardigradeMicromorphicTools{
                                                           variableMatrix &d2DevSdSdRCG ){
         /*!
          * Compute the deviatoric part of a second order stress measure in the reference configuration.
-         * \hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}
+         * \f$\hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}\f$
          * 
          * Also compute the Jacobians.
-         * \frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} } = \delta_{IK} \delta_{LJ} - \frac{1}{3} C_{KL} (C^{-1})_{IJ}
-         * \frac{ \partial \hat{S}_{IJ} }{ \partial C_{KL} } = \frac{1}{3} \left( C_{AB} S_{AB} (C^{-1})_{IK} (C^{-1})_{LJ} - S_{KL} (C^{-1}_{IJ}) \right)
+         * \f$\frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} } = \delta_{IK} \delta_{LJ} - \frac{1}{3} C_{KL} (C^{-1})_{IJ}\f$
+         * 
+         * \f$\frac{ \partial \hat{S}_{IJ} }{ \partial C_{KL} } = \frac{1}{3} \left( C_{AB} S_{AB} (C^{-1})_{IK} (C^{-1})_{LJ} - S_{KL} (C^{-1}_{IJ}) \right)\f$
          *
-         * \frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} \partial C_{MN} } = - \frac{ \partial p^2 }{ \partial S_{KL} \partial C_{MN}} (C^{-1})_{IJ} + \frac{ \partial p }{ \partial S_{KL} } (C^{-1})_{IM} (C^{-1})_{NJ}
+         * \f$\frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} \partial C_{MN} } = - \frac{ \partial p^2 }{ \partial S_{KL} \partial C_{MN}} (C^{-1})_{IJ} + \frac{ \partial p }{ \partial S_{KL} } (C^{-1})_{IM} (C^{-1})_{NJ}\f$
          *
          * \param &secondOrderReferenceStress: The stress measure in the reference configuration.
          * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor of the 
@@ -2773,13 +2806,14 @@ namespace tardigradeMicromorphicTools{
                                                           variableVector &d2DevSdSdRCG ){
         /*!
          * Compute the deviatoric part of a second order stress measure in the reference configuration.
-         * \hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}
+         * \f$\hat{S}_{IJ} = S_{IJ} - \frac{1}{3} C_{AB} S_{AB} (C^{-1})_{IJ}\f$
          * 
          * Also compute the Jacobians.
-         * \frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} } = \delta_{IK} \delta_{LJ} - \frac{1}{3} C_{KL} (C^{-1})_{IJ}
-         * \frac{ \partial \hat{S}_{IJ} }{ \partial C_{KL} } = \frac{1}{3} \left( C_{AB} S_{AB} (C^{-1})_{IK} (C^{-1})_{LJ} - S_{KL} (C^{-1}_{IJ}) \right)
+         * \f$\frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} } = \delta_{IK} \delta_{LJ} - \frac{1}{3} C_{KL} (C^{-1})_{IJ}\f$
+         * 
+         * \f$\frac{ \partial \hat{S}_{IJ} }{ \partial C_{KL} } = \frac{1}{3} \left( C_{AB} S_{AB} (C^{-1})_{IK} (C^{-1})_{LJ} - S_{KL} (C^{-1}_{IJ}) \right)\f$
          *
-         * \frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} \partial C_{MN} } = - \frac{ \partial p^2 }{ \partial S_{KL} \partial C_{MN}} (C^{-1})_{IJ} + \frac{ \partial p }{ \partial S_{KL} } (C^{-1})_{IM} (C^{-1})_{NJ}
+         * \f$\frac{ \partial \hat{S}_{IJ} }{ \partial S_{KL} \partial C_{MN} } = - \frac{ \partial p^2 }{ \partial S_{KL} \partial C_{MN}} (C^{-1})_{IJ} + \frac{ \partial p }{ \partial S_{KL} } (C^{-1})_{IM} (C^{-1})_{NJ}\f$
          *
          * \param &secondOrderReferenceStress: The stress measure in the reference configuration.
          * \param &rightCauchyGreenDeformation: The right Cauchy-Green deformation tensor of the 
@@ -3365,7 +3399,7 @@ namespace tardigradeMicromorphicTools{
     errorOut computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm ){
         /*!
          * Compute the norm of the higher order stress which is defined as
-         * || M ||_K = \sqrt{ M_{IJK} M_{IJK} }
+         * \f$|| M ||_K = \sqrt{ M_{IJK} M_{IJK} }\f$
          *
          * where K is not summed over.
          *
@@ -3400,13 +3434,13 @@ namespace tardigradeMicromorphicTools{
                                            double tol ){
         /*!
          * Compute the norm of the higher order stress which is defined as
-         * || M ||_K = \sqrt{ M_{IJK} M_{IJK} }
+         * \f$|| M ||_K = \sqrt{ M_{IJK} M_{IJK} }\f$
          *
          * where K is not summed over.
          *
          * Also computes the Jacobians
          *
-         * \frac{ \partial || M ||_K }{ \partial M_{LMN} } = \frac{ M_{LMK} \delta_{KN} }{ || M ||_K }
+         * \f$\frac{ \partial || M ||_K }{ \partial M_{LMN} } = \frac{ M_{LMK} \delta_{KN} }{ || M ||_K }\f$
          *
          * where K is not summed over
          *
@@ -3441,13 +3475,13 @@ namespace tardigradeMicromorphicTools{
                                            double tol ){
         /*!
          * Compute the norm of the higher order stress which is defined as
-         * || M ||_K = \sqrt{ M_{IJK} M_{IJK} }
+         * \f$|| M ||_K = \sqrt{ M_{IJK} M_{IJK} }\f$
          *
          * where K is not summed over.
          *
          * Also computes the Jacobians
          *
-         * \frac{ \partial || M ||_K }{ \partial M_{LMN} } = \frac{ M_{LMK} \delta_{KN} }{ || M ||_K }
+         * \f$\frac{ \partial || M ||_K }{ \partial M_{LMN} } = \frac{ M_{LMK} \delta_{KN} }{ || M ||_K }\f$
          *
          * where K is not summed over
          *
@@ -3495,14 +3529,15 @@ namespace tardigradeMicromorphicTools{
                                            double tol ){
         /*!
          * Compute the norm of the higher order stress which is defined as
-         * || M ||_K = \sqrt{ M_{IJK} M_{IJK} }
+         * \f$|| M ||_K = \sqrt{ M_{IJK} M_{IJK} }\f$
          *
          * where K is not summed over.
          *
          * Also computes the Jacobians
          *
-         * \frac{ \partial || M ||_K }{ \partial M_{LMN} } = \frac{ M_{LMK} \delta_{KN} }{ || M ||_K }
-         * \frac{ \partial^2 || M ||_K }{ \partial M_{LMN} \partial M_{OPQ} } = \frac{1}{ || M ||_K } \left[ \delta_{LO} \delta_{MP} \delta_{KQ} \delta_{KN} - \frac{ M_{LMK} \delta_{KN} }{ || M ||_K } \frac{ M_{OPK} \delta_{KQ} }{ || M ||_K } \right]
+         * \f$\frac{ \partial || M ||_K }{ \partial M_{LMN} } = \frac{ M_{LMK} \delta_{KN} }{ || M ||_K }\f$
+         * 
+         * \f$\frac{ \partial^2 || M ||_K }{ \partial M_{LMN} \partial M_{OPQ} } = \frac{1}{ || M ||_K } \left[ \delta_{LO} \delta_{MP} \delta_{KQ} \delta_{KN} - \frac{ M_{LMK} \delta_{KN} }{ || M ||_K } \frac{ M_{OPK} \delta_{KQ} }{ || M ||_K } \right]\f$
          *
          * where K is not summed over
          *
@@ -3544,14 +3579,15 @@ namespace tardigradeMicromorphicTools{
                                            double tol ){
         /*!
          * Compute the norm of the higher order stress which is defined as
-         * || M ||_K = \sqrt{ M_{IJK} M_{IJK} }
+         * \f$|| M ||_K = \sqrt{ M_{IJK} M_{IJK} }\f$
          *
          * where K is not summed over.
          *
          * Also computes the Jacobians
          *
-         * \frac{ \partial || M ||_K }{ \partial M_{LMN} } = \frac{ M_{LMK} \delta_{KN} }{ || M ||_K }
-         * \frac{ \partial^2 || M ||_K }{ \partial M_{LMN} \partial M_{OPQ} } = \frac{1}{ || M ||_K } \left[ \delta_{LO} \delta_{MP} \delta_{KQ} \delta_{KN} - \frac{ M_{LMK} \delta_{KN} }{ || M ||_K } \frac{ M_{OPK} \delta_{KQ} }{ || M ||_K } \right]
+         * \f$\frac{ \partial || M ||_K }{ \partial M_{LMN} } = \frac{ M_{LMK} \delta_{KN} }{ || M ||_K }\f$
+         * 
+         * \f$\frac{ \partial^2 || M ||_K }{ \partial M_{LMN} \partial M_{OPQ} } = \frac{1}{ || M ||_K } \left[ \delta_{LO} \delta_{MP} \delta_{KQ} \delta_{KN} - \frac{ M_{LMK} \delta_{KN} }{ || M ||_K } \frac{ M_{OPK} \delta_{KQ} }{ || M ||_K } \right]\f$
          *
          * where K is not summed over
          *
