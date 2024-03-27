@@ -725,7 +725,9 @@ namespace tardigradeMicromorphicTools{
         }
 
         //Assemble the jacobian of the determinant of the deformation gradient
-        variableVector inverseDeformationGradient = tardigradeVectorTools::inverse( deformationGradient, dim, dim );
+        variableVector inverseDeformationGradient = deformationGradient;
+        Eigen::Map< Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( inverseDeformationGradient.data( ), dim, dim );
+        map = map.inverse( ).eval( );
 
         //Assemble the jacobians
         dMicroStressdReferenceMicroStress = variableVector( sot_dim * sot_dim, 0 );
@@ -825,7 +827,9 @@ namespace tardigradeMicromorphicTools{
         referenceMicroStress = variableVector( dim * dim, 0 );
 
         detF = tardigradeVectorTools::determinant( deformationGradient, dim, dim );
-        inverseDeformationGradient = tardigradeVectorTools::inverse( deformationGradient, dim, dim );
+        inverseDeformationGradient = deformationGradient;
+        Eigen::Map< Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( inverseDeformationGradient.data( ), dim, dim );
+        map = map.inverse( ).eval( );
 
         variableVector temp_sot( sot_dim, 0 );
         for ( unsigned int I = 0; I < dim; I++ ){
@@ -1173,7 +1177,9 @@ namespace tardigradeMicromorphicTools{
         }
 
         //Assemble the jacobian of the determinant of the deformation gradient
-        variableVector inverseDeformationGradient = tardigradeVectorTools::inverse( deformationGradient, dim, dim );
+        variableVector inverseDeformationGradient = deformationGradient;
+        Eigen::Map< Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( inverseDeformationGradient.data( ), dim, dim );
+        map = map.inverse( ).eval( );
 
         dHigherOrderStressdReferenceHigherOrderStress = variableVector( tot_dim * tot_dim, 0 );
         dHigherOrderStressdDeformationGradient        = variableVector( tot_dim * sot_dim, 0 );
@@ -1294,8 +1300,13 @@ namespace tardigradeMicromorphicTools{
         }
 
         detF = tardigradeVectorTools::determinant( deformationGradient, dim, dim );
-        inverseDeformationGradient = tardigradeVectorTools::inverse( deformationGradient, dim, dim );
-        inverseMicroDeformation = tardigradeVectorTools::inverse( microDeformation, dim, dim );
+        inverseDeformationGradient = deformationGradient;
+        Eigen::Map< Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( inverseDeformationGradient.data( ), dim, dim );
+        map = map.inverse( ).eval( );
+
+        inverseMicroDeformation = microDeformation;
+        new (&map) Eigen::Map< Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > >( inverseMicroDeformation.data( ), dim, dim );
+        map = map.inverse( ).eval( );
 
         referenceHigherOrderStress = variableVector( tot_dim, 0 );
 
@@ -1909,7 +1920,9 @@ namespace tardigradeMicromorphicTools{
 
         deviatoricReferenceHigherOrderStress = referenceHigherOrderStress;
 
-        variableVector invRCG = tardigradeVectorTools::inverse( rightCauchyGreenDeformation, dim, dim );
+        variableVector invRCG = rightCauchyGreenDeformation;
+        Eigen::Map< Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( invRCG.data( ), dim, dim );
+        map = map.inverse( ).eval( );
         
         for ( unsigned int I = 0; I < dim; I++ ){
             for ( unsigned int J = 0; J < dim; J++ ){
@@ -2055,7 +2068,9 @@ namespace tardigradeMicromorphicTools{
 
         deviatoricReferenceHigherOrderStress = referenceHigherOrderStress;
 
-        variableVector invRCG = tardigradeVectorTools::inverse( rightCauchyGreenDeformation, dim, dim );
+        variableVector invRCG = rightCauchyGreenDeformation;
+        Eigen::Map< Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( invRCG.data( ), dim, dim );
+        map = map.inverse( ).eval( );
 
         //Compute the deviatoric higher order stress        
         for ( unsigned int I = 0; I < dim; I++ ){
@@ -2250,7 +2265,9 @@ namespace tardigradeMicromorphicTools{
 
         deviatoricReferenceHigherOrderStress = referenceHigherOrderStress;
 
-        variableVector invRCG = tardigradeVectorTools::inverse( rightCauchyGreenDeformation, dim, dim );
+        variableVector invRCG = rightCauchyGreenDeformation;
+        Eigen::Map< Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( invRCG.data( ), dim, dim );
+        map = map.inverse( ).eval( );
 
         //Compute the deviatoric higher order stress        
         for ( unsigned int I = 0; I < dim; I++ ){
@@ -2614,7 +2631,9 @@ namespace tardigradeMicromorphicTools{
         //Assume 3d
         constexpr unsigned int dim = 3;
 
-        variableVector invRCG = tardigradeVectorTools::inverse( rightCauchyGreenDeformation, dim, dim );
+        variableVector invRCG = rightCauchyGreenDeformation;
+        Eigen::Map< Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( invRCG.data( ), dim, dim );
+        map = map.inverse( ).eval( );
 
         deviatoricSecondOrderReferenceStress = secondOrderReferenceStress - pressure * invRCG;
 
@@ -2745,7 +2764,9 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int dim = 3;
         constexpr unsigned int sot_dim = dim * dim;
 
-        variableVector invRCG = tardigradeVectorTools::inverse( rightCauchyGreenDeformation, dim, dim );
+        variableVector invRCG = rightCauchyGreenDeformation;
+        Eigen::Map< Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( invRCG.data( ), dim, dim );
+        map = map.inverse( ).eval( );
 
         deviatoricSecondOrderReferenceStress = secondOrderReferenceStress - pressure * invRCG;
 
@@ -2811,7 +2832,9 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int dim = 3;
         constexpr unsigned int sot_dim = dim * dim;
 
-        variableVector invRCG = tardigradeVectorTools::inverse( rightCauchyGreenDeformation, dim, dim );
+        variableVector invRCG = rightCauchyGreenDeformation;
+        Eigen::Map< Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( invRCG.data( ), dim, dim );
+        map = map.inverse( ).eval( );
 
         deviatoricSecondOrderReferenceStress = secondOrderReferenceStress - pressure * invRCG;
 
