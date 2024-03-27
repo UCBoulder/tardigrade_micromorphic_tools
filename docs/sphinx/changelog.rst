@@ -13,6 +13,7 @@ Internal Changes
 ================
 - Changed the fuzzyEquals in the tests to use BOOST_TEST (:pull:`7`). By `Nathan Miller`_.
 - Completed first pass of improving the computational efficiency (:pull:`9`). By `Nathan Miller`_.
+- Moved the computation of the determinants to exposed Eigen::Map rather than tardigradeVectorTools (:pull:`10`). By `Nathan Miller`_.
 
 Breaking changes
 ================
