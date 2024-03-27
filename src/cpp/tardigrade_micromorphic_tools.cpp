@@ -1563,12 +1563,10 @@ namespace tardigradeMicromorphicTools{
 
         referenceHigherOrderPressure = variableVector( dim, 0 );
 
-        for ( unsigned int K = 0; K < dim; K++ ){
-            for ( unsigned int A = 0; A < dim; A++ ){
-                for ( unsigned int B = 0; B < dim; B++ ){
-                    referenceHigherOrderPressure[K] += rightCauchyGreenDeformation[ dim * A + B ]
-                                                     * referenceHigherOrderStress[ dim * dim * A + dim * B + K ];
-                }
+        for ( unsigned int AB = 0; AB < sot_dim; AB++ ){
+            for ( unsigned int K = 0; K < dim; K++ ){
+                    referenceHigherOrderPressure[K] += rightCauchyGreenDeformation[ AB ]
+                                                     * referenceHigherOrderStress[ dim * AB + K ];
             }
         }
 
@@ -1664,9 +1662,6 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        constantVector eye( dim * dim );
-        tardigradeVectorTools::eye( eye );
-
         dpdM = variableVector( dim * tot_dim, 0 );
         dpdC = variableVector( dim * sot_dim, 0 );
 
@@ -1674,9 +1669,7 @@ namespace tardigradeMicromorphicTools{
             for ( unsigned int N = 0; N < dim; N++ ){
                 for ( unsigned int O = 0; O < dim; O++ ){
                     dpdC[ sot_dim * K + dim * N + O ] = referenceHigherOrderStress[ dim * dim * N + dim * O + K ];
-                    for ( unsigned int P = 0; P < dim; P++ ){
-                        dpdM[ tot_dim * K + dim * dim * N + dim * O + P ] = rightCauchyGreenDeformation[ dim * N + O ] * eye[ dim * K + P ];
-                    }
+                    dpdM[ tot_dim * K + dim * dim * N + dim * O + K ] = rightCauchyGreenDeformation[ dim * N + O ];
                 }
             }
         }
@@ -1786,21 +1779,11 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        variableVector eye( sot_dim, 0 );
-        tardigradeVectorTools::eye( eye );
-
         d2pdMdC = variableVector( dim * tot_dim * sot_dim, 0 );
         for ( unsigned int K = 0; K < dim; K++ ){
             for ( unsigned int N = 0; N < dim; N++ ){
                 for ( unsigned int O = 0; O < dim; O++ ){
-                    for ( unsigned int P = 0; P < dim; P++ ){
-                        for ( unsigned int Q = 0; Q < dim; Q++ ){
-                            for ( unsigned int R = 0; R < dim; R++ ){
-                                d2pdMdC[ tot_dim * sot_dim * K + dim * dim * dim * dim * N + dim * dim * dim * O + dim * dim * P + dim * Q + R ] = 
-                                    eye[ dim * N + Q ] * eye[ dim * O + R ] * eye[ dim * K + P ] / 3;
-                            }
-                        }
-                    }
+                    d2pdMdC[ tot_dim * sot_dim * K + dim * dim * dim * dim * N + dim * dim * dim * O + dim * dim * K + dim * N + O ] += 1. / 3;
                 }
             }
         }
