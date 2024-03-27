@@ -820,6 +820,7 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3d
         constexpr unsigned int dim = 3;
+        constexpr unsigned int sot_dim = dim * dim;
 
         if ( microStress.size() != dim * dim ){
             return new errorNode("pullBackdMicroStress", "The micro-stress has an incorrect size");
@@ -834,18 +835,24 @@ namespace tardigradeMicromorphicTools{
         detF = tardigradeVectorTools::determinant( deformationGradient, dim, dim );
         inverseDeformationGradient = tardigradeVectorTools::inverse( deformationGradient, dim, dim );
 
+        variableVector temp_sot( sot_dim, 0 );
+        for ( unsigned int I = 0; I < dim; I++ ){
+            for ( unsigned int i = 0; i < dim; i++ ){
+                for ( unsigned int J = 0; J < dim; J++ ){
+                    temp_sot[ dim * I + J ] += inverseDeformationGradient[ dim * I + i ] * microStress[ dim * i + J ];
+                }
+            }
+        }
+
         for ( unsigned int I = 0; I < dim; I++ ){
             for ( unsigned int J = 0; J < dim; J++ ){
                 for ( unsigned int i = 0; i < dim; i++ ){
-                    for ( unsigned int j = 0; j < dim; j++ ){
-                        referenceMicroStress[ dim * I + J ] += inverseDeformationGradient[ dim * I + i ]
-                                                             * microStress[ dim * i + j ]
-                                                             * inverseDeformationGradient[ dim * J + j ];
-                    }
+                        referenceMicroStress[ dim * I + J ] += temp_sot[ dim * I + i ] * inverseDeformationGradient[ dim * J + i ];
                 }
-                referenceMicroStress[ dim * I + J ] *= detF;
             }
         }
+
+        referenceMicroStress *= detF;
 
         return NULL;
     }
@@ -947,9 +954,10 @@ namespace tardigradeMicromorphicTools{
 
         for (unsigned int i = 0; i < dim; i++ ){
             for (unsigned int I = 0; I < dim; I++ ){
-                dDetFdF[ dim * i + I ] = inverseDeformationGradient[ dim * I + i ] * detF;
+                dDetFdF[ dim * i + I ] = inverseDeformationGradient[ dim * I + i ];
             }
         }
+        dDetFdF *= detF;
 
         //Assemble the jacobians
         dReferenceMicroStressdMicroStress = variableVector( sot_dim * sot_dim, 0 );
