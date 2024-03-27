@@ -1430,13 +1430,60 @@ namespace tardigradeMicromorphicTools{
 
         deviatoricHigherOrderStress = higherOrderStress;
 
-        constantVector eye( dim * dim );
-        tardigradeVectorTools::eye( eye );
-
         for ( unsigned int i = 0; i < dim; i++ ){
             for ( unsigned int k = 0; k < dim; k++ ){
                 for ( unsigned int j = 0; j < dim; j++ ){
                     deviatoricHigherOrderStress[ dim * dim * i + dim * i + j ] -= higherOrderStress[ dim * dim * k + dim * k + j ] / 3;
+                }
+            }
+        }
+
+        return NULL;
+    }
+
+    errorOut computeDeviatoricHigherOrderStress( const variableVector &higherOrderStress,
+                                                 variableVector &deviatoricHigherOrderStress,
+                                                 variableVector &dDeviatoricHigherOrderStressdHigherOrderStress){
+        /*!
+         * Compute the deviatoric part of the higher order stress.
+         *
+         * \f$ \text{dev} ( m_{ijk} ) = m_{ijk} - ( 1 / 3 ) m_{llk} \delta_{ij} \f$
+         *
+         * Also compute the Jacobian
+         * \f$ \frac{ \partial \text{dev} ( m_{ijk} ) }{ \partial m_{mno} } = \delta_{im} \delta_{jn} \delta_{ko} - ( 1 / 3 ) \delta_{mn} \delta_{ko} \delta_{ij} \f$
+         *
+         * \param &higherOrderStress: The higher order stress in the current configuration.
+         * \param &deviatoricHigherOrderStress: The deviatoric part of the higher order stress.
+         * \param &dDeviatoricHigherOrderStressdHigherOrderStress: The gradient of the deviatoric part of the 
+         *     higher order stress w.r.t. the higher order stress.
+         */
+
+        //Assume 3d
+        constexpr unsigned int dim = 3;
+        constexpr unsigned int sot_dim = dim * dim;
+        constexpr unsigned int tot_dim = sot_dim * dim;
+
+        errorOut error = computeDeviatoricHigherOrderStress( higherOrderStress, deviatoricHigherOrderStress );
+
+        if ( error ){
+            errorOut result = new errorNode( "computeDeviatoricHigherOrderStress (jacobian)",
+                                             "Error in the computation of the deviatoric part of the higher order stress" );
+            result->addNext(error);
+            return result;
+        }
+
+        constantVector eye( dim * dim );
+        tardigradeVectorTools::eye( eye );
+
+        dDeviatoricHigherOrderStressdHigherOrderStress = variableVector( tot_dim * tot_dim, 0 );
+
+        for ( unsigned int i = 0; i < dim; i++ ){
+            for ( unsigned int j = 0; j < dim; j++ ){
+                for ( unsigned int k = 0; k < dim; k++ ){
+                    dDeviatoricHigherOrderStressdHigherOrderStress[ tot_dim * dim * dim * i + tot_dim * dim * j + tot_dim * k + dim * dim * i + dim * j + k ]
+                        += 1;
+                    dDeviatoricHigherOrderStressdHigherOrderStress[ tot_dim * dim * dim * i + tot_dim * dim * i + tot_dim * j + dim * dim * k + dim * k + j ]
+                        -= 1. / 3;
                 }
             }
         }
@@ -1463,8 +1510,12 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3d
         constexpr unsigned int dim = 3;
+        constexpr unsigned int sot_dim = dim * dim;
+        constexpr unsigned int tot_dim = sot_dim * dim;
 
-        errorOut error = computeDeviatoricHigherOrderStress( higherOrderStress, deviatoricHigherOrderStress );
+        variableVector _dDeviatoricHigherOrderStressdHigherOrderStress;
+
+        errorOut error = computeDeviatoricHigherOrderStress( higherOrderStress, deviatoricHigherOrderStress, _dDeviatoricHigherOrderStressdHigherOrderStress );
 
         if ( error ){
             errorOut result = new errorNode( "computeDeviatoricHigherOrderStress (jacobian)",
@@ -1473,24 +1524,7 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        constantVector eye( dim * dim );
-        tardigradeVectorTools::eye( eye );
-
-        dDeviatoricHigherOrderStressdHigherOrderStress = variableMatrix( dim * dim * dim, variableVector( dim * dim * dim, 0 ) );
-
-        for ( unsigned int i = 0; i < dim; i++ ){
-            for ( unsigned int j = 0; j < dim; j++ ){
-                for ( unsigned int k = 0; k < dim; k++ ){
-                    for ( unsigned int m = 0; m < dim; m++ ){
-                        for ( unsigned int n = 0; n < dim; n++ ){
-                            for ( unsigned int o = 0; o < dim; o++ ){
-                                dDeviatoricHigherOrderStressdHigherOrderStress[ dim * dim * i + dim * j + k ][ dim * dim * m + dim * n + o ] = eye[ dim * i + m ] * eye[ dim * j + n ] * eye[ dim * k + o ] - eye[ dim * m + n ] * eye[ dim * k + o ] * eye[ dim * i + j ] / 3;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        dDeviatoricHigherOrderStressdHigherOrderStress = tardigradeVectorTools::inflate( _dDeviatoricHigherOrderStressdHigherOrderStress, tot_dim, tot_dim );
 
         return NULL;
     }
