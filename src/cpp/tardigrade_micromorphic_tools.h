@@ -192,6 +192,10 @@ namespace tardigradeMicromorphicTools{
 
     errorOut computeDeviatoricSecondOrderStress( const variableVector &secondOrderStress,
                                                  variableVector &deviatoricSecondOrderStress,
+                                                 variableVector &dDeviatoricStressdStress );
+
+    errorOut computeDeviatoricSecondOrderStress( const variableVector &secondOrderStress,
+                                                 variableVector &deviatoricSecondOrderStress,
                                                  variableMatrix &dDeviatoricStressdStress );
 
     errorOut computeReferenceSecondOrderStressPressure( const variableVector &referenceStressMeasure,

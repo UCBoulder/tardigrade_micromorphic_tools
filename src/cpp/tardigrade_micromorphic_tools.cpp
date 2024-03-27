@@ -2343,6 +2343,52 @@ namespace tardigradeMicromorphicTools{
 
     errorOut computeDeviatoricSecondOrderStress( const variableVector &secondOrderStress,
                                                  variableVector &deviatoricSecondOrderStress,
+                                                 variableVector &dDeviatoricStressdStress ){
+        /*!
+         * Compute the deviatoric part of a second order stress measure in the current configuration.
+         * \f$ \hat{s}_{ij} = s_{ij} - \frac{1}{3} s_{mm} \delta_{ij} \f$
+         *
+         * Also return the jacobian
+         * \f$ \frac{\partial \hat{s}_{ij}}{\partial s_{kl} } \delta_{ik} \delta_{jl} - \frac{1}{3} \delta_{ij} \delta_{kl} \f$
+         *
+         * \param &secondOrderStress: The stress measure in the current configuration.
+         * \param &deviatoricSecondOrderStress: The deviatoric part of the second order stress 
+         *     measure.
+         * \param &dDeviatoricStressdStress: The jacobian of the deviatoric stress.
+         */
+
+        //Assume 3d
+        constexpr unsigned int dim = 3;
+        constexpr unsigned int sot_dim = dim * dim;
+
+        variableVector eye( dim * dim );
+        tardigradeVectorTools::eye( eye );
+
+        errorOut error = computeDeviatoricSecondOrderStress( secondOrderStress, deviatoricSecondOrderStress );
+
+        if ( error ){
+            errorOut result = new errorNode( "computeDeviatoricSecondOrderStress (jacobian)",
+                                             "Error in the computation of the deviatoric stress" );
+            result->addNext( error );
+            return result;
+        }
+
+        dDeviatoricStressdStress = variableVector( sot_dim * sot_dim, 0 );
+        for ( unsigned int i = 0; i < sot_dim; i++ ){
+            dDeviatoricStressdStress[ sot_dim * i + i ] = 1;
+        }
+
+        for ( unsigned int i = 0; i < dim; i++ ){
+            for ( unsigned int j = 0; j < dim; j++ ){
+                dDeviatoricStressdStress[ sot_dim * dim * i + sot_dim * i + dim * j + j ] -= 1. / 3;
+            }
+        }
+
+        return NULL;
+    }
+
+    errorOut computeDeviatoricSecondOrderStress( const variableVector &secondOrderStress,
+                                                 variableVector &deviatoricSecondOrderStress,
                                                  variableMatrix &dDeviatoricStressdStress ){
         /*!
          * Compute the deviatoric part of a second order stress measure in the current configuration.
@@ -2359,11 +2405,11 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3d
         constexpr unsigned int dim = 3;
+        constexpr unsigned int sot_dim = dim * dim;
 
-        variableVector eye( dim * dim );
-        tardigradeVectorTools::eye( eye );
+        variableVector _dDeviatoricStressdStress;
 
-        errorOut error = computeDeviatoricSecondOrderStress( secondOrderStress, deviatoricSecondOrderStress );
+        errorOut error = computeDeviatoricSecondOrderStress( secondOrderStress, deviatoricSecondOrderStress, _dDeviatoricStressdStress );
 
         if ( error ){
             errorOut result = new errorNode( "computeDeviatoricSecondOrderStress (jacobian)",
@@ -2372,18 +2418,7 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        dDeviatoricStressdStress = variableMatrix( deviatoricSecondOrderStress.size(), variableVector( secondOrderStress.size(), 0 ) );
-
-        for ( unsigned int i = 0; i < dim; i++ ){
-            for ( unsigned int j = 0; j < dim; j++ ){
-                for ( unsigned int k = 0; k < dim; k++ ){
-                    for ( unsigned int l = 0; l < dim; l++ ){
-                        dDeviatoricStressdStress[ dim * i + j ][ dim * k + l ] = eye[ dim * i + k ] * eye[ dim * j + l ]
-                                                                               - eye[ dim * i + j ] * eye[ dim * k + l ] / 3;
-                    }
-                }
-            }
-        }
+        dDeviatoricStressdStress = tardigradeVectorTools::inflate( _dDeviatoricStressdStress, sot_dim, sot_dim );
 
         return NULL;
     }
