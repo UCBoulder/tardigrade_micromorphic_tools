@@ -242,22 +242,12 @@ namespace tardigradeMicromorphicTools{
         dGammadF       = variableVector( tot_dim * sot_dim, 0 );
         dGammadGradChi = variableVector( tot_dim * tot_dim, 0 );
 
-        constantVector eye( sot_dim, 0 );
-        tardigradeVectorTools::eye( eye );
-
         for ( unsigned int I = 0; I < dim; I++ ){
             for ( unsigned int J = 0; J < dim; J++ ){
                 for ( unsigned int K = 0; K < dim; K++ ){
                     for ( unsigned int l = 0; l < dim; l++ ){
-                        for ( unsigned int L = 0; L < dim; L++ ){
-                            dGammadF[ dim * dim * sot_dim * I + dim * sot_dim * J + sot_dim * K + dim * l + L ] = eye[ dim * I + L ]
-                                                                                   * gradChi[ dim * dim * l + dim * J + K ];
-                            for ( unsigned int M = 0; M < dim; M++ ){
-                                dGammadGradChi[ dim * dim * tot_dim * I + dim * tot_dim * J + tot_dim * K + dim * dim * l + dim * L + M ] = deformationGradient[ dim * l + I ]
-                                                                                                            * eye[ dim * J + L ] 
-                                                                                                            * eye[ dim * K + M ];
-                            }
-                        }
+                        dGammadF[ dim * dim * sot_dim * I + dim * sot_dim * J + sot_dim * K + dim * l + I ] = gradChi[ dim * dim * l + dim * J + K ];
+                        dGammadGradChi[ dim * dim * tot_dim * I + dim * tot_dim * J + tot_dim * K + dim * dim * l + dim * J + K ] = deformationGradient[ dim * l + I ];
                     }
                 }
             }
@@ -285,7 +275,8 @@ namespace tardigradeMicromorphicTools{
         constantVector eye( dim * dim, 0 );
         tardigradeVectorTools::eye( eye );
 
-        microStrain = Psi - eye;
+        microStrain = Psi;
+        for ( unsigned int i = 0; i < dim; i++ ){ microStrain[ dim * i + i ] -= 1.; }
 
         return NULL;
     }
@@ -304,6 +295,9 @@ namespace tardigradeMicromorphicTools{
          * :param variableMatrix &dMicroStraindPsi: The jacobian of the micro-strain.
          */
 
+        constexpr unsigned int dim = 3;
+        constexpr unsigned int sot_dim = dim * dim;
+
         errorOut error = computeMicroStrain( Psi, microStrain );
 
         if (error){
@@ -312,7 +306,8 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        dMicroStraindPsi = tardigradeVectorTools::eye< variableType >( Psi.size() );
+        dMicroStraindPsi = variableMatrix( sot_dim, variableVector( sot_dim, 0 ) );
+        for ( unsigned int i = 0; i < sot_dim; i++ ){ dMicroStraindPsi[ i ][ i ] = 1; };
 
         return NULL;
     }
