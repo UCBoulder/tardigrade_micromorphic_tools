@@ -622,7 +622,8 @@ namespace tardigradeMicromorphicTools{
 
         microStress = variableVector( dim * dim, 0 );
 
-        detF = tardigradeVectorTools::determinant( deformationGradient, dim, dim );
+        Eigen::Map< const Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( deformationGradient.data( ), dim, dim );
+        detF = map.determinant( );
 
         microStress = tardigradeVectorTools::matrixMultiply( deformationGradient, referenceMicroStress, dim, dim, dim, dim );
         microStress = tardigradeVectorTools::matrixMultiply( microStress, deformationGradient, dim, dim, dim, dim, false, true );
@@ -724,7 +725,7 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        //Assemble the jacobian of the determinant of the deformation gradient
+        //Assemble the inverse deformation gradient
         variableVector inverseDeformationGradient = deformationGradient;
         Eigen::Map< Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( inverseDeformationGradient.data( ), dim, dim );
         map = map.inverse( ).eval( );
@@ -826,7 +827,9 @@ namespace tardigradeMicromorphicTools{
 
         referenceMicroStress = variableVector( dim * dim, 0 );
 
-        detF = tardigradeVectorTools::determinant( deformationGradient, dim, dim );
+        Eigen::Map< const Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > cmap( deformationGradient.data( ), dim, dim );
+        detF = cmap.determinant( );
+
         inverseDeformationGradient = deformationGradient;
         Eigen::Map< Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( inverseDeformationGradient.data( ), dim, dim );
         map = map.inverse( ).eval( );
@@ -1025,7 +1028,8 @@ namespace tardigradeMicromorphicTools{
             return new errorNode( "pushForwardHigherOrderStress", "The micro-deformation doesn't have the correct size" );
         }
 
-        detF = tardigradeVectorTools::determinant( deformationGradient, dim, dim );
+        Eigen::Map< const Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( deformationGradient.data( ), dim, dim );
+        detF = map.determinant( );
 
         higherOrderStress = variableVector( dim * dim * dim, 0 );
 
@@ -1176,7 +1180,7 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        //Assemble the jacobian of the determinant of the deformation gradient
+        //Assemble the inverse of the deformation gradient
         variableVector inverseDeformationGradient = deformationGradient;
         Eigen::Map< Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( inverseDeformationGradient.data( ), dim, dim );
         map = map.inverse( ).eval( );
@@ -1299,7 +1303,9 @@ namespace tardigradeMicromorphicTools{
             return new errorNode( "pushForwardHigherOrderStress", "The micro-deformation doesn't have the correct size" );
         }
 
-        detF = tardigradeVectorTools::determinant( deformationGradient, dim, dim );
+        Eigen::Map< const Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > cmap( deformationGradient.data( ), dim, dim );
+        detF = cmap.determinant( );
+
         inverseDeformationGradient = deformationGradient;
         Eigen::Map< Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( inverseDeformationGradient.data( ), dim, dim );
         map = map.inverse( ).eval( );
