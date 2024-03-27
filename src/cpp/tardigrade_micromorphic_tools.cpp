@@ -3622,15 +3622,11 @@ namespace tardigradeMicromorphicTools{
             return result;
         }
 
-        constantVector eye( dim * dim );
-        tardigradeVectorTools::eye( eye );
         dHigherOrderStressNormdHigherOrderStress = variableVector( dim * tot_dim, 0 );
         for ( unsigned int K = 0; K < 3; K++ ){
             for ( unsigned int L = 0; L < 3; L++ ){
                 for ( unsigned int M = 0; M < 3; M++ ){
-                    for ( unsigned int N = 0; N < 3; N++ ){
-                        dHigherOrderStressNormdHigherOrderStress[ tot_dim * K + dim * dim * L + dim * M + N ] = higherOrderStress[ dim * dim * L + dim * M + K ]  * eye[ dim * K + N ] / ( higherOrderStressNorm[ K ] + tol );
-                    }
+                        dHigherOrderStressNormdHigherOrderStress[ tot_dim * K + dim * dim * L + dim * M + K ] = higherOrderStress[ dim * dim * L + dim * M + K ] / ( higherOrderStressNorm[ K ] + tol );
                 }
             }
         }
