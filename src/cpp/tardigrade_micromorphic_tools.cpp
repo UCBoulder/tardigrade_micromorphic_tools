@@ -3734,15 +3734,16 @@ namespace tardigradeMicromorphicTools{
         for ( unsigned int K = 0; K < dim; K++ ){
             for ( unsigned int L = 0; L < dim; L++ ){
                 for ( unsigned int M = 0; M < dim; M++ ){
+                    d2HigherOrderStressNormdHigherOrderStress2[ tot_dim * tot_dim * K + dim * dim * dim * dim * dim * L + dim * dim * dim * dim * M + dim * dim * dim * K + dim * dim * L + dim * M + K ]
+                        += 1. / ( higherOrderStressNorm[ K ] + tol );
                     for ( unsigned int N = 0; N < dim; N++ ){
                         for ( unsigned int O = 0; O < dim; O++ ){
                             for ( unsigned int P = 0; P < dim; P++ ){
                                 for ( unsigned int Q = 0; Q < dim; Q++ ){
                                     d2HigherOrderStressNormdHigherOrderStress2[ tot_dim * tot_dim * K + dim * dim * dim * dim * dim * L + dim * dim * dim * dim * M + dim * dim * dim * N + dim * dim * O + dim * P + Q ]
-                                        = ( eye[ dim * L + O ] * eye[ dim * M + P ] * eye[ dim * K + Q ] * eye[ dim * K + N ]
-                                        -   dHigherOrderStressNormdHigherOrderStress[ tot_dim * K + dim * dim * L + dim * M + N ]
-                                        *   dHigherOrderStressNormdHigherOrderStress[ tot_dim * K + dim * dim * O + dim * P + Q ] )
-                                        / ( higherOrderStressNorm[ K ] + tol );
+                                        -=   dHigherOrderStressNormdHigherOrderStress[ tot_dim * K + dim * dim * L + dim * M + N ]
+                                         *   dHigherOrderStressNormdHigherOrderStress[ tot_dim * K + dim * dim * O + dim * P + Q ]
+                                         / ( higherOrderStressNorm[ K ] + tol );
                                 }
                             }
                         }
