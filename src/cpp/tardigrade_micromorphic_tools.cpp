@@ -954,10 +954,9 @@ namespace tardigradeMicromorphicTools{
 
         for (unsigned int i = 0; i < dim; i++ ){
             for (unsigned int I = 0; I < dim; I++ ){
-                dDetFdF[ dim * i + I ] = inverseDeformationGradient[ dim * I + i ];
+                dDetFdF[ dim * i + I ] = inverseDeformationGradient[ dim * I + i ] * detF;
             }
         }
-        dDetFdF *= detF;
 
         //Assemble the jacobians
         dReferenceMicroStressdMicroStress = variableVector( sot_dim * sot_dim, 0 );
@@ -1176,7 +1175,7 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3d
         constexpr unsigned int dim = 3;
-        constexpr int sot_dim = dim * dim;
+        constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
         variableType detF;
@@ -1205,18 +1204,43 @@ namespace tardigradeMicromorphicTools{
         dHigherOrderStressdDeformationGradient        = variableVector( tot_dim * sot_dim, 0 );
         dHigherOrderStressdMicroDeformation           = variableVector( tot_dim * sot_dim, 0 );
 
+        variableVector temp_tot1a( tot_dim, 0 );
+        variableVector temp_tot2a( tot_dim, 0 );
+        variableVector temp_tot3a( tot_dim, 0 );
+
+        for ( unsigned int i = 0; i < dim; i++ ){
+            for ( unsigned int j = 0; j < dim; j++ ){
+                for ( unsigned int k = 0; k < dim; k++ ){
+                    for ( unsigned int l = 0; l < dim; l++ ){
+                        temp_tot1a[ dim * dim * i + dim * j + k ]
+                            += deformationGradient[ dim * i + l ] * referenceHigherOrderStress[ dim * dim * j + dim * l + k ];
+                        temp_tot2a[ dim * dim * i + dim * j + k ]
+                            += deformationGradient[ dim * i + l ] * referenceHigherOrderStress[ dim * dim * l + dim * j + k ];
+                        temp_tot3a[ dim * dim * i + dim * j + k ]
+                            += deformationGradient[ dim * i + l ] * referenceHigherOrderStress[ dim * dim * l + dim * k + j ];
+                    }
+                }
+            }
+        }
+
+        temp_tot1a /= detF;
+        temp_tot2a /= detF;
+        temp_tot3a /= detF;
+
         for ( unsigned int i = 0; i < dim; i++ ){
             for ( unsigned int j = 0; j < dim; j++ ){
                 for ( unsigned int k = 0; k < dim; k++ ){
                     for ( unsigned int l = 0; l < dim; l++ ){
                         for ( unsigned int M = 0; M < dim; M++ ){
+                            dHigherOrderStressdDeformationGradient[ dim * dim * sot_dim * i + dim * sot_dim * j +sot_dim * k + dim * i + l ] += 
+                                temp_tot1a[ dim * dim * j + dim * l + M ] * microDeformation[ dim * k + M ];
                             for ( unsigned int N = 0; N < dim; N++ ){
                                 dHigherOrderStressdReferenceHigherOrderStress[ dim * dim * tot_dim * i + dim * tot_dim * j + tot_dim * k + dim * dim * l + dim * M + N ] = deformationGradient[ dim * i + l ] * deformationGradient[ dim * j + M ] * microDeformation[ dim * k + N] / detF;
-                                dHigherOrderStressdDeformationGradient[ dim * dim * sot_dim * i + dim * sot_dim * j +sot_dim * k + dim * i + l ] += 
-                                    deformationGradient[ dim * j + M ] * microDeformation[ dim * k + N ] * referenceHigherOrderStress[ dim * dim * l + dim * M + N ] / detF;
+
                                 dHigherOrderStressdDeformationGradient[ dim * dim * sot_dim * i + dim * sot_dim * j +sot_dim * k + dim * j + l ] += 
                                     deformationGradient[ dim * i + M ] * microDeformation[ dim * k + N ] * referenceHigherOrderStress[ dim * dim * M + dim * l + N ] / detF;
                                 dHigherOrderStressdMicroDeformation[ dim * dim * sot_dim * i + dim * sot_dim * j + sot_dim * k + dim * k + l ] += deformationGradient[ dim * i + M ] * deformationGradient[ dim * j + N ] * referenceHigherOrderStress[ dim * dim * M + dim * N + l ] / detF;
+
                             }
                             dHigherOrderStressdDeformationGradient[ dim * dim * sot_dim * i + dim * sot_dim * j + sot_dim * k + dim * l + M ] -= higherOrderStress[ dim * dim * i + dim * j + k ] * dDetFdF[ dim * l + M ] / detF;
                         }
