@@ -18,20 +18,20 @@
 
 namespace tardigradeMicromorphicTools{
 
-    typedef double variableType; //! Type definition for variable values
-    typedef std::vector< variableType > variableVector; //! Type definition for vectors of variable values
-    typedef std::vector< variableVector > variableMatrix; //! Type definition for matrices of variable values
+    typedef double variableType; //!< Type definition for variable values
+    typedef std::vector< variableType > variableVector; //!< Type definition for vectors of variable values
+    typedef std::vector< variableVector > variableMatrix; //!< Type definition for matrices of variable values
 
-    typedef double parameterType; //! Type definition for parameter values
-    typedef std::vector< parameterType > parameterVector; //! Type definition for vectors of parameters
-    typedef std::vector< parameterVector > parameterMatrix; //! Type definition for matrices of parameters
+    typedef double parameterType; //!< Type definition for parameter values
+    typedef std::vector< parameterType > parameterVector; //!< Type definition for vectors of parameters
+    typedef std::vector< parameterVector > parameterMatrix; //!< Type definition for matrices of parameters
 
-    typedef double constantType; //! Type definition for constants
-    typedef std::vector< constantType > constantVector; //! Type definition for vectors of constants
-    typedef std::vector< constantVector > constantMatrix; //! Type definition for matrices of constants
+    typedef double constantType; //!< Type definition for constants
+    typedef std::vector< constantType > constantVector; //!< Type definition for vectors of constants
+    typedef std::vector< constantVector > constantMatrix; //!< Type definition for matrices of constants
 
-    typedef tardigradeErrorTools::Node errorNode; //! Type definition for the errorNode object
-    typedef errorNode* errorOut; //! Type definition for a pointer to an errorNode object (the expected return value for the old-style tardigrade_error_tools exception handling)
+    typedef tardigradeErrorTools::Node errorNode; //!< Type definition for the errorNode object
+    typedef errorNode* errorOut; //!< Type definition for a pointer to an errorNode object (the expected return value for the old-style tardigrade_error_tools exception handling)
 
     errorOut computePsi( const variableVector &deformationGradient, const variableVector &microDeformation,
                          variableVector &Psi );
