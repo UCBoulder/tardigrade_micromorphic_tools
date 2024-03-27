@@ -259,10 +259,10 @@ namespace tardigradeMicromorphicTools{
     errorOut computeMicroStrain( const variableVector &Psi, variableVector &microStrain ){
         /*!
          * Compute the microstrain defined as:
-         * \Epsilon_{IJ} = \Psi_{IJ} - eye_{IJ}
+         * \f$ \Epsilon_{IJ} = \Psi_{IJ} - eye_{IJ} \f$
          *
-         * :param const variableVector &Psi: The micro-deformation metric Psi.
-         * :param variableVector &microStrain: The micro-strain.
+         * \param &Psi: The micro-deformation metric Psi.
+         * \param &microStrain: The micro-strain.
          */
 
         //Assume 3d
@@ -317,14 +317,14 @@ namespace tardigradeMicromorphicTools{
                                  variableMatrix &dMicroStraindPsi ){
         /*!
          * Compute the microstrain defined as:
-         * \Epsilon_{IJ} = \Psi_{IJ} - eye_{IJ}
+         * \f$ \Epsilon_{IJ} = \Psi_{IJ} - eye_{IJ} \f$
          *
          * and also compute the jacobian
-         * \frac{ \partial \Epsilon_{IJ} }{ \partial \Psi_{KL} } = \delta_{IK} \delta_{JL}
+         * \f$ \frac{ \partial \Epsilon_{IJ} }{ \partial \Psi_{KL} } = \delta_{IK} \delta_{JL} \f$
          *
-         * :param const variableVector &Psi: The micro-deformation metric Psi.
-         * :param variableVector &microStrain: The micro-strain.
-         * :param variableMatrix &dMicroStraindPsi: The jacobian of the micro-strain.
+         * \param &Psi: The micro-deformation metric Psi.
+         * \param &microStrain: The micro-strain.
+         * \param &dMicroStraindPsi: The jacobian of the micro-strain.
          */
 
         constexpr unsigned int dim = 3;
@@ -355,13 +355,13 @@ namespace tardigradeMicromorphicTools{
          * Push forward the PK2-stress in the reference configuration to the 
          * configuration (the Cauchy stress) indicated by the deformation gradient.
          *
-         * \cauchy_{ij} = (1 / J ) F_{i I} S_{I J} F_{j J}
+         * \f$ \sigma_{ij} = (1 / J ) F_{i I} S_{I J} F_{j J} \f$
          *
-         * :param const variableVector &PK2Stress: The PK2 stress in the 
+         * \param &PK2Stress: The PK2 stress in the 
          *     reference configuration.
-         * :param const variableVector &deformationGradient: The deformation gradient 
+         * \param &deformationGradient: The deformation gradient 
          *     mapping between configurations.
-         * :param variableVector &cauchyStress: The Cauchy stress in the current 
+         * \param &cauchyStress: The Cauchy stress in the current 
          *     configuration.
          */
 
@@ -387,13 +387,14 @@ namespace tardigradeMicromorphicTools{
          * Push forward the PK2 stress in the reference configuration to the 
          * configuration indicated by the deformation gradient.
          *
-         * \sigma_{ij} = (1 / J ) F_{iI} S_{IJ} F_{jJ}
+         * \f$ \sigma_{ij} = (1 / J ) F_{iI} S_{IJ} F_{jJ} \f$
          *
          * Also computes the jacobians:
-         * \frac{ \partial \cauchy_{ij} }{\partial \Sigma_{KL} } = ( 1 / J ) F_{iK} F_{jL}
-         * \frac{ \partial \cauchy_{ij} }{\partial F_{kK} } = ( \delta_{i k} \delta_{I K} S_{I J} F_{j J}
+         * \f$ \frac{ \partial \cauchy_{ij} }{\partial \Sigma_{KL} } = ( 1 / J ) F_{iK} F_{jL} \f$
+         *
+         * \f$ \frac{ \partial \cauchy_{ij} }{\partial F_{kK} } = ( \delta_{i k} \delta_{I K} S_{I J} F_{j J}
          *                                                  + F_{i I} S_{I J} \delta_{j k} \delta_{J K}
-         *                                                  - \cauchy_{i j} dDetFdF_{kK} ) / J
+         *                                                  - \cauchy_{i j} dDetFdF_{kK} ) / J \f$
          *
          * \param &referenceMicroStress: The PK2 stress in the 
          *     reference configuration.
@@ -430,23 +431,24 @@ namespace tardigradeMicromorphicTools{
          * Push forward the PK2 stress in the reference configuration to the 
          * configuration indicated by the deformation gradient.
          *
-         * \sigma_{ij} = (1 / J ) F_{iI} S_{IJ} F_{jJ}
+         * \f$ \sigma_{ij} = (1 / J ) F_{iI} S_{IJ} F_{jJ} \f$
          *
          * Also computes the jacobians:
-         * \frac{ \partial \cauchy_{ij} }{\partial \Sigma_{KL} } = ( 1 / J ) F_{iK} F_{jL}
-         * \frac{ \partial \cauchy_{ij} }{\partial F_{kK} } = ( \delta_{i k} \delta_{I K} S_{I J} F_{j J}
+         * \f$ \frac{ \partial \cauchy_{ij} }{\partial \Sigma_{KL} } = ( 1 / J ) F_{iK} F_{jL} \f$
+         * 
+         * \f$ \frac{ \partial \cauchy_{ij} }{\partial F_{kK} } = ( \delta_{i k} \delta_{I K} S_{I J} F_{j J}
          *                                                  + F_{i I} S_{I J} \delta_{j k} \delta_{J K}
-         *                                                  - \cauchy_{i j} dDetFdF_{kK} ) / J
+         *                                                  - \cauchy_{i j} dDetFdF_{kK} ) / J \f$
          *
-         * :param const variableVector &referenceMicroStress: The PK2 stress in the 
+         * \param &referenceMicroStress: The PK2 stress in the 
          *     reference configuration.
-         * :param const variableVector &deformationGradient: The deformation gradient 
+         * \param &deformationGradient: The deformation gradient 
          *     mapping between configurations.
-         * :param variableVector &cauchyStress: The Cauchy stress in the current 
+         * \param &cauchyStress: The Cauchy stress in the current 
          *     configuration.
-         * :param variableMatrix &dCauchyStressdReferenceMicroStress: The jacobian of 
+         * \param &dCauchyStressdReferenceMicroStress: The jacobian of 
          *     the Cauchy w.r.t. the PK2 tress in the reference configuration.
-         * :param variableMatrix &dCauchyStressdDeformationGradient: The jacobian of 
+         * \param &dCauchyStressdDeformationGradient: The jacobian of 
          *     the Cauchy stress w.r.t. the deformation gradient.
          */
 
