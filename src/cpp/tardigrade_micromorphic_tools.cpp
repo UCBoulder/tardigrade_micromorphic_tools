@@ -1024,6 +1024,8 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3d
         constexpr unsigned int dim = 3;
+        constexpr unsigned int sot_dim = dim * dim;
+        constexpr unsigned int tot_dim = sot_dim * dim;
 
         if ( referenceHigherOrderStress.size() != dim * dim * dim ){
             return new errorNode( "pushForwardHigherOrderStress", "The reference higher order stress doesn't have the correct size" );
@@ -1041,20 +1043,39 @@ namespace tardigradeMicromorphicTools{
 
         higherOrderStress = variableVector( dim * dim * dim, 0 );
 
+        variableVector temp_tot( tot_dim, 0 );
         for ( unsigned int i = 0; i < dim; i++ ){
             for ( unsigned int j = 0; j < dim; j++ ){
                 for ( unsigned int k = 0; k < dim; k++ ){
                     for ( unsigned int I = 0; I < dim; I++ ){
-                        for ( unsigned int J = 0; J < dim; J++ ){
-                            for ( unsigned int K = 0; K < dim; K++ ){
                                 higherOrderStress[ dim * dim * i + dim * j + k ] += deformationGradient[ dim * i + I ]
-                                                                                  * deformationGradient[ dim * j + J ]
-                                                                                  * microDeformation[ dim * k + K ]
-                                                                                  * referenceHigherOrderStress[ dim * dim * I + dim * J + K ];
-                            }
-                        }
+                                                                                  * referenceHigherOrderStress[ dim * dim * I + dim * j + k ];
                     }
-                    higherOrderStress[ dim * dim * i + dim * j + k ] /= detF;
+                }
+            }
+        }
+        higherOrderStress /= detF;
+
+        for ( unsigned int i = 0; i < dim; i++ ){
+            for ( unsigned int j = 0; j < dim; j++ ){
+                for ( unsigned int k = 0; k < dim; k++ ){
+                    for ( unsigned int I = 0; I < dim; I++ ){
+                                temp_tot[ dim * dim * i + dim * j + k ] += deformationGradient[ dim * j + I ]
+                                                                         * higherOrderStress[ dim * dim * i + dim * I + k ];
+                    }
+                }
+            }
+        }
+
+        std::fill( higherOrderStress.begin( ), higherOrderStress.end( ), 0. );
+
+        for ( unsigned int i = 0; i < dim; i++ ){
+            for ( unsigned int j = 0; j < dim; j++ ){
+                for ( unsigned int k = 0; k < dim; k++ ){
+                    for ( unsigned int I = 0; I < dim; I++ ){
+                                higherOrderStress[ dim * dim * i + dim * j + k ] += microDeformation[ dim * k + I ]
+                                                                                  * temp_tot[ dim * dim * i + dim * j + I ];
+                    }
                 }
             }
         }
