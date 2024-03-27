@@ -727,14 +727,6 @@ namespace tardigradeMicromorphicTools{
         //Assemble the jacobian of the determinant of the deformation gradient
         variableVector inverseDeformationGradient = tardigradeVectorTools::inverse( deformationGradient, dim, dim );
 
-        variableVector dDetFdF( dim * dim, 0 );
-
-        for (unsigned int i = 0; i < dim; i++ ){
-            for (unsigned int I = 0; I < dim; I++ ){
-                dDetFdF[ dim * i + I ] = inverseDeformationGradient[ dim * I + i ] * detF;
-            }
-        }
-
         //Assemble the jacobians
         dMicroStressdReferenceMicroStress = variableVector( sot_dim * sot_dim, 0 );
         dMicroStressdDeformationGradient  = variableVector( sot_dim * sot_dim, 0 );
@@ -761,7 +753,7 @@ namespace tardigradeMicromorphicTools{
                         dMicroStressdReferenceMicroStress[ dim * sot_dim * i + sot_dim * j + dim * k + K ] = deformationGradient[ dim * i + k ]
                                                                                                            * deformationGradient[ dim * j + K ] / detF;
                         
-                        dMicroStressdDeformationGradient[ dim * sot_dim * i + sot_dim * j + dim * k + K] -= microStress[ dim * i + j ] * dDetFdF[ dim * k + K ] / detF;
+                        dMicroStressdDeformationGradient[ dim * sot_dim * i + sot_dim * j + dim * k + K] -= microStress[ dim * i + j ] * inverseDeformationGradient[ dim * K + k ];
 
                     }
 
@@ -947,15 +939,6 @@ namespace tardigradeMicromorphicTools{
             errorOut result = new errorNode( "pullBackMicroStress (jacobian)", "Error in computation of pull back of micro-stress" );
             result->addNext(error);
             return result;
-        }
-
-        //Assemble the jacobian of the determinant of the deformation gradient
-        variableVector dDetFdF( dim * dim, 0 );
-
-        for (unsigned int i = 0; i < dim; i++ ){
-            for (unsigned int I = 0; I < dim; I++ ){
-                dDetFdF[ dim * i + I ] = inverseDeformationGradient[ dim * I + i ] * detF;
-            }
         }
 
         //Assemble the jacobians
@@ -1192,14 +1175,6 @@ namespace tardigradeMicromorphicTools{
         //Assemble the jacobian of the determinant of the deformation gradient
         variableVector inverseDeformationGradient = tardigradeVectorTools::inverse( deformationGradient, dim, dim );
 
-        variableVector dDetFdF( sot_dim, 0 );
-
-        for (unsigned int i = 0; i < dim; i++ ){
-            for (unsigned int I = 0; I < dim; I++ ){
-                dDetFdF[ dim * i + I ] = inverseDeformationGradient[ dim * I + i ] * detF;
-            }
-        }
-
         dHigherOrderStressdReferenceHigherOrderStress = variableVector( tot_dim * tot_dim, 0 );
         dHigherOrderStressdDeformationGradient        = variableVector( tot_dim * sot_dim, 0 );
         dHigherOrderStressdMicroDeformation           = variableVector( tot_dim * sot_dim, 0 );
@@ -1232,17 +1207,22 @@ namespace tardigradeMicromorphicTools{
                 for ( unsigned int k = 0; k < dim; k++ ){
                     for ( unsigned int l = 0; l < dim; l++ ){
                         for ( unsigned int M = 0; M < dim; M++ ){
-                            dHigherOrderStressdDeformationGradient[ dim * dim * sot_dim * i + dim * sot_dim * j +sot_dim * k + dim * i + l ] += 
-                                temp_tot1a[ dim * dim * j + dim * l + M ] * microDeformation[ dim * k + M ];
+
+                            dHigherOrderStressdDeformationGradient[ dim * dim * sot_dim * i + dim * sot_dim * j +sot_dim * k + dim * i + l ]
+                                += temp_tot1a[ dim * dim * j + dim * l + M ] * microDeformation[ dim * k + M ];
+
+                            dHigherOrderStressdDeformationGradient[ dim * dim * sot_dim * i + dim * sot_dim * j +sot_dim * k + dim * j + l ]
+                                += temp_tot2a[ dim * dim * i + dim * l + M ] * microDeformation[ dim * k + M ]; 
+
+                            dHigherOrderStressdMicroDeformation[ dim * dim * sot_dim * i + dim * sot_dim * j + sot_dim * k + dim * k + l ]
+                                += temp_tot3a[ dim * dim * i + dim * l + M ] * deformationGradient[ dim * j + M ];
+
                             for ( unsigned int N = 0; N < dim; N++ ){
                                 dHigherOrderStressdReferenceHigherOrderStress[ dim * dim * tot_dim * i + dim * tot_dim * j + tot_dim * k + dim * dim * l + dim * M + N ] = deformationGradient[ dim * i + l ] * deformationGradient[ dim * j + M ] * microDeformation[ dim * k + N] / detF;
 
-                                dHigherOrderStressdDeformationGradient[ dim * dim * sot_dim * i + dim * sot_dim * j +sot_dim * k + dim * j + l ] += 
-                                    deformationGradient[ dim * i + M ] * microDeformation[ dim * k + N ] * referenceHigherOrderStress[ dim * dim * M + dim * l + N ] / detF;
-                                dHigherOrderStressdMicroDeformation[ dim * dim * sot_dim * i + dim * sot_dim * j + sot_dim * k + dim * k + l ] += deformationGradient[ dim * i + M ] * deformationGradient[ dim * j + N ] * referenceHigherOrderStress[ dim * dim * M + dim * N + l ] / detF;
-
                             }
-                            dHigherOrderStressdDeformationGradient[ dim * dim * sot_dim * i + dim * sot_dim * j + sot_dim * k + dim * l + M ] -= higherOrderStress[ dim * dim * i + dim * j + k ] * dDetFdF[ dim * l + M ] / detF;
+                            dHigherOrderStressdDeformationGradient[ dim * dim * sot_dim * i + dim * sot_dim * j + sot_dim * k + dim * l + M ] -= higherOrderStress[ dim * dim * i + dim * j + k ] * inverseDeformationGradient[ dim * M + l ];
+
                         }
                     }
                 }
