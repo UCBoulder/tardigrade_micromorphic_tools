@@ -15,6 +15,7 @@ Internal Changes
 - Completed first pass of improving the computational efficiency (:pull:`9`). By `Nathan Miller`_.
 - Moved the computation of the determinants to exposed Eigen::Map rather than tardigradeVectorTools (:pull:`10`). By `Nathan Miller`_.
 - Removed calls to matrixMultiply rather than tardigradeVectorTools (:pull:`11`). By `Nathan Miller`_.
+- Changed returning new errorOut objects to TARDIGRADE_ERROR_TOOLS_CHECK macros (:pull:`12`). By `Nathan Miller`_.
 
 Breaking changes
 ================
