@@ -27,13 +27,9 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int dim = 3;
         constexpr unsigned int sot_dim = dim * dim;
 
-        if ( deformationGradient.size() != sot_dim ){
-            return new errorNode( "computePsi", "The deformation gradient doesn't have the correct size" );
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( deformationGradient.size() == sot_dim, "The deformation gradient doesn't have the correct size" );
 
-        if ( microDeformation.size() != sot_dim ){
-            return new errorNode( "computePsi", "The micro-deformation doesn't have the correct size" );
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( microDeformation.size() == sot_dim, "The micro-deformation doesn't have the correct size" );
 
         Psi = variableVector( sot_dim, 0 );
 
@@ -149,13 +145,9 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
-        if ( deformationGradient.size() != sot_dim ){
-            return new errorNode("computeGamma", "The deformation gradient isn't the right size");
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( deformationGradient.size() == sot_dim, "The deformation gradient isn't the right size");
 
-        if ( gradChi.size() != tot_dim ){
-            return new errorNode("computeGamma", "The micro-deformation gradient isn't the right size");
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( gradChi.size() == tot_dim, "The micro-deformation gradient isn't the right size");
 
         Gamma = variableVector( tot_dim, 0 );
 
@@ -277,10 +269,9 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3d
         constexpr unsigned int dim = 3;
+        constexpr unsigned int sot_dim = dim * dim;
 
-        if ( Psi.size() != dim * dim ){
-            return new errorNode( "computeMicroStrain", "Psi is not of the correct size" );
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( Psi.size() == sot_dim, "Psi is not of the correct size" );
 
         microStrain = Psi;
         for ( unsigned int i = 0; i < dim; i++ ){ microStrain[ dim * i + i ] -= 1.; }
@@ -617,16 +608,13 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3d
         constexpr unsigned int dim = 3;
+        constexpr unsigned int sot_dim = dim * dim;
 
-        if ( referenceMicroStress.size() != dim * dim ){
-            return new errorNode("pushForwardReferenceMicroStress", "The reference micro-stress has an incorrect size");
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( referenceMicroStress.size() == sot_dim, "The reference micro-stress has an incorrect size");
 
-        if ( deformationGradient.size() != dim * dim ){
-            return new errorNode("pushForwardReferenceMicroStress", "The deformation gradient has an incorrect size");
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( deformationGradient.size() == sot_dim, "The deformation gradient has an incorrect size");
 
-        microStress = variableVector( dim * dim, 0 );
+        microStress = variableVector( sot_dim, 0 );
 
         Eigen::Map< const Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map1( deformationGradient.data( ), dim, dim );
         Eigen::Map< const Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map2( referenceMicroStress.data( ), dim, dim );
@@ -824,15 +812,11 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int dim = 3;
         constexpr unsigned int sot_dim = dim * dim;
 
-        if ( microStress.size() != dim * dim ){
-            return new errorNode("pullBackdMicroStress", "The micro-stress has an incorrect size");
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( microStress.size() == sot_dim, "The micro-stress has an incorrect size");
 
-        if ( deformationGradient.size() != dim * dim ){
-            return new errorNode("pullBackdMicroStress", "The deformation gradient has an incorrect size");
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( deformationGradient.size() == sot_dim, "The deformation gradient has an incorrect size");
 
-        referenceMicroStress = variableVector( dim * dim, 0 );
+        referenceMicroStress = variableVector( sot_dim, 0 );
 
         Eigen::Map< const Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > cmap( deformationGradient.data( ), dim, dim );
         detF = cmap.determinant( );
@@ -1023,17 +1007,11 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
-        if ( referenceHigherOrderStress.size() != dim * dim * dim ){
-            return new errorNode( "pushForwardHigherOrderStress", "The reference higher order stress doesn't have the correct size" );
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( referenceHigherOrderStress.size() == tot_dim, "The reference higher order stress doesn't have the correct size" );
 
-        if ( deformationGradient.size() != dim * dim ){
-            return new errorNode( "pushForwardHigherOrderStress", "The deformation gradient doesn't have the correct size" );
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( deformationGradient.size() == sot_dim, "The deformation gradient doesn't have the correct size" );
 
-        if ( microDeformation.size() != dim * dim ){
-            return new errorNode( "pushForwardHigherOrderStress", "The micro-deformation doesn't have the correct size" );
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( microDeformation.size() == sot_dim, "The micro-deformation doesn't have the correct size" );
 
         Eigen::Map< const Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( deformationGradient.data( ), dim, dim );
         detF = map.determinant( );
@@ -1298,17 +1276,11 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
-        if ( higherOrderStress.size() != dim * dim * dim ){
-            return new errorNode( "pullBackHigherOrderStress", "The current higher order stress doesn't have the correct size" );
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( higherOrderStress.size() == tot_dim, "The current higher order stress doesn't have the correct size" );
 
-        if ( deformationGradient.size() != dim * dim ){
-            return new errorNode( "pushForwardHigherOrderStress", "The deformation gradient doesn't have the correct size" );
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( deformationGradient.size() == sot_dim, "The deformation gradient doesn't have the correct size" );
 
-        if ( microDeformation.size() != dim * dim ){
-            return new errorNode( "pushForwardHigherOrderStress", "The micro-deformation doesn't have the correct size" );
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( microDeformation.size() == dim * dim, "The micro-deformation doesn't have the correct size" );
 
         Eigen::Map< const Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > cmap( deformationGradient.data( ), dim, dim );
         detF = cmap.determinant( );
@@ -1518,10 +1490,10 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3d
         constexpr unsigned int dim = 3;
+        constexpr unsigned int sot_dim = dim * dim;
+        constexpr unsigned int tot_dim = sot_dim * dim;
 
-        if ( higherOrderStress.size() != dim * dim * dim ){
-            return new errorNode( "computeDeviatoricHigherOrderStress", "The higher order stress has an incorrect size" );
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( higherOrderStress.size() == tot_dim, "The higher order stress has an incorrect size" );
 
         deviatoricHigherOrderStress = higherOrderStress;
 
@@ -1643,15 +1615,9 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
-        if ( rightCauchyGreenDeformation.size() != sot_dim ){
-            return new errorNode( "computeReferenceHigherOrderStressPressure",
-                                  "The right Cauchy-Green deformation tensor must have nine terms." );
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( rightCauchyGreenDeformation.size() == sot_dim,  "The right Cauchy-Green deformation tensor must have nine terms." );
 
-        if ( referenceHigherOrderStress.size() != tot_dim ){
-            return new errorNode( "computeReferenceHigherOrderStressPressure",
-                                  "The higher order stress tensor must have 27 terms." );
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( referenceHigherOrderStress.size() == tot_dim,  "The higher order stress tensor must have 27 terms." );
 
         referenceHigherOrderPressure = variableVector( dim, 0 );
 
@@ -2459,10 +2425,7 @@ namespace tardigradeMicromorphicTools{
          * \param &pressure: The computed pressure.
          */
 
-        if ( referenceStressMeasure.size() != rightCauchyGreen.size() ){
-            return new errorNode( "computeReferenceSecondOrderStressPressure",
-                                  "The stress measure and right Cauchy-Green deformation tensors aren't the same size" );
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( referenceStressMeasure.size() == rightCauchyGreen.size(), "The stress measure and right Cauchy-Green deformation tensors aren't the same size" );
 
         pressure = tardigradeVectorTools::dot( referenceStressMeasure, rightCauchyGreen ) / 3;
 
@@ -3567,11 +3530,10 @@ namespace tardigradeMicromorphicTools{
 
         //Assume 3D
         constexpr unsigned int dim = 3;
+        constexpr unsigned int sot_dim = dim * dim;
+        constexpr unsigned int tot_dim = sot_dim * dim;
 
-        if ( higherOrderStress.size() != dim * dim * dim ){
-            return new errorNode( "computeHigherOrderStressNorm",
-                                  "The higher order stress does not have the expected dimension" );
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( higherOrderStress.size() == tot_dim,  "The higher order stress does not have the expected dimension" );
         
         higherOrderStressNorm = variableVector( dim, 0 );
         for ( unsigned int K = 0; K < 3; K++ ){
@@ -3807,10 +3769,7 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int dim = 3;
         constexpr unsigned int sot_dim = dim * dim;
 
-        if ( displacementGradient.size() != sot_dim ){
-            return new errorNode( "assembleDeformationGradient",
-                                  "The gradient of the deformation is not 3D" );
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( displacementGradient.size() == sot_dim, "The gradient of the deformation is not 3D" );
 
         deformationGradient = displacementGradient;
         for ( unsigned int i = 0; i < dim; i++ ){ deformationGradient[ dim * i + i ] += 1; }
@@ -3859,10 +3818,7 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int dim = 3;
         constexpr unsigned int sot_dim = dim * dim;
 
-        if ( microDisplacement.size() != sot_dim ){
-            return new errorNode( "assembleMicroDeformation",
-                                  "The micro degrees of freedom must be 3D" );
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( microDisplacement.size() == sot_dim, "The micro degrees of freedom must be 3D" );
 
         microDeformation = microDisplacement;
         for ( unsigned int i = 0; i < dim; i++ ){ microDeformation[ dim * i + i ] += 1; }
@@ -3913,10 +3869,7 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int dim = 3;
         constexpr unsigned int sot_dim = dim * dim;
 
-        if ( gradientMicroDisplacement.size() != sot_dim * dim ){
-            return new errorNode( "assembleGradientMicroDeformation",
-                                  "The gradient of the micro displacement must be 3D" );
-        }
+        TARDIGRADE_ERROR_TOOLS_CHECK( gradientMicroDisplacement.size() == sot_dim * dim, "The gradient of the micro displacement must be 3D" );
 
         gradientMicroDeformation = gradientMicroDisplacement;
 
