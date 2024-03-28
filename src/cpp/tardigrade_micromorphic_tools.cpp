@@ -67,18 +67,12 @@ namespace tardigradeMicromorphicTools{
         variableVector _dPsidF;
         variableVector _dPsidChi;
 
-        errorOut error = computePsi( deformationGradient, microDeformation, Psi, _dPsidF, _dPsidChi );
-
-        if (error){
-            errorOut result = new errorNode( "computePsi (jacobian)", "Error in the computation of Psi" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computePsi( deformationGradient, microDeformation, Psi, _dPsidF, _dPsidChi ) );
 
         dPsidF   = tardigradeVectorTools::inflate( _dPsidF, sot_dim, sot_dim );
         dPsidChi = tardigradeVectorTools::inflate( _dPsidChi, sot_dim, sot_dim );
 
-        return error;
+        return NULL;
 
     }
 
@@ -105,13 +99,7 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int dim = 3;
         constexpr unsigned int sot_dim = dim * dim;
 
-        errorOut error = computePsi( deformationGradient, microDeformation, Psi );
-
-        if (error){
-            errorOut result = new errorNode( "computePsi (jacobian)", "Error in the computation of Psi" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computePsi( deformationGradient, microDeformation, Psi ) );
 
         dPsidF   = variableVector( sot_dim * sot_dim, 0 );
         dPsidChi = variableVector( sot_dim * sot_dim, 0 );
@@ -192,18 +180,12 @@ namespace tardigradeMicromorphicTools{
         variableVector _dGammadF;
         variableVector _dGammadGradChi;
 
-        errorOut error = computeGamma( deformationGradient, gradChi, Gamma, _dGammadF, _dGammadGradChi );
-
-        if ( error ){
-            errorOut result = new errorNode("computeGamma (jacobian)", "Error in computation of Gamma");
-            result->addNext(error);
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeGamma( deformationGradient, gradChi, Gamma, _dGammadF, _dGammadGradChi ) );
 
         dGammadF       = tardigradeVectorTools::inflate( _dGammadF, tot_dim, sot_dim );
         dGammadGradChi = tardigradeVectorTools::inflate( _dGammadGradChi, tot_dim, tot_dim ); 
 
-        return error;
+        return NULL;
 
     }
 
@@ -233,13 +215,7 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
-        errorOut error = computeGamma( deformationGradient, gradChi, Gamma );
-
-        if ( error ){
-            errorOut result = new errorNode("computeGamma (jacobian)", "Error in computation of Gamma");
-            result->addNext(error);
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeGamma( deformationGradient, gradChi, Gamma ) );
 
         dGammadF       = variableVector( tot_dim * sot_dim, 0 );
         dGammadGradChi = variableVector( tot_dim * tot_dim, 0 );
@@ -296,13 +272,7 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int dim = 3;
         constexpr unsigned int sot_dim = dim * dim;
 
-        errorOut error = computeMicroStrain( Psi, microStrain );
-
-        if (error){
-            errorOut result = new errorNode( "computeMicroStrain (jacobian)", "Error in computation of micro-strain" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeMicroStrain( Psi, microStrain ) );
 
         dMicroStraindPsi = variableVector( sot_dim * sot_dim, 0 );
         for ( unsigned int i = 0; i < sot_dim; i++ ){ dMicroStraindPsi[ sot_dim * i + i ] = 1; };
@@ -330,15 +300,7 @@ namespace tardigradeMicromorphicTools{
 
         variableVector _dMicroStraindPsi;
 
-        errorOut error = computeMicroStrain( Psi, microStrain, _dMicroStraindPsi );
-
-        if ( error ){
-
-            errorOut result = new errorNode( "computeMicroStrain (jacobian)", "Error in computation of micro-strain" );
-            result->addNext( error );
-            return result;
-
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeMicroStrain( Psi, microStrain, _dMicroStraindPsi ) );
 
         dMicroStraindPsi = tardigradeVectorTools::inflate( _dMicroStraindPsi, sot_dim, sot_dim );
 
@@ -364,16 +326,11 @@ namespace tardigradeMicromorphicTools{
          */
 
         variableType detF;
-        errorOut error = pushForwardReferenceMicroStress( PK2Stress, deformationGradient, 
-                                                          detF, cauchyStress );
+        TARDIGRADE_ERROR_TOOLS_CATCH( pushForwardReferenceMicroStress( PK2Stress, deformationGradient, 
+                                                                       detF, cauchyStress ) );
 
-        if ( error ){
-            errorOut result = new errorNode( "pushForwardPK2Stress",
-                                             "Error in push-forward operation (micro-stress and PK2 are identical)" );
-            result->addNext( error );
-            return result;
-        }
         return NULL;
+
     }
 
     errorOut pushForwardPK2Stress( const variableVector &PK2Stress,
@@ -406,17 +363,12 @@ namespace tardigradeMicromorphicTools{
          *     the Cauchy stress w.r.t. the deformation gradient.
          */
 
-        errorOut error = pushForwardReferenceMicroStress( PK2Stress, deformationGradient, cauchyStress,
-                                                          dCauchyStressdPK2Stress,
-                                                          dCauchyStressdDeformationGradient );
+        TARDIGRADE_ERROR_TOOLS_CATCH( pushForwardReferenceMicroStress( PK2Stress, deformationGradient, cauchyStress,
+                                                                       dCauchyStressdPK2Stress,
+                                                                       dCauchyStressdDeformationGradient ) );
 
-        if ( error ){
-            errorOut result = new errorNode( "pushForwardPK2Stress (jacobian)",
-                                             "Error in push-forward operation (micro-stress and PK2 are identical)" );
-            result->addNext( error );
-            return result;
-        }
         return NULL;
+
     }
 
 
@@ -450,17 +402,11 @@ namespace tardigradeMicromorphicTools{
          *     the Cauchy stress w.r.t. the deformation gradient.
          */
 
-        errorOut error = pushForwardReferenceMicroStress( PK2Stress, deformationGradient, cauchyStress,
-                                                          dCauchyStressdPK2Stress,
-                                                          dCauchyStressdDeformationGradient );
-
-        if ( error ){
-            errorOut result = new errorNode( "pushForwardPK2Stress (jacobian)",
-                                             "Error in push-forward operation (micro-stress and PK2 are identical)" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( pushForwardReferenceMicroStress( PK2Stress, deformationGradient, cauchyStress,
+                                                                       dCauchyStressdPK2Stress,
+                                                                       dCauchyStressdDeformationGradient ) );
         return NULL;
+
     }
 
     errorOut pullBackCauchyStress( const variableVector &cauchyStress,
@@ -479,15 +425,10 @@ namespace tardigradeMicromorphicTools{
          * \param &PK2Stress: The PK2 stress in the reference configuration.
          */
 
-        errorOut error = pullBackMicroStress( cauchyStress, deformationGradient, PK2Stress );
+        TARDIGRADE_ERROR_TOOLS_CATCH( pullBackMicroStress( cauchyStress, deformationGradient, PK2Stress ) );
 
-        if ( error ){
-            errorOut result = new errorNode( "pullBackCauchyStress",
-                                             "Error in pull-back operation (micro-stress and Cauchy stress are identical)" );
-            result->addNext( error );
-            return result;
-        }
         return NULL;
+
     }
 
     errorOut pullBackCauchyStress( const variableVector &cauchyStress,
@@ -515,16 +456,11 @@ namespace tardigradeMicromorphicTools{
          * \param &dPK2StressdDeformationGradient: The derivative of the PK2 stress w.r.t. the deformation gradient
          */
 
-        errorOut error = pullBackMicroStress( cauchyStress, deformationGradient, PK2Stress,
-                                              dPK2StressdCauchyStress, dPK2StressdDeformationGradient );
+        TARDIGRADE_ERROR_TOOLS_CATCH( pullBackMicroStress( cauchyStress, deformationGradient, PK2Stress,
+                                                           dPK2StressdCauchyStress, dPK2StressdDeformationGradient ) );
 
-        if ( error ){
-            errorOut result = new errorNode( "pullBackCauchyStress (jacobian)",
-                                             "Error in pull-back operation (micro-stress and Cauchy stress are identical)" );
-            result->addNext( error );
-            return result;
-        }
         return NULL;
+
     }
 
 
@@ -553,16 +489,11 @@ namespace tardigradeMicromorphicTools{
          * \param &dPK2StressdDeformationGradient: The derivative of the PK2 stress w.r.t. the deformation gradient
          */
 
-        errorOut error = pullBackMicroStress( cauchyStress, deformationGradient, PK2Stress,
-                                              dPK2StressdCauchyStress, dPK2StressdDeformationGradient );
+        TARDIGRADE_ERROR_TOOLS_CATCH( pullBackMicroStress( cauchyStress, deformationGradient, PK2Stress,
+                                                           dPK2StressdCauchyStress, dPK2StressdDeformationGradient ) );
 
-        if ( error ){
-            errorOut result = new errorNode( "pullBackCauchyStress (jacobian)",
-                                             "Error in pull-back operation (micro-stress and Cauchy stress are identical)" );
-            result->addNext( error );
-            return result;
-        }
         return NULL;
+
     }
 
     errorOut pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
@@ -660,20 +591,14 @@ namespace tardigradeMicromorphicTools{
         variableVector _dMicroStressdReferenceMicroStress;
         variableVector _dMicroStressdDeformationGradient;
 
-        errorOut error = pushForwardReferenceMicroStress( referenceMicroStress, deformationGradient,
-                                                          microStress, _dMicroStressdReferenceMicroStress,
-                                                          _dMicroStressdDeformationGradient );
-
-        if (error){
-            errorOut result = new errorNode( "pushForwardReferenceMicroStress (jacobian)", "Error in computation of push forward of micro-stress" );
-            result->addNext(error);
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( pushForwardReferenceMicroStress( referenceMicroStress, deformationGradient,
+                                                                       microStress, _dMicroStressdReferenceMicroStress,
+                                                                       _dMicroStressdDeformationGradient ) );
 
         dMicroStressdReferenceMicroStress = tardigradeVectorTools::inflate( _dMicroStressdReferenceMicroStress, 9, 9 );
         dMicroStressdDeformationGradient  = tardigradeVectorTools::inflate( _dMicroStressdDeformationGradient, 9, 9 );
 
-        return error;
+        return NULL;
 
     }
     errorOut pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
@@ -711,14 +636,8 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int sot_dim = dim * dim;
 
         variableType detF;
-        errorOut error = pushForwardReferenceMicroStress( referenceMicroStress, deformationGradient,
-                                                          detF, microStress );
-
-        if (error){
-            errorOut result = new errorNode( "pushForwardReferenceMicroStress (jacobian)", "Error in computation of push forward of micro-stress" );
-            result->addNext(error);
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( pushForwardReferenceMicroStress( referenceMicroStress, deformationGradient,
+                                                                       detF, microStress ) );
 
         //Assemble the inverse deformation gradient
         variableVector inverseDeformationGradient = deformationGradient;
@@ -878,20 +797,14 @@ namespace tardigradeMicromorphicTools{
         variableVector _dReferenceMicroStressdMicroStress;
         variableVector _dReferenceMicroStressdDeformationGradient;
 
-        errorOut error = pullBackMicroStress( microStress, deformationGradient,
-                                              referenceMicroStress, _dReferenceMicroStressdMicroStress,
-                                              _dReferenceMicroStressdDeformationGradient );
-
-        if (error){
-            errorOut result = new errorNode( "pullBackMicroStress (jacobian)", "Error in computation of pull back of micro-stress" );
-            result->addNext(error);
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( pullBackMicroStress( microStress, deformationGradient,
+                                                           referenceMicroStress, _dReferenceMicroStressdMicroStress,
+                                                           _dReferenceMicroStressdDeformationGradient ) );
 
         dReferenceMicroStressdMicroStress = tardigradeVectorTools::inflate( _dReferenceMicroStressdMicroStress, 9, 9 );
         dReferenceMicroStressdDeformationGradient  = tardigradeVectorTools::inflate( _dReferenceMicroStressdDeformationGradient, 9, 9 );
 
-        return error;
+        return NULL;
 
 
     }
@@ -930,14 +843,8 @@ namespace tardigradeMicromorphicTools{
 
         variableType detF;
         variableVector inverseDeformationGradient;
-        errorOut error = pullBackMicroStress( microStress, deformationGradient,
-                                              detF, inverseDeformationGradient, referenceMicroStress );
-
-        if (error){
-            errorOut result = new errorNode( "pullBackMicroStress (jacobian)", "Error in computation of pull back of micro-stress" );
-            result->addNext(error);
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( pullBackMicroStress( microStress, deformationGradient,
+                                                           detF, inverseDeformationGradient, referenceMicroStress ) );
 
         //Assemble the jacobians
         dReferenceMicroStressdMicroStress = variableVector( sot_dim * sot_dim, 0 );
@@ -1095,25 +1002,19 @@ namespace tardigradeMicromorphicTools{
         variableVector _dHigherOrderStressdDeformationGradient;
         variableVector _dHigherOrderStressdMicroDeformation;
 
-        errorOut error = pushForwardHigherOrderStress( referenceHigherOrderStress,
-                                                       deformationGradient,
-                                                       microDeformation,
-                                                       higherOrderStress,
-                                                       _dHigherOrderStressdReferenceHigherOrderStress,
-                                                       _dHigherOrderStressdDeformationGradient,
-                                                       _dHigherOrderStressdMicroDeformation );
-
-        if (error){
-            errorOut result = new errorNode( "pushForwardHigherOrderStress (jacobian)", "Error in computation of push forward of the higher order stress" );
-            result->addNext(error);
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( pushForwardHigherOrderStress( referenceHigherOrderStress,
+                                                                    deformationGradient,
+                                                                    microDeformation,
+                                                                    higherOrderStress,
+                                                                    _dHigherOrderStressdReferenceHigherOrderStress,
+                                                                    _dHigherOrderStressdDeformationGradient,
+                                                                    _dHigherOrderStressdMicroDeformation ) );
 
         dHigherOrderStressdReferenceHigherOrderStress = tardigradeVectorTools::inflate( _dHigherOrderStressdReferenceHigherOrderStress , 27, 27 );
         dHigherOrderStressdDeformationGradient        = tardigradeVectorTools::inflate( _dHigherOrderStressdDeformationGradient        , 27,  9 );
         dHigherOrderStressdMicroDeformation           = tardigradeVectorTools::inflate( _dHigherOrderStressdMicroDeformation           , 27,  9 );
 
-        return error;
+        return NULL;
 
     }
     errorOut pushForwardHigherOrderStress( const variableVector &referenceHigherOrderStress,
@@ -1156,14 +1057,8 @@ namespace tardigradeMicromorphicTools{
 
         variableType detF;
 
-        errorOut error = pushForwardHigherOrderStress( referenceHigherOrderStress, deformationGradient, microDeformation,
-                                                       detF, higherOrderStress );
-        
-        if (error){
-            errorOut result = new errorNode( "pushForwardHigherOrderStress (jacobian)", "Error in computation of push forward of the higher order stress" );
-            result->addNext(error);
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( pushForwardHigherOrderStress( referenceHigherOrderStress, deformationGradient, microDeformation,
+                                                                    detF, higherOrderStress ) );
 
         //Assemble the inverse of the deformation gradient
         variableVector inverseDeformationGradient = deformationGradient;
@@ -1376,22 +1271,16 @@ namespace tardigradeMicromorphicTools{
         variableVector _dReferenceHigherOrderStressdDeformationGradient;
         variableVector _dReferenceHigherOrderStressdMicroDeformation;
 
-        errorOut error = pullBackHigherOrderStress( higherOrderStress, deformationGradient, microDeformation,
-                                                    referenceHigherOrderStress, _dReferenceHigherOrderStressdHigherOrderStress,
-                                                    _dReferenceHigherOrderStressdDeformationGradient,
-                                                    _dReferenceHigherOrderStressdMicroDeformation );
-        
-        if (error){
-            errorOut result = new errorNode( "pullBackHigherOrderStress (jacobian)", "Error in computation of pull back of the higher order stress" );
-            result->addNext(error);
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( pullBackHigherOrderStress( higherOrderStress, deformationGradient, microDeformation,
+                                                                 referenceHigherOrderStress, _dReferenceHigherOrderStressdHigherOrderStress,
+                                                                 _dReferenceHigherOrderStressdDeformationGradient,
+                                                                 _dReferenceHigherOrderStressdMicroDeformation ) );
 
         dReferenceHigherOrderStressdHigherOrderStress   = tardigradeVectorTools::inflate( _dReferenceHigherOrderStressdHigherOrderStress  , 27, 27 );
         dReferenceHigherOrderStressdDeformationGradient = tardigradeVectorTools::inflate( _dReferenceHigherOrderStressdDeformationGradient, 27,  9 );
         dReferenceHigherOrderStressdMicroDeformation    = tardigradeVectorTools::inflate( _dReferenceHigherOrderStressdMicroDeformation   , 27,  9 );
 
-        return error;
+        return NULL;
 
     }
 
@@ -1434,15 +1323,9 @@ namespace tardigradeMicromorphicTools{
         variableType detF;
         variableVector inverseDeformationGradient, inverseMicroDeformation;
 
-        errorOut error = pullBackHigherOrderStress( higherOrderStress, deformationGradient, microDeformation,
-                                                    detF, inverseDeformationGradient, inverseMicroDeformation,
-                                                    referenceHigherOrderStress );
-        
-        if (error){
-            errorOut result = new errorNode( "pullBackHigherOrderStress (jacobian)", "Error in computation of pull back of the higher order stress" );
-            result->addNext(error);
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( pullBackHigherOrderStress( higherOrderStress, deformationGradient, microDeformation,
+                                                                 detF, inverseDeformationGradient, inverseMicroDeformation,
+                                                                 referenceHigherOrderStress ) );
 
         dReferenceHigherOrderStressdHigherOrderStress   = variableVector( tot_dim * tot_dim, 0 );
         dReferenceHigherOrderStressdDeformationGradient = variableVector( tot_dim * sot_dim, 0 );
@@ -1530,14 +1413,7 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
-        errorOut error = computeDeviatoricHigherOrderStress( higherOrderStress, deviatoricHigherOrderStress );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeDeviatoricHigherOrderStress (jacobian)",
-                                             "Error in the computation of the deviatoric part of the higher order stress" );
-            result->addNext(error);
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeDeviatoricHigherOrderStress( higherOrderStress, deviatoricHigherOrderStress ) )
 
         dDeviatoricHigherOrderStressdHigherOrderStress = variableVector( tot_dim * tot_dim, 0 );
 
@@ -1579,14 +1455,7 @@ namespace tardigradeMicromorphicTools{
 
         variableVector _dDeviatoricHigherOrderStressdHigherOrderStress;
 
-        errorOut error = computeDeviatoricHigherOrderStress( higherOrderStress, deviatoricHigherOrderStress, _dDeviatoricHigherOrderStressdHigherOrderStress );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeDeviatoricHigherOrderStress (jacobian)",
-                                             "Error in the computation of the deviatoric part of the higher order stress" );
-            result->addNext(error);
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeDeviatoricHigherOrderStress( higherOrderStress, deviatoricHigherOrderStress, _dDeviatoricHigherOrderStressdHigherOrderStress ) );
 
         dDeviatoricHigherOrderStressdHigherOrderStress = tardigradeVectorTools::inflate( _dDeviatoricHigherOrderStressdHigherOrderStress, tot_dim, tot_dim );
 
@@ -1661,21 +1530,14 @@ namespace tardigradeMicromorphicTools{
         variableVector _dpdM;
         variableVector _dpdC;
 
-        errorOut error = computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation,
-                                                                    referenceHigherOrderPressure,
-                                                                    _dpdM, _dpdC );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeReferenceHigherOrderStressPressure (jacobian)",
-                                             "Error in computation of reference higher order pressure" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation,
+                                                                                 referenceHigherOrderPressure,
+                                                                                 _dpdM, _dpdC ) );
 
         dpdM = tardigradeVectorTools::inflate( _dpdM, 3, 27 );
         dpdC = tardigradeVectorTools::inflate( _dpdC, 3,  9 );
 
-        return error;
+        return NULL;
 
     }
 
@@ -1710,15 +1572,8 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
-        errorOut error = computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation,
-                                                                    referenceHigherOrderPressure );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeReferenceHigherOrderStressPressure (jacobian)",
-                                             "Error in computation of reference higher order pressure" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation,
+                                                                                 referenceHigherOrderPressure ) );
 
         dpdM = variableVector( dim * tot_dim, 0 );
         dpdC = variableVector( dim * sot_dim, 0 );
@@ -1773,22 +1628,15 @@ namespace tardigradeMicromorphicTools{
         variableVector _dpdC;
         variableVector _d2pdMdC;
 
-        errorOut error = computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation,
-                                                                    referenceHigherOrderPressure,
-                                                                    _dpdM, _dpdC, _d2pdMdC );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeReferenceHigherOrderStressPressure (jacobian)",
-                                             "Error in computation of reference higher order pressure" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation,
+                                                                                 referenceHigherOrderPressure,
+                                                                                 _dpdM, _dpdC, _d2pdMdC ) );
 
         dpdM    = tardigradeVectorTools::inflate(    _dpdM, 3,  27 );
         dpdC    = tardigradeVectorTools::inflate(    _dpdC, 3,   9 );
         d2pdMdC = tardigradeVectorTools::inflate( _d2pdMdC, 3, 243 );
 
-        return error;
+        return NULL;
     }
 
     errorOut computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress,
@@ -1827,15 +1675,8 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
-        errorOut error = computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation,
-                                                                    referenceHigherOrderPressure, dpdM, dpdC );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeReferenceHigherOrderStressPressure (second order jacobian)",
-                                             "Error in computation of reference higher order pressure" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation,
+                                                                                 referenceHigherOrderPressure, dpdM, dpdC ) );
 
         d2pdMdC = variableVector( dim * tot_dim * sot_dim, 0 );
         for ( unsigned int K = 0; K < dim; K++ ){
@@ -1865,14 +1706,7 @@ namespace tardigradeMicromorphicTools{
 
         //Compute the pressure
         variableVector pressure;
-        errorOut error = computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation, pressure );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeDeviatoricReferenceHigherOrderStress",
-                                             "Error in computation of higher order pressure" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation, pressure ) );
 
         return computeDeviatoricReferenceHigherOrderStress( referenceHigherOrderStress, rightCauchyGreenDeformation,
                                                             pressure, deviatoricReferenceHigherOrderStress );
@@ -1942,22 +1776,15 @@ namespace tardigradeMicromorphicTools{
         variableVector _dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress;
         variableVector _dDeviatoricReferenceHigherOrderStressdRCG;
 
-        errorOut error = computeDeviatoricReferenceHigherOrderStress( referenceHigherOrderStress, rightCauchyGreenDeformation,
-                                                                      deviatoricReferenceHigherOrderStress,
-                                                                      _dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
-                                                                      _dDeviatoricReferenceHigherOrderStressdRCG );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeDeviatoricReferenceHigherOrderStress (jacobian)",
-                                             "Error in computation of higher order deviatoric stress" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeDeviatoricReferenceHigherOrderStress( referenceHigherOrderStress, rightCauchyGreenDeformation,
+                                                                                   deviatoricReferenceHigherOrderStress,
+                                                                                   _dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
+                                                                                   _dDeviatoricReferenceHigherOrderStressdRCG ) );
 
         dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress = tardigradeVectorTools::inflate( _dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress, 27, 27 );
         dDeviatoricReferenceHigherOrderStressdRCG                        = tardigradeVectorTools::inflate( _dDeviatoricReferenceHigherOrderStressdRCG                       , 27,  9 );
 
-        return error;
+        return NULL;
 
     }
 
@@ -1990,21 +1817,14 @@ namespace tardigradeMicromorphicTools{
         variableVector dpdM, dpdC;
 
         //Compute the pressure
-        errorOut error = computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation, pressure,
-                                                                    dpdM, dpdC );
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation, pressure,
+                                                                                 dpdM, dpdC ) );
 
-        if ( error ){
-            errorOut result = new errorNode( "computeDeviatoricReferenceHigherOrderStress (second order jacobian)",
-                                             "Error in computation of higher order pressure" );
-            result->addNext( error );
-            return result;
-        }
-
-        return error = computeDeviatoricReferenceHigherOrderStress( referenceHigherOrderStress, rightCauchyGreenDeformation,
-                                                                    pressure, dpdM, dpdC,
-                                                                    deviatoricReferenceHigherOrderStress,
-                                                                    dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
-                                                                    dDeviatoricReferenceHigherOrderStressdRCG );
+        return computeDeviatoricReferenceHigherOrderStress( referenceHigherOrderStress, rightCauchyGreenDeformation,
+                                                            pressure, dpdM, dpdC,
+                                                            deviatoricReferenceHigherOrderStress,
+                                                            dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
+                                                            dDeviatoricReferenceHigherOrderStressdRCG );
 
     }
 
@@ -2124,24 +1944,17 @@ namespace tardigradeMicromorphicTools{
         variableVector _dDeviatoricReferenceHigherOrderStressdRCG;
         variableVector _d2MdMdRCG;
 
-        errorOut error = computeDeviatoricReferenceHigherOrderStress( referenceHigherOrderStress, rightCauchyGreenDeformation,
-                                                                      deviatoricReferenceHigherOrderStress,
-                                                                      _dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
-                                                                      _dDeviatoricReferenceHigherOrderStressdRCG,
-                                                                      _d2MdMdRCG );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeDeviatoricReferenceHigherOrderStress (jacobian)",
-                                             "Error in computation of higher order deviatoric stress" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeDeviatoricReferenceHigherOrderStress( referenceHigherOrderStress, rightCauchyGreenDeformation,
+                                                                                   deviatoricReferenceHigherOrderStress,
+                                                                                   _dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
+                                                                                   _dDeviatoricReferenceHigherOrderStressdRCG,
+                                                                                   _d2MdMdRCG ) );
 
         dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress = tardigradeVectorTools::inflate( _dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress, 27,  27 );
         dDeviatoricReferenceHigherOrderStressdRCG                        = tardigradeVectorTools::inflate( _dDeviatoricReferenceHigherOrderStressdRCG                       , 27,   9 );
         d2MdMdRCG                                                        = tardigradeVectorTools::inflate( _d2MdMdRCG                                                       , 27, 243 );
 
-        return error;
+        return NULL;
     }
 
     errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
@@ -2178,15 +1991,8 @@ namespace tardigradeMicromorphicTools{
         variableVector dpdM, dpdC, d2pdMdRCG;
 
         //Compute the pressure
-        errorOut error = computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation, pressure,
-                                                                    dpdM, dpdC, d2pdMdRCG );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeDeviatoricReferenceHigherOrderStress (second order jacobian)",
-                                             "Error in computation of higher order pressure" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeReferenceHigherOrderStressPressure( referenceHigherOrderStress, rightCauchyGreenDeformation, pressure,
+                                                                                 dpdM, dpdC, d2pdMdRCG )  );
 
         return computeDeviatoricReferenceHigherOrderStress( referenceHigherOrderStress, rightCauchyGreenDeformation,
                                                             pressure, dpdM, dpdC, d2pdMdRCG,
@@ -2352,14 +2158,7 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int dim = 3;
         constexpr unsigned int sot_dim = dim * dim;
 
-        errorOut error = computeDeviatoricSecondOrderStress( secondOrderStress, deviatoricSecondOrderStress );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeDeviatoricSecondOrderStress (jacobian)",
-                                             "Error in the computation of the deviatoric stress" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeDeviatoricSecondOrderStress( secondOrderStress, deviatoricSecondOrderStress ) );
 
         dDeviatoricStressdStress = variableVector( sot_dim * sot_dim, 0 );
         for ( unsigned int i = 0; i < sot_dim; i++ ){
@@ -2397,14 +2196,7 @@ namespace tardigradeMicromorphicTools{
 
         variableVector _dDeviatoricStressdStress;
 
-        errorOut error = computeDeviatoricSecondOrderStress( secondOrderStress, deviatoricSecondOrderStress, _dDeviatoricStressdStress );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeDeviatoricSecondOrderStress (jacobian)",
-                                             "Error in the computation of the deviatoric stress" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeDeviatoricSecondOrderStress( secondOrderStress, deviatoricSecondOrderStress, _dDeviatoricStressdStress ) );
 
         dDeviatoricStressdStress = tardigradeVectorTools::inflate( _dDeviatoricStressdStress, sot_dim, sot_dim );
 
@@ -2454,14 +2246,7 @@ namespace tardigradeMicromorphicTools{
          * \param &dpdRCG: The Jacobian of the pressure w.r.t. the right Cauchy-Green deformation tensor.
          */
 
-        errorOut error = computeReferenceSecondOrderStressPressure( referenceStressMeasure, rightCauchyGreen, pressure );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeReferenceSecondOrderStressPressure (jacobian)",
-                                             "Error in computation of pressure in the reference configuration" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeReferenceSecondOrderStressPressure( referenceStressMeasure, rightCauchyGreen, pressure ) );
 
         dpdStress = rightCauchyGreen / 3;
         dpdRCG    = referenceStressMeasure / 3;
@@ -2498,20 +2283,12 @@ namespace tardigradeMicromorphicTools{
 
         variableVector _d2pdStressdRCG;
 
-        errorOut error = computeReferenceSecondOrderStressPressure( referenceStressMeasure, rightCauchyGreen, pressure,
-                                                                    dpdStress, dpdRCG, _d2pdStressdRCG );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeReferenceSecondOrderStressPressure (second order jacobian)",
-                                             "Error in computation of pressure in the reference configuration" );
-            result->addNext( error );
-            return result;
-        }
-
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeReferenceSecondOrderStressPressure( referenceStressMeasure, rightCauchyGreen, pressure,
+                                                                                 dpdStress, dpdRCG, _d2pdStressdRCG ) );
 
         d2pdStressdRCG = tardigradeVectorTools::inflate( _d2pdStressdRCG, 9, 9 );
 
-        return error;
+        return NULL;
 
     }
 
@@ -2544,15 +2321,8 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int dim = 3;
         constexpr unsigned int sot_dim = dim * dim;
 
-        errorOut error = computeReferenceSecondOrderStressPressure( referenceStressMeasure, rightCauchyGreen, pressure,
-                                                                    dpdStress, dpdRCG );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeReferenceSecondOrderStressPressure (second order jacobian)",
-                                             "Error in computation of pressure in the reference configuration" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeReferenceSecondOrderStressPressure( referenceStressMeasure, rightCauchyGreen, pressure,
+                                                                                 dpdStress, dpdRCG ) );
 
         d2pdStressdRCG = variableVector( sot_dim * sot_dim, 0 );
         for ( unsigned int i = 0; i < sot_dim; i++ ){ d2pdStressdRCG[ sot_dim * i + i ] = 1./3; }
@@ -2575,14 +2345,7 @@ namespace tardigradeMicromorphicTools{
          */
 
         variableType pressure;
-        errorOut error = computeReferenceSecondOrderStressPressure( secondOrderReferenceStress, rightCauchyGreenDeformation, pressure );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeDeviatoricReferenceSecondOrderStress",
-                                             "Error in computation of the reference pressure" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeReferenceSecondOrderStressPressure( secondOrderReferenceStress, rightCauchyGreenDeformation, pressure ) );
 
         return computeDeviatoricReferenceSecondOrderStress( secondOrderReferenceStress, rightCauchyGreenDeformation,
                                                             pressure, deviatoricSecondOrderReferenceStress );
@@ -2643,23 +2406,16 @@ namespace tardigradeMicromorphicTools{
         variableVector _dDeviatoricReferenceStressdReferenceStress;
         variableVector _dDeviatoricReferenceStressdRCG;
 
-        errorOut error = computeDeviatoricReferenceSecondOrderStress( secondOrderReferenceStress,
-                                                                      rightCauchyGreenDeformation,
-                                                                      deviatoricSecondOrderReferenceStress,
-                                                                      _dDeviatoricReferenceStressdReferenceStress,
-                                                                      _dDeviatoricReferenceStressdRCG );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeDeviatoricReferenceSecondOrderStress (jacobian)",
-                                             "Error in computation of the reference pressure" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeDeviatoricReferenceSecondOrderStress( secondOrderReferenceStress,
+                                                                                   rightCauchyGreenDeformation,
+                                                                                   deviatoricSecondOrderReferenceStress,
+                                                                                   _dDeviatoricReferenceStressdReferenceStress,
+                                                                                   _dDeviatoricReferenceStressdRCG ) );
 
         dDeviatoricReferenceStressdReferenceStress = tardigradeVectorTools::inflate( _dDeviatoricReferenceStressdReferenceStress, 9, 9 );
         dDeviatoricReferenceStressdRCG             = tardigradeVectorTools::inflate( _dDeviatoricReferenceStressdRCG            , 9, 9 );
 
-        return error;
+        return NULL;
 
     }
 
@@ -2689,15 +2445,8 @@ namespace tardigradeMicromorphicTools{
 
         variableType pressure;
         variableVector dpdS, dpdC;
-        errorOut error = computeReferenceSecondOrderStressPressure( secondOrderReferenceStress, rightCauchyGreenDeformation, pressure,
-                                                                    dpdS, dpdC );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeDeviatoricReferenceSecondOrderStress",
-                                             "Error in computation of the reference pressure" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeReferenceSecondOrderStressPressure( secondOrderReferenceStress, rightCauchyGreenDeformation, pressure,
+                                                                                 dpdS, dpdC ) );
 
         return computeDeviatoricReferenceSecondOrderStress( secondOrderReferenceStress, rightCauchyGreenDeformation,
                                                             pressure, dpdS, dpdC,
@@ -2899,24 +2648,18 @@ namespace tardigradeMicromorphicTools{
         variableVector _dDeviatoricReferenceStressdRCG;
         variableVector _d2DevSdSdRCG;
 
-        errorOut error = computeDeviatoricReferenceSecondOrderStress( secondOrderReferenceStress,
-                                                                      rightCauchyGreenDeformation,
-                                                                      deviatoricSecondOrderReferenceStress,
-                                                                      _dDeviatoricReferenceStressdReferenceStress,
-                                                                      _dDeviatoricReferenceStressdRCG,
-                                                                      _d2DevSdSdRCG );
-        if ( error ){
-            errorOut result = new errorNode( "computeDeviatoricReferenceSecondOrderStress",
-                                             "Error in computation of the reference pressure" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeDeviatoricReferenceSecondOrderStress( secondOrderReferenceStress,
+                                                                                   rightCauchyGreenDeformation,
+                                                                                   deviatoricSecondOrderReferenceStress,
+                                                                                   _dDeviatoricReferenceStressdReferenceStress,
+                                                                                   _dDeviatoricReferenceStressdRCG,
+                                                                                   _d2DevSdSdRCG ) );
 
         dDeviatoricReferenceStressdReferenceStress = tardigradeVectorTools::inflate( _dDeviatoricReferenceStressdReferenceStress , 9,  9 );
         dDeviatoricReferenceStressdRCG             = tardigradeVectorTools::inflate( _dDeviatoricReferenceStressdRCG             , 9,  9 );
         d2DevSdSdRCG                               = tardigradeVectorTools::inflate( _d2DevSdSdRCG                               , 9, 81 );
 
-        return error;
+        return NULL;
 
     }
     errorOut computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
@@ -2952,15 +2695,8 @@ namespace tardigradeMicromorphicTools{
         variableType pressure;
         variableVector dpdS, dpdC;
         variableVector d2pdSdC;
-        errorOut error = computeReferenceSecondOrderStressPressure( secondOrderReferenceStress, rightCauchyGreenDeformation, pressure,
-                                                                    dpdS, dpdC, d2pdSdC );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeDeviatoricReferenceSecondOrderStress",
-                                             "Error in computation of the reference pressure" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeReferenceSecondOrderStressPressure( secondOrderReferenceStress, rightCauchyGreenDeformation, pressure,
+                                                                                 dpdS, dpdC, d2pdSdC ) );
 
         return computeDeviatoricReferenceSecondOrderStress( secondOrderReferenceStress, rightCauchyGreenDeformation,
                                                             pressure, dpdS, dpdC, d2pdSdC,
@@ -2986,28 +2722,14 @@ namespace tardigradeMicromorphicTools{
          * \param &pressure: The pressure of the stress tensor.
          */
 
-        errorOut error = computeReferenceSecondOrderStressPressure( secondOrderReferenceStress,
-                                                                    rightCauchyGreenDeformation,
-                                                                    pressure );
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeReferenceSecondOrderStressPressure( secondOrderReferenceStress,
+                                                                                 rightCauchyGreenDeformation,
+                                                                                 pressure ) );
 
-        if ( error ){
-            errorOut result = new errorNode( "computeSecondOrderReferenceStressDecomposition",
-                                             "Error in computation of pressure" );
-            result->addNext( error );
-            return result;
-        }
-
-        error = computeDeviatoricReferenceSecondOrderStress( secondOrderReferenceStress,
-                                                             rightCauchyGreenDeformation,
-                                                             pressure,
-                                                             deviatoricSecondOrderReferenceStress );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeSecondOrderReferenceStressDecomposition",
-                                             "Error in computation of the deviatoric part of the stress" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeDeviatoricReferenceSecondOrderStress( secondOrderReferenceStress,
+                                                                                   rightCauchyGreenDeformation,
+                                                                                   pressure,
+                                                                                   deviatoricSecondOrderReferenceStress ) );
 
         return NULL;
     }
@@ -3042,24 +2764,17 @@ namespace tardigradeMicromorphicTools{
         variableVector _dDevStressdStress;
         variableVector _dDevStressdRCG;
 
-        errorOut error = computeSecondOrderReferenceStressDecomposition( secondOrderReferenceStress,
-                                                                         rightCauchyGreenDeformation,
-                                                                         deviatoricSecondOrderReferenceStress,
-                                                                         pressure, _dDevStressdStress,
-                                                                         _dDevStressdRCG, dPressuredStress,
-                                                                         dPressuredRCG );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeSecondOrderReferenceStressDecomposition (jacobian)",
-                                             "Error in computation of pressure" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeSecondOrderReferenceStressDecomposition( secondOrderReferenceStress,
+                                                                                      rightCauchyGreenDeformation,
+                                                                                      deviatoricSecondOrderReferenceStress,
+                                                                                      pressure, _dDevStressdStress,
+                                                                                      _dDevStressdRCG, dPressuredStress,
+                                                                                      dPressuredRCG ) );
 
         dDevStressdStress = tardigradeVectorTools::inflate( _dDevStressdStress, 9, 9 );
         dDevStressdRCG    = tardigradeVectorTools::inflate( _dDevStressdRCG,    9, 9 );
 
-        return error;
+        return NULL;
 
     }
 
@@ -3090,29 +2805,15 @@ namespace tardigradeMicromorphicTools{
          *     deformation tensor.
          */
 
-        errorOut error = computeReferenceSecondOrderStressPressure( secondOrderReferenceStress,
-                                                                    rightCauchyGreenDeformation,
-                                                                    pressure, dPressuredStress, dPressuredRCG );
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeReferenceSecondOrderStressPressure( secondOrderReferenceStress,
+                                                                                 rightCauchyGreenDeformation,
+                                                                                 pressure, dPressuredStress, dPressuredRCG ) );
 
-        if ( error ){
-            errorOut result = new errorNode( "computeSecondOrderReferenceStressDecomposition (jacobian)",
-                                             "Error in computation of pressure" );
-            result->addNext( error );
-            return result;
-        }
-
-        error = computeDeviatoricReferenceSecondOrderStress( secondOrderReferenceStress,
-                                                             rightCauchyGreenDeformation,
-                                                             pressure, dPressuredStress, dPressuredRCG,
-                                                             deviatoricSecondOrderReferenceStress,
-                                                             dDevStressdStress, dDevStressdRCG );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeSecondOrderReferenceStressDecomposition (jacobian)",
-                                             "Error in computation of the deviatoric part of the stress" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeDeviatoricReferenceSecondOrderStress( secondOrderReferenceStress,
+                                                                                   rightCauchyGreenDeformation,
+                                                                                   pressure, dPressuredStress, dPressuredRCG,
+                                                                                   deviatoricSecondOrderReferenceStress,
+                                                                                   dDevStressdStress, dDevStressdRCG ) );
 
         return NULL;
     }
@@ -3155,27 +2856,20 @@ namespace tardigradeMicromorphicTools{
         variableVector _d2DevStressdStressdRCG;
         variableVector _d2PressuredStressdRCG;
 
-        errorOut error = computeSecondOrderReferenceStressDecomposition( secondOrderReferenceStress,
-                                                                         rightCauchyGreenDeformation,
-                                                                         deviatoricSecondOrderReferenceStress,
-                                                                         pressure, _dDevStressdStress,
-                                                                         _dDevStressdRCG,dPressuredStress,
-                                                                         dPressuredRCG, _d2DevStressdStressdRCG,
-                                                                         _d2PressuredStressdRCG );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeSecondOrderReferenceStressDecomposition (second order jacobian)",
-                                             "Error in computation of pressure" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeSecondOrderReferenceStressDecomposition( secondOrderReferenceStress,
+                                                                                      rightCauchyGreenDeformation,
+                                                                                      deviatoricSecondOrderReferenceStress,
+                                                                                      pressure, _dDevStressdStress,
+                                                                                      _dDevStressdRCG,dPressuredStress,
+                                                                                      dPressuredRCG, _d2DevStressdStressdRCG,
+                                                                                      _d2PressuredStressdRCG ) );
 
         dDevStressdStress      = tardigradeVectorTools::inflate( _dDevStressdStress     , 9,  9 );
         dDevStressdRCG         = tardigradeVectorTools::inflate( _dDevStressdRCG        , 9,  9 );
         d2DevStressdStressdRCG = tardigradeVectorTools::inflate( _d2DevStressdStressdRCG, 9, 81 );
         d2PressuredStressdRCG  = tardigradeVectorTools::inflate( _d2PressuredStressdRCG , 9,  9 );
 
-        return error;
+        return NULL;
 
     }
 
@@ -3212,32 +2906,18 @@ namespace tardigradeMicromorphicTools{
          *     reference stress w.r.t. the reference stress and the right Cauchy-Green deformation tensor.
          */
 
-        errorOut error = computeReferenceSecondOrderStressPressure( secondOrderReferenceStress,
-                                                                    rightCauchyGreenDeformation,
-                                                                    pressure, dPressuredStress, dPressuredRCG,
-                                                                    d2PressuredStressdRCG );
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeReferenceSecondOrderStressPressure( secondOrderReferenceStress,
+                                                                                 rightCauchyGreenDeformation,
+                                                                                 pressure, dPressuredStress, dPressuredRCG,
+                                                                                 d2PressuredStressdRCG ) );
 
-        if ( error ){
-            errorOut result = new errorNode( "computeSecondOrderReferenceStressDecomposition (second order jacobian)",
-                                             "Error in computation of pressure" );
-            result->addNext( error );
-            return result;
-        }
-
-        error = computeDeviatoricReferenceSecondOrderStress( secondOrderReferenceStress,
-                                                             rightCauchyGreenDeformation,
-                                                             pressure, dPressuredStress, dPressuredRCG,
-                                                             d2PressuredStressdRCG,
-                                                             deviatoricSecondOrderReferenceStress,
-                                                             dDevStressdStress, dDevStressdRCG,
-                                                             d2DevStressdStressdRCG );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeSecondOrderReferenceStressDecomposition ( second order jacobian)",
-                                             "Error in computation of the deviatoric part of the stress" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeDeviatoricReferenceSecondOrderStress( secondOrderReferenceStress,
+                                                                                   rightCauchyGreenDeformation,
+                                                                                   pressure, dPressuredStress, dPressuredRCG,
+                                                                                   d2PressuredStressdRCG,
+                                                                                   deviatoricSecondOrderReferenceStress,
+                                                                                   dDevStressdStress, dDevStressdRCG,
+                                                                                   d2DevStressdStressdRCG ) );
 
         return NULL;
     }
@@ -3258,28 +2938,14 @@ namespace tardigradeMicromorphicTools{
          * \param &pressure: The pressure of the higher order stress tensor.
          */
 
-        errorOut error = computeReferenceHigherOrderStressPressure( higherOrderReferenceStress,
-                                                                    rightCauchyGreenDeformation,
-                                                                    pressure );
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeReferenceHigherOrderStressPressure( higherOrderReferenceStress,
+                                                                                 rightCauchyGreenDeformation,
+                                                                                 pressure ) );
 
-        if ( error ){
-            errorOut result = new errorNode( "computeHigherOrderReferenceStressDecomposition",
-                                             "Error in computation of pressure" );
-            result->addNext( error );
-            return result;
-        }
-
-        error = computeDeviatoricReferenceHigherOrderStress( higherOrderReferenceStress,
-                                                             rightCauchyGreenDeformation,
-                                                             pressure,
-                                                             deviatoricHigherOrderReferenceStress );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeHigherOrderReferenceStressDecomposition",
-                                             "Error in computation of the deviatoric part of the stress" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeDeviatoricReferenceHigherOrderStress( higherOrderReferenceStress,
+                                                                                   rightCauchyGreenDeformation,
+                                                                                   pressure,
+                                                                                   deviatoricHigherOrderReferenceStress ) );
 
         return NULL;
     }
@@ -3315,25 +2981,19 @@ namespace tardigradeMicromorphicTools{
         variableVector _dPressuredStress;
         variableVector _dPressuredRCG;
 
-        errorOut error = computeHigherOrderReferenceStressDecomposition( higherOrderReferenceStress,
-                                                                         rightCauchyGreenDeformation,
-                                                                         deviatoricHigherOrderReferenceStress,
-                                                                         pressure, _dDevStressdStress,
-                                                                         _dDevStressdRCG, _dPressuredStress,
-                                                                         _dPressuredRCG );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeHigherOrderReferenceStressDecomposition (jacobian)", "error in decomposition" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeHigherOrderReferenceStressDecomposition( higherOrderReferenceStress,
+                                                                                      rightCauchyGreenDeformation,
+                                                                                      deviatoricHigherOrderReferenceStress,
+                                                                                      pressure, _dDevStressdStress,
+                                                                                      _dDevStressdRCG, _dPressuredStress,
+                                                                                      _dPressuredRCG ) );
 
         dDevStressdStress = tardigradeVectorTools::inflate( _dDevStressdStress , 27, 27 );
         dDevStressdRCG    = tardigradeVectorTools::inflate( _dDevStressdRCG    , 27,  9 );
         dPressuredStress  = tardigradeVectorTools::inflate( _dPressuredStress  ,  3, 27 );
         dPressuredRCG     = tardigradeVectorTools::inflate( _dPressuredRCG     ,  3,  9 );
 
-        return error;
+        return NULL;
 
     }
 
@@ -3363,31 +3023,17 @@ namespace tardigradeMicromorphicTools{
          *     Cauchy-Green deformation tensor.
          */
 
-        errorOut error = computeReferenceHigherOrderStressPressure( higherOrderReferenceStress,
-                                                                    rightCauchyGreenDeformation,
-                                                                    pressure, dPressuredStress,
-                                                                    dPressuredRCG );
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeReferenceHigherOrderStressPressure( higherOrderReferenceStress,
+                                                                                 rightCauchyGreenDeformation,
+                                                                                 pressure, dPressuredStress,
+                                                                                 dPressuredRCG ) );
 
-        if ( error ){
-            errorOut result = new errorNode( "computeHigherOrderReferenceStressDecomposition (jacobian)",
-                                             "Error in computation of pressure" );
-            result->addNext( error );
-            return result;
-        }
-
-        error = computeDeviatoricReferenceHigherOrderStress( higherOrderReferenceStress,
-                                                             rightCauchyGreenDeformation,
-                                                             pressure, dPressuredStress,
-                                                             dPressuredRCG,
-                                                             deviatoricHigherOrderReferenceStress,
-                                                             dDevStressdStress, dDevStressdRCG );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeHigherOrderReferenceStressDecomposition (jacobian)",
-                                             "Error in computation of the deviatoric part of the stress" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeDeviatoricReferenceHigherOrderStress( higherOrderReferenceStress,
+                                                                                   rightCauchyGreenDeformation,
+                                                                                   pressure, dPressuredStress,
+                                                                                   dPressuredRCG,
+                                                                                   deviatoricHigherOrderReferenceStress,
+                                                                                   dDevStressdStress, dDevStressdRCG ) );
 
         return NULL;
     }
@@ -3430,20 +3076,13 @@ namespace tardigradeMicromorphicTools{
         variableVector _d2DevStressdStressdRCG;
         variableVector _d2PressuredStressdRCG;
 
-        errorOut error = computeHigherOrderReferenceStressDecomposition( higherOrderReferenceStress,
-                                                                         rightCauchyGreenDeformation,
-                                                                         deviatoricHigherOrderReferenceStress,
-                                                                         pressure, _dDevStressdStress,
-                                                                         _dDevStressdRCG, _dPressuredStress,
-                                                                         _dPressuredRCG, _d2DevStressdStressdRCG,
-                                                                         _d2PressuredStressdRCG );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeHigherOrderReferenceStressDecomposition (jacobian)",
-                                             "Error in computation of the decomposition of the stress" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeHigherOrderReferenceStressDecomposition( higherOrderReferenceStress,
+                                                                                      rightCauchyGreenDeformation,
+                                                                                      deviatoricHigherOrderReferenceStress,
+                                                                                      pressure, _dDevStressdStress,
+                                                                                      _dDevStressdRCG, _dPressuredStress,
+                                                                                      _dPressuredRCG, _d2DevStressdStressdRCG,
+                                                                                      _d2PressuredStressdRCG ) );
 
         dDevStressdStress      = tardigradeVectorTools::inflate( _dDevStressdStress     , 27,  27 );
         dDevStressdRCG         = tardigradeVectorTools::inflate( _dDevStressdRCG        , 27,   9 );
@@ -3452,7 +3091,7 @@ namespace tardigradeMicromorphicTools{
         d2DevStressdStressdRCG = tardigradeVectorTools::inflate( _d2DevStressdStressdRCG, 27, 243 );
         d2PressuredStressdRCG  = tardigradeVectorTools::inflate( _d2PressuredStressdRCG ,  3, 243 );
 
-        return error;
+        return NULL;
 
     }
 
@@ -3487,32 +3126,18 @@ namespace tardigradeMicromorphicTools{
          *     w.r.t. the stress and the right Cauchy-Green deformation tensor.
          */
 
-        errorOut error = computeReferenceHigherOrderStressPressure( higherOrderReferenceStress,
-                                                                    rightCauchyGreenDeformation,
-                                                                    pressure, dPressuredStress,
-                                                                    dPressuredRCG, d2PressuredStressdRCG );
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeReferenceHigherOrderStressPressure( higherOrderReferenceStress,
+                                                                                 rightCauchyGreenDeformation,
+                                                                                 pressure, dPressuredStress,
+                                                                                 dPressuredRCG, d2PressuredStressdRCG ) );
 
-        if ( error ){
-            errorOut result = new errorNode( "computeHigherOrderReferenceStressDecomposition (second order jacobian)",
-                                             "Error in computation of pressure" );
-            result->addNext( error );
-            return result;
-        }
-
-        error = computeDeviatoricReferenceHigherOrderStress( higherOrderReferenceStress,
-                                                             rightCauchyGreenDeformation,
-                                                             pressure, dPressuredStress,
-                                                             dPressuredRCG, d2PressuredStressdRCG,
-                                                             deviatoricHigherOrderReferenceStress,
-                                                             dDevStressdStress, dDevStressdRCG,
-                                                             d2DevStressdStressdRCG );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeHigherOrderReferenceStressDecomposition (second order jacobian)",
-                                             "Error in computation of the deviatoric part of the stress" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeDeviatoricReferenceHigherOrderStress( higherOrderReferenceStress,
+                                                                                   rightCauchyGreenDeformation,
+                                                                                   pressure, dPressuredStress,
+                                                                                   dPressuredRCG, d2PressuredStressdRCG,
+                                                                                   deviatoricHigherOrderReferenceStress,
+                                                                                   dDevStressdStress, dDevStressdRCG,
+                                                                                   d2DevStressdStressdRCG ) );
 
         return NULL;
     }
@@ -3574,20 +3199,13 @@ namespace tardigradeMicromorphicTools{
 
         variableVector _dHigherOrderStressNormdHigherOrderStress;
 
-        errorOut error = computeHigherOrderStressNorm( higherOrderStress, higherOrderStressNorm,
-                                                       _dHigherOrderStressNormdHigherOrderStress,
-                                                       tol );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeHigherOrderStressNorm (jacobian)",
-                                             "Error in computation of higher order stress norm" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeHigherOrderStressNorm( higherOrderStress, higherOrderStressNorm,
+                                                                    _dHigherOrderStressNormdHigherOrderStress,
+                                                                    tol ) );
 
         dHigherOrderStressNormdHigherOrderStress = tardigradeVectorTools::inflate( _dHigherOrderStressNormdHigherOrderStress, 3, 27 );
 
-        return error;
+        return NULL;
 
     }
     errorOut computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
@@ -3618,14 +3236,7 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
-        errorOut error = computeHigherOrderStressNorm( higherOrderStress, higherOrderStressNorm );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeHigherOrderStressNorm (jacobian)",
-                                             "Error in computation of higher order stress norm" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeHigherOrderStressNorm( higherOrderStress, higherOrderStressNorm ) );
 
         dHigherOrderStressNormdHigherOrderStress = variableVector( dim * tot_dim, 0 );
         for ( unsigned int K = 0; K < 3; K++ ){
@@ -3670,22 +3281,15 @@ namespace tardigradeMicromorphicTools{
         variableVector _dHigherOrderStressNormdHigherOrderStress;
         variableVector _d2HigherOrderStressNormdHigherOrderStress2;
 
-        errorOut error = computeHigherOrderStressNorm( higherOrderStress, higherOrderStressNorm,
-                                                       _dHigherOrderStressNormdHigherOrderStress,
-                                                       _d2HigherOrderStressNormdHigherOrderStress2,
-                                                       tol );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeHigherOrderStressNorm (jacobian)",
-                                             "Error in computation of higher order stress norm" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeHigherOrderStressNorm( higherOrderStress, higherOrderStressNorm,
+                                                                    _dHigherOrderStressNormdHigherOrderStress,
+                                                                    _d2HigherOrderStressNormdHigherOrderStress2,
+                                                                    tol ) );
 
         dHigherOrderStressNormdHigherOrderStress   = tardigradeVectorTools::inflate( _dHigherOrderStressNormdHigherOrderStress, 3, 27 );
         d2HigherOrderStressNormdHigherOrderStress2 = tardigradeVectorTools::inflate( _d2HigherOrderStressNormdHigherOrderStress2, 3, 27 * 27 );
 
-        return error;
+        return NULL;
 
     }
 
@@ -3722,14 +3326,7 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
-        errorOut error = computeHigherOrderStressNorm( higherOrderStress, higherOrderStressNorm, dHigherOrderStressNormdHigherOrderStress, tol );
-
-        if ( error ){
-            errorOut result = new errorNode( "computeHigherOrderStressNorm (second order jacobian)",
-                                             "Error in computation of higher order stress norm" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( computeHigherOrderStressNorm( higherOrderStress, higherOrderStressNorm, dHigherOrderStressNormdHigherOrderStress, tol ) );
 
         d2HigherOrderStressNormdHigherOrderStress2 = variableVector( dim * tot_dim * tot_dim, 0 );
 
@@ -3791,14 +3388,7 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int dim = 3;
         constexpr unsigned int sot_dim = dim * dim;
 
-        errorOut error = assembleDeformationGradient( displacementGradient, deformationGradient );
-
-        if ( error ){
-            errorOut result = new errorNode( "assembleDeformationGradient (jacobian)",
-                                             "Error in the computation of the deformation gradient" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( assembleDeformationGradient( displacementGradient, deformationGradient ) );
 
         dFdGradU = variableVector( sot_dim * sot_dim, 0 );
         for ( unsigned int i = 0; i < sot_dim; i++ ){ dFdGradU[ sot_dim * i + i ] = 1; }
@@ -3840,14 +3430,7 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int dim = 3;
         constexpr unsigned int sot_dim = dim * dim;
 
-        errorOut error = assembleMicroDeformation( microDisplacement, microDeformation );
-
-        if ( error ){
-            errorOut result = new errorNode( "assembleMicroDeformation (jacobian)",
-                                             "Errir in the computation of the micro deformation" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( assembleMicroDeformation( microDisplacement, microDeformation ) );
 
         dChidPhi = variableVector( sot_dim * sot_dim, 0 );
         for ( unsigned int i = 0; i < sot_dim; i++ ){ dChidPhi[ sot_dim * i + i ] = 1; }
@@ -3894,14 +3477,7 @@ namespace tardigradeMicromorphicTools{
         constexpr unsigned int sot_dim = dim * dim;
         constexpr unsigned int tot_dim = sot_dim * dim;
 
-        errorOut error = assembleGradientMicroDeformation( gradientMicroDisplacement, gradientMicroDeformation );
-
-        if ( error ){
-            errorOut result = new errorNode( "assembleGradientMicroDeformation (jacobian)",
-                                             "Error in the computation of the micro deformation gradient" );
-            result->addNext( error );
-            return result;
-        }
+        TARDIGRADE_ERROR_TOOLS_CATCH( assembleGradientMicroDeformation( gradientMicroDisplacement, gradientMicroDeformation ) );
         
         dGradChidGradPhi = variableVector( tot_dim * tot_dim, 0 );
         for ( unsigned int i = 0; i < tot_dim; i++ ){ dGradChidGradPhi[ tot_dim * i + i ] = 1; }
