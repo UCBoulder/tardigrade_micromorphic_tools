@@ -21,6 +21,10 @@ Breaking changes
 ================
 - Added vector-based Jacobians (:pull:`1`, :pull:`4`, :pull:`5`). By `Nathan Miller`_.
 
+Bug Fixes
+=========
+- Removed trailing whitespace from add_library call (:pull:`14`). By `Nathan Miller`_.
+
 ******************
 1.3.2 (2023-09-29)
 ******************
