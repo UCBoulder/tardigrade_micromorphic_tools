@@ -16,6 +16,7 @@ Internal Changes
 - Moved the computation of the determinants to exposed Eigen::Map rather than tardigradeVectorTools (:pull:`10`). By `Nathan Miller`_.
 - Removed calls to matrixMultiply rather than tardigradeVectorTools (:pull:`11`). By `Nathan Miller`_.
 - Changed returning new errorOut objects to TARDIGRADE_ERROR_TOOLS_CHECK macros (:pull:`12`). By `Nathan Miller`_.
+- Added ability to set version when doing FetchContent builds (:pull:`15`). By `Nathan Miller`_.
 
 Breaking changes
 ================
