@@ -1,7 +1,6 @@
 # Project
 add_library(${PROJECT_NAME} SHARED "${PROJECT_NAME}.cpp" "${PROJECT_NAME}.h")
-set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 11 
-                                      PUBLIC_HEADER ${PROJECT_NAME}.h)
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER ${PROJECT_NAME}.h)
 target_link_libraries(${PROJECT_NAME} tardigrade_error_tools tardigrade_constitutive_tools)
 
 target_compile_options(${PROJECT_NAME} PUBLIC)
