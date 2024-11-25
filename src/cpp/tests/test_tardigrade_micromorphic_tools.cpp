@@ -23,9 +23,6 @@ typedef tardigradeMicromorphicTools::variableType variableType;
 typedef tardigradeMicromorphicTools::variableVector variableVector;
 typedef tardigradeMicromorphicTools::variableMatrix variableMatrix;
 
-typedef tardigradeMicromorphicTools::errorNode errorNode;
-typedef tardigradeMicromorphicTools::errorOut errorOut;
-
 struct cout_redirect{
     cout_redirect( std::streambuf * new_buffer)
         : old( std::cout.rdbuf( new_buffer ) )
@@ -66,9 +63,9 @@ BOOST_AUTO_TEST_CASE( test_computePsi, * boost::unit_test::tolerance( DEFAULT_TE
 
     variableVector result;
 
-    errorOut error = tardigradeMicromorphicTools::computePsi( F, Chi, result );
+    tardigradeMicromorphicTools::computePsi( F, Chi, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
@@ -76,9 +73,9 @@ BOOST_AUTO_TEST_CASE( test_computePsi, * boost::unit_test::tolerance( DEFAULT_TE
     variableVector resultJ;
     variableMatrix dPsidF, dPsidChi;
 
-    error = tardigradeMicromorphicTools::computePsi( F, Chi, resultJ, dPsidF, dPsidChi );
+    tardigradeMicromorphicTools::computePsi( F, Chi, resultJ, dPsidF, dPsidChi );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
@@ -89,9 +86,9 @@ BOOST_AUTO_TEST_CASE( test_computePsi, * boost::unit_test::tolerance( DEFAULT_TE
         constantVector delta( F.size(), 0 );
         delta[i] = eps * fabs( F[i] ) + eps;
 
-        error = tardigradeMicromorphicTools::computePsi( F + delta, Chi, resultJ );
+        tardigradeMicromorphicTools::computePsi( F + delta, Chi, resultJ );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultJ - result ) / delta[i];
 
@@ -107,9 +104,9 @@ BOOST_AUTO_TEST_CASE( test_computePsi, * boost::unit_test::tolerance( DEFAULT_TE
         constantVector delta( Chi.size(), 0 );
         delta[i] = eps * fabs( Chi[i] ) + eps;
 
-        error = tardigradeMicromorphicTools::computePsi( F, Chi + delta, resultJ );
+        tardigradeMicromorphicTools::computePsi( F, Chi + delta, resultJ );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultJ - result ) / delta[i];
 
@@ -136,9 +133,9 @@ BOOST_AUTO_TEST_CASE( test_computeMicroStrain, * boost::unit_test::tolerance( DE
 
     variableVector result;
 
-    errorOut error = tardigradeMicromorphicTools::computeMicroStrain( Psi, result );
+    tardigradeMicromorphicTools::computeMicroStrain( Psi, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
@@ -146,9 +143,9 @@ BOOST_AUTO_TEST_CASE( test_computeMicroStrain, * boost::unit_test::tolerance( DE
     
     variableVector resultJ;
     variableMatrix dMicroStraindPsi;
-    error = tardigradeMicromorphicTools::computeMicroStrain( Psi, resultJ, dMicroStraindPsi );
+    tardigradeMicromorphicTools::computeMicroStrain( Psi, resultJ, dMicroStraindPsi );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
@@ -157,9 +154,9 @@ BOOST_AUTO_TEST_CASE( test_computeMicroStrain, * boost::unit_test::tolerance( DE
         constantVector delta( Psi.size(), 0 );
         delta[i] = eps * fabs( Psi[i] ) + eps;
 
-        error = tardigradeMicromorphicTools::computeMicroStrain( Psi + delta, resultJ );
+        tardigradeMicromorphicTools::computeMicroStrain( Psi + delta, resultJ );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultJ - result ) / delta[i];
 
@@ -192,9 +189,9 @@ BOOST_AUTO_TEST_CASE( test_pushForwardPK2Stress, * boost::unit_test::tolerance( 
 
     variableVector result;
 
-    errorOut error = tardigradeMicromorphicTools::pushForwardPK2Stress( PK2Stress, deformationGradient, result );
+    tardigradeMicromorphicTools::pushForwardPK2Stress( PK2Stress, deformationGradient, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
@@ -202,10 +199,10 @@ BOOST_AUTO_TEST_CASE( test_pushForwardPK2Stress, * boost::unit_test::tolerance( 
     variableVector resultJ;
     variableMatrix dCauchydPK2, dCauchydF;
 
-    error = tardigradeMicromorphicTools::pushForwardPK2Stress( PK2Stress, deformationGradient, resultJ,
+    tardigradeMicromorphicTools::pushForwardPK2Stress( PK2Stress, deformationGradient, resultJ,
                                                      dCauchydPK2, dCauchydF );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
@@ -215,9 +212,9 @@ BOOST_AUTO_TEST_CASE( test_pushForwardPK2Stress, * boost::unit_test::tolerance( 
         constantVector delta( PK2Stress.size(), 0 );
         delta[i] = eps * fabs( PK2Stress[i] ) + eps;
 
-        error = tardigradeMicromorphicTools::pushForwardPK2Stress( PK2Stress + delta, deformationGradient, resultJ );
+        tardigradeMicromorphicTools::pushForwardPK2Stress( PK2Stress + delta, deformationGradient, resultJ );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultJ - result ) / delta[i];
 
@@ -233,13 +230,13 @@ BOOST_AUTO_TEST_CASE( test_pushForwardPK2Stress, * boost::unit_test::tolerance( 
 
         variableVector resultp, resultm;
 
-        error = tardigradeMicromorphicTools::pushForwardPK2Stress( PK2Stress, deformationGradient + delta, resultp );
+        tardigradeMicromorphicTools::pushForwardPK2Stress( PK2Stress, deformationGradient + delta, resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::pushForwardPK2Stress( PK2Stress, deformationGradient - delta, resultm );
+        tardigradeMicromorphicTools::pushForwardPK2Stress( PK2Stress, deformationGradient - delta, resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultp - resultm ) / ( 2 * delta[i] );
 
@@ -270,9 +267,9 @@ BOOST_AUTO_TEST_CASE( test_pushForwardReferenceMicroStress, * boost::unit_test::
 
     variableVector result;
 
-    errorOut error = tardigradeMicromorphicTools::pushForwardReferenceMicroStress( referenceMicroStress, deformationGradient, result );
+    tardigradeMicromorphicTools::pushForwardReferenceMicroStress( referenceMicroStress, deformationGradient, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
@@ -280,10 +277,10 @@ BOOST_AUTO_TEST_CASE( test_pushForwardReferenceMicroStress, * boost::unit_test::
     variableVector resultJ;
     variableMatrix dsdS, dsdF;
 
-    error = tardigradeMicromorphicTools::pushForwardReferenceMicroStress( referenceMicroStress, deformationGradient, resultJ,
+    tardigradeMicromorphicTools::pushForwardReferenceMicroStress( referenceMicroStress, deformationGradient, resultJ,
                                                                 dsdS, dsdF );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
@@ -293,9 +290,9 @@ BOOST_AUTO_TEST_CASE( test_pushForwardReferenceMicroStress, * boost::unit_test::
         constantVector delta( referenceMicroStress.size(), 0 );
         delta[i] = eps * fabs( referenceMicroStress[i] ) + eps;
 
-        error = tardigradeMicromorphicTools::pushForwardReferenceMicroStress( referenceMicroStress + delta, deformationGradient, resultJ );
+        tardigradeMicromorphicTools::pushForwardReferenceMicroStress( referenceMicroStress + delta, deformationGradient, resultJ );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultJ - result ) / delta[i];
 
@@ -312,13 +309,13 @@ BOOST_AUTO_TEST_CASE( test_pushForwardReferenceMicroStress, * boost::unit_test::
 
         variableVector resultp, resultm;
 
-        error = tardigradeMicromorphicTools::pushForwardReferenceMicroStress( referenceMicroStress, deformationGradient + delta, resultp );
+        tardigradeMicromorphicTools::pushForwardReferenceMicroStress( referenceMicroStress, deformationGradient + delta, resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::pushForwardReferenceMicroStress( referenceMicroStress, deformationGradient - delta, resultm );
+        tardigradeMicromorphicTools::pushForwardReferenceMicroStress( referenceMicroStress, deformationGradient - delta, resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultp - resultm ) / ( 2 * delta[i] );
 
@@ -349,9 +346,9 @@ BOOST_AUTO_TEST_CASE( test_computeGamma, * boost::unit_test::tolerance( DEFAULT_
 
     variableVector result;
 
-    errorOut error = tardigradeMicromorphicTools::computeGamma( deformationGradient, gradChi, result );
+    tardigradeMicromorphicTools::computeGamma( deformationGradient, gradChi, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
@@ -359,10 +356,10 @@ BOOST_AUTO_TEST_CASE( test_computeGamma, * boost::unit_test::tolerance( DEFAULT_
     variableVector resultJ;
     variableMatrix dGammadF, dGammadGradChi;
 
-    error = tardigradeMicromorphicTools::computeGamma( deformationGradient, gradChi, resultJ, 
+    tardigradeMicromorphicTools::computeGamma( deformationGradient, gradChi, resultJ, 
                                              dGammadF, dGammadGradChi );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
@@ -374,13 +371,13 @@ BOOST_AUTO_TEST_CASE( test_computeGamma, * boost::unit_test::tolerance( DEFAULT_
 
         variableVector resultp, resultm;
 
-        error = tardigradeMicromorphicTools::computeGamma( deformationGradient + delta, gradChi, resultp );
+        tardigradeMicromorphicTools::computeGamma( deformationGradient + delta, gradChi, resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeGamma( deformationGradient - delta, gradChi, resultm );
+        tardigradeMicromorphicTools::computeGamma( deformationGradient - delta, gradChi, resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultp - resultm ) / ( 2 * delta[i] );
 
@@ -398,13 +395,13 @@ BOOST_AUTO_TEST_CASE( test_computeGamma, * boost::unit_test::tolerance( DEFAULT_
 
         variableVector resultp, resultm;
 
-        error = tardigradeMicromorphicTools::computeGamma( deformationGradient, gradChi + delta, resultp );
+        tardigradeMicromorphicTools::computeGamma( deformationGradient, gradChi + delta, resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeGamma( deformationGradient, gradChi - delta, resultm );
+        tardigradeMicromorphicTools::computeGamma( deformationGradient, gradChi - delta, resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultp - resultm ) / ( 2 * delta[i] );
 
@@ -447,10 +444,10 @@ BOOST_AUTO_TEST_CASE( test_pushForwardHigherOrderStress, * boost::unit_test::tol
 
     variableVector result;
 
-    errorOut error = tardigradeMicromorphicTools::pushForwardHigherOrderStress( referenceHigherOrderStress, deformationGradient,
+    tardigradeMicromorphicTools::pushForwardHigherOrderStress( referenceHigherOrderStress, deformationGradient,
                                                                       microDeformation, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
@@ -460,14 +457,14 @@ BOOST_AUTO_TEST_CASE( test_pushForwardHigherOrderStress, * boost::unit_test::tol
     variableMatrix dHigherOrderStressdDeformationGradient;
     variableMatrix dHigherOrderStressdMicroDeformation;
 
-    error = tardigradeMicromorphicTools::pushForwardHigherOrderStress( referenceHigherOrderStress,
+    tardigradeMicromorphicTools::pushForwardHigherOrderStress( referenceHigherOrderStress,
                                                              deformationGradient, microDeformation,
                                                              resultJ,
                                                              dHigherOrderStressdReferenceHigherOrderStress,
                                                              dHigherOrderStressdDeformationGradient,
                                                              dHigherOrderStressdMicroDeformation );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
@@ -479,17 +476,17 @@ BOOST_AUTO_TEST_CASE( test_pushForwardHigherOrderStress, * boost::unit_test::tol
 
         variableVector resultp, resultm;
 
-        error = tardigradeMicromorphicTools::pushForwardHigherOrderStress( referenceHigherOrderStress + delta,
+        tardigradeMicromorphicTools::pushForwardHigherOrderStress( referenceHigherOrderStress + delta,
                                                                  deformationGradient, microDeformation,
                                                                  resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::pushForwardHigherOrderStress( referenceHigherOrderStress - delta,
+        tardigradeMicromorphicTools::pushForwardHigherOrderStress( referenceHigherOrderStress - delta,
                                                                  deformationGradient, microDeformation,
                                                                  resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultp - resultm ) / ( 2 * delta[i] );
 
@@ -508,17 +505,17 @@ BOOST_AUTO_TEST_CASE( test_pushForwardHigherOrderStress, * boost::unit_test::tol
 
         variableVector resultp, resultm;
 
-        error = tardigradeMicromorphicTools::pushForwardHigherOrderStress( referenceHigherOrderStress,
+        tardigradeMicromorphicTools::pushForwardHigherOrderStress( referenceHigherOrderStress,
                                                                  deformationGradient + delta, microDeformation,
                                                                  resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::pushForwardHigherOrderStress( referenceHigherOrderStress,
+        tardigradeMicromorphicTools::pushForwardHigherOrderStress( referenceHigherOrderStress,
                                                                  deformationGradient - delta, microDeformation,
                                                                  resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultp - resultm ) / ( 2 * delta[i] );
 
@@ -537,17 +534,17 @@ BOOST_AUTO_TEST_CASE( test_pushForwardHigherOrderStress, * boost::unit_test::tol
 
         variableVector resultp, resultm;
 
-        error = tardigradeMicromorphicTools::pushForwardHigherOrderStress( referenceHigherOrderStress,
+        tardigradeMicromorphicTools::pushForwardHigherOrderStress( referenceHigherOrderStress,
                                                                  deformationGradient, microDeformation + delta,
                                                                  resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::pushForwardHigherOrderStress( referenceHigherOrderStress,
+        tardigradeMicromorphicTools::pushForwardHigherOrderStress( referenceHigherOrderStress,
                                                                  deformationGradient, microDeformation - delta,
                                                                  resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultp - resultm ) / ( 2 * delta[ i ] );
 
@@ -580,9 +577,9 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricHigherOrderStress, * boost::unit_tes
 
     variableVector result;
 
-    errorOut error = tardigradeMicromorphicTools::computeDeviatoricHigherOrderStress( higherOrderStress, result );
+    tardigradeMicromorphicTools::computeDeviatoricHigherOrderStress( higherOrderStress, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
@@ -591,10 +588,10 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricHigherOrderStress, * boost::unit_tes
     variableVector resultJ;
     variableMatrix dDeviatoricHigherOrderStressdHigherOrderStress;
 
-    error = tardigradeMicromorphicTools::computeDeviatoricHigherOrderStress( higherOrderStress, resultJ,
+    tardigradeMicromorphicTools::computeDeviatoricHigherOrderStress( higherOrderStress, resultJ,
                                                                    dDeviatoricHigherOrderStressdHigherOrderStress );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
@@ -605,13 +602,13 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricHigherOrderStress, * boost::unit_tes
 
         variableVector resultp, resultm;
 
-        error = tardigradeMicromorphicTools::computeDeviatoricHigherOrderStress( higherOrderStress + delta, resultp );
+        tardigradeMicromorphicTools::computeDeviatoricHigherOrderStress( higherOrderStress + delta, resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeDeviatoricHigherOrderStress( higherOrderStress - delta, resultm );
+        tardigradeMicromorphicTools::computeDeviatoricHigherOrderStress( higherOrderStress - delta, resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultp - resultm ) / ( 2 * delta[ i ] );
 
@@ -659,53 +656,53 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceHigherOrderStress, * boost:
 
     variableVector result;
 
-    errorOut error = tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C, result );
+    tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
-    error = tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C, pressure, result );
+    tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C, pressure, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
     variableVector resultJ;
     variableMatrix dDevMdM, dDevMdC;
 
-    error = tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C, resultJ, dDevMdM, dDevMdC );
+    tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C, resultJ, dDevMdM, dDevMdC );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
     variableVector resultJP;
     variableVector _dDevMdMP, _dDevMdCP;
 
-    error = tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C, pressure, tardigradeVectorTools::appendVectors( dpdM ),
+    tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C, pressure, tardigradeVectorTools::appendVectors( dpdM ),
                                                                                       tardigradeVectorTools::appendVectors( dpdC ), resultJP, _dDevMdMP, _dDevMdCP );
 
     variableMatrix dDevMdMP = tardigradeVectorTools::inflate( _dDevMdMP, 27, 27 );
     variableMatrix dDevMdCP = tardigradeVectorTools::inflate( _dDevMdCP, 27,  9 );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultJP == answer, CHECK_PER_ELEMENT );
 
     variableVector resultJ2;
     variableMatrix dDevMdMJ2, dDevMdCJ2, d2DevMdMdC;
 
-    error = tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C, resultJ2, dDevMdMJ2, dDevMdCJ2, d2DevMdMdC );
+    tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C, resultJ2, dDevMdMJ2, dDevMdCJ2, d2DevMdMdC );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
     variableVector resultJ2P;
     variableVector _dDevMdMJ2P, _dDevMdCJ2P, _d2DevMdMdCP;
 
-    error = tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C, pressure, tardigradeVectorTools::appendVectors( dpdM ),
+    tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C, pressure, tardigradeVectorTools::appendVectors( dpdM ),
                                                                                       tardigradeVectorTools::appendVectors( dpdC ),
                                                                                       tardigradeVectorTools::appendVectors( d2pdMdC ),
                                                                                       resultJ2P, _dDevMdMJ2P, _dDevMdCJ2P, _d2DevMdMdCP );
@@ -714,7 +711,7 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceHigherOrderStress, * boost:
     variableMatrix dDevMdCJ2P  = tardigradeVectorTools::inflate( _dDevMdCJ2P,  27,   9 );
     variableMatrix d2DevMdMdCP = tardigradeVectorTools::inflate( _d2DevMdMdCP, 27, 243 );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultJ2P == answer, CHECK_PER_ELEMENT );
 
@@ -726,13 +723,13 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceHigherOrderStress, * boost:
 
         variableVector resultp, resultm;
 
-        error = tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M + delta, C, resultp );
+        tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M + delta, C, resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M - delta, C, resultm );
+        tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M - delta, C, resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultp - resultm ) / ( 2 * delta[i] );
 
@@ -769,13 +766,13 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceHigherOrderStress, * boost:
 
         variableVector resultp, resultm;
 
-        error = tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C + delta, resultp );
+        tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C + delta, resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C - delta, resultm );
+        tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C - delta, resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultp - resultm ) / ( 2 * delta[ i ] );
 
@@ -812,13 +809,13 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceHigherOrderStress, * boost:
 
         variableMatrix resultp, resultm;
 
-        error = tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C + delta, resultJ2, resultp, dDevMdCJ2 );
+        tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C + delta, resultJ2, resultp, dDevMdCJ2 );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C - delta, resultJ2, resultm, dDevMdCJ2 );
+        tardigradeMicromorphicTools::computeDeviatoricReferenceHigherOrderStress( M, C - delta, resultJ2, resultm, dDevMdCJ2 );
 
-        BOOST_CHECK( !error );
+        
 
         constantMatrix gradCol = ( resultp - resultm ) / ( 2 * delta[i] );
 
@@ -857,18 +854,18 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricSecondOrderStress, * boost::unit_tes
 
     variableVector result;
 
-    errorOut error = tardigradeMicromorphicTools::computeDeviatoricSecondOrderStress( stress, result );
+    tardigradeMicromorphicTools::computeDeviatoricSecondOrderStress( stress, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
     variableVector resultJ;
     variableMatrix jacobian;
 
-    error = tardigradeMicromorphicTools::computeDeviatoricSecondOrderStress( stress, resultJ, jacobian );
+    tardigradeMicromorphicTools::computeDeviatoricSecondOrderStress( stress, resultJ, jacobian );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( answer == resultJ, CHECK_PER_ELEMENT );
 
@@ -879,13 +876,13 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricSecondOrderStress, * boost::unit_tes
 
         variableVector resultp, resultm;
 
-        error = tardigradeMicromorphicTools::computeDeviatoricSecondOrderStress( stress + delta, resultp );
+        tardigradeMicromorphicTools::computeDeviatoricSecondOrderStress( stress + delta, resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeDeviatoricSecondOrderStress( stress - delta, resultm );
+        tardigradeMicromorphicTools::computeDeviatoricSecondOrderStress( stress - delta, resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultp - resultm ) / ( 2 * delta[ i ] );
 
@@ -921,9 +918,9 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceSecondOrderStressPressure, * boost::u
 
     variableType result;
 
-    errorOut error = tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S, C, result );
+    tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S, C, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( answer == result );
 
@@ -932,9 +929,9 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceSecondOrderStressPressure, * boost::u
     variableType resultJ;
     variableVector dpdS, dpdC;
 
-    error = tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S, C, resultJ, dpdS, dpdC );
+    tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S, C, resultJ, dpdS, dpdC );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultJ == answer );
 
@@ -942,9 +939,9 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceSecondOrderStressPressure, * boost::u
     variableVector dpdSJ2, dpdCJ2;
     variableMatrix d2pdSdC;
 
-    error = tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S, C, resultJ2, dpdSJ2, dpdCJ2, d2pdSdC );
+    tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S, C, resultJ2, dpdSJ2, dpdCJ2, d2pdSdC );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultJ2 == answer );
 
@@ -956,13 +953,13 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceSecondOrderStressPressure, * boost::u
 
         variableType resultp, resultm;
 
-        error = tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S + delta, C, resultp );
+        tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S + delta, C, resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S - delta, C, resultm );
+        tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S - delta, C, resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantType gradCol = ( resultp - resultm ) / ( 2 * delta[i] );
 
@@ -979,13 +976,13 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceSecondOrderStressPressure, * boost::u
 
         variableType resultp, resultm;
 
-        error = tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S, C + delta, resultp );
+        tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S, C + delta, resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S, C - delta, resultm );
+        tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S, C - delta, resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantType gradCol = ( resultp - resultm ) / ( 2 * delta[ i ] );
 
@@ -1002,13 +999,13 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceSecondOrderStressPressure, * boost::u
 
         variableVector resultp, resultm;
 
-        error = tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S, C + delta, resultJ, resultp, dpdCJ2 );
+        tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S, C + delta, resultJ, resultp, dpdCJ2 );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S, C - delta, resultJ, resultm, dpdCJ2 );
+        tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S, C - delta, resultJ, resultm, dpdCJ2 );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultp - resultm ) / ( 2 * delta[ i ] );
 
@@ -1047,21 +1044,21 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceSecondOrderStress, * boost:
     variableVector dpdS, dpdC;
     variableMatrix d2pdSdC;
 
-    errorOut error = tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S, C, pressure, dpdS, dpdC, d2pdSdC );
+    tardigradeMicromorphicTools::computeReferenceSecondOrderStressPressure( S, C, pressure, dpdS, dpdC, d2pdSdC );
 
-    BOOST_CHECK( !error );
+    
 
     variableVector result;
 
-    error = tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C, result );
+    tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
-    error = tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C, pressure, result );
+    tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C, pressure, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
@@ -1069,45 +1066,45 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceSecondOrderStress, * boost:
     variableVector resultJ;
     variableMatrix dDevSdS, dDevSdC;
 
-    error = tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C, resultJ, dDevSdS, dDevSdC );
+    tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C, resultJ, dDevSdS, dDevSdC );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
     variableVector resultJP;
     variableVector _dDevSdSJP, _dDevSdCJP;
 
-    error = tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C, pressure, dpdS, dpdC, 
+    tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C, pressure, dpdS, dpdC, 
                                                                             resultJP, _dDevSdSJP, _dDevSdCJP );
 
     variableMatrix dDevSdSJP = tardigradeVectorTools::inflate( _dDevSdSJP, 9, 9 );
     variableMatrix dDevSdCJP = tardigradeVectorTools::inflate( _dDevSdCJP, 9, 9 );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultJP == answer, CHECK_PER_ELEMENT );
 
     variableVector resultJ2;
     variableMatrix dDevSdSJ2, dDevSdCJ2, d2DevSdSdC;
 
-    error = tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C, resultJ2, dDevSdSJ2, dDevSdCJ2, d2DevSdSdC );
+    tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C, resultJ2, dDevSdSJ2, dDevSdCJ2, d2DevSdSdC );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultJ2 == answer, CHECK_PER_ELEMENT );
 
     variableVector resultJ2P;
     variableVector _dDevSdSJ2P, _dDevSdCJ2P, _d2DevSdSdCP;
 
-    error = tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C, pressure, dpdS, dpdC, tardigradeVectorTools::appendVectors( d2pdSdC ),
+    tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C, pressure, dpdS, dpdC, tardigradeVectorTools::appendVectors( d2pdSdC ),
                                                                             resultJ2P, _dDevSdSJ2P, _dDevSdCJ2P, _d2DevSdSdCP );
 
     variableMatrix dDevSdSJ2P  = tardigradeVectorTools::inflate( _dDevSdSJ2P, 9,   9 );
     variableMatrix dDevSdCJ2P  = tardigradeVectorTools::inflate( _dDevSdCJ2P, 9,   9 );
     variableMatrix d2DevSdSdCP = tardigradeVectorTools::inflate( _d2DevSdSdCP, 9, 81 );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultJ2P == answer, CHECK_PER_ELEMENT );
 
@@ -1119,13 +1116,13 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceSecondOrderStress, * boost:
 
         variableVector resultp, resultm;
 
-        error = tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S + delta, C, resultp );
+        tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S + delta, C, resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S - delta, C, resultm );
+        tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S - delta, C, resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultp - resultm ) / ( 2 * delta[i] );
 
@@ -1162,13 +1159,13 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceSecondOrderStress, * boost:
 
         variableVector resultp, resultm;
 
-        error = tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C + delta, resultp );
+        tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C + delta, resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C - delta, resultm );
+        tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C - delta, resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultp - resultm ) / ( 2 * delta[ i ] );
 
@@ -1205,13 +1202,13 @@ BOOST_AUTO_TEST_CASE( test_computeDeviatoricReferenceSecondOrderStress, * boost:
 
         variableMatrix resultp, resultm;
 
-        error = tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C + delta, resultJ, resultp, dDevSdCJ2 );
+        tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C + delta, resultJ, resultp, dDevSdCJ2 );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C - delta, resultJ, resultm, dDevSdCJ2 );
+        tardigradeMicromorphicTools::computeDeviatoricReferenceSecondOrderStress( S, C - delta, resultJ, resultm, dDevSdCJ2 );
 
-        BOOST_CHECK( !error );
+        
 
         constantMatrix gradCol = ( resultp - resultm ) / ( 2 * delta[i] );
 
@@ -1263,9 +1260,9 @@ BOOST_AUTO_TEST_CASE( test_computeSecondOrderReferenceStressDecomposition, * boo
     variableType pressureResult;
     variableVector deviatoricResult;
 
-    errorOut error = tardigradeMicromorphicTools::computeSecondOrderReferenceStressDecomposition( S, C, deviatoricResult, pressureResult );
+    tardigradeMicromorphicTools::computeSecondOrderReferenceStressDecomposition( S, C, deviatoricResult, pressureResult );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( pressureResult == pressureAnswer );
 
@@ -1278,11 +1275,11 @@ BOOST_AUTO_TEST_CASE( test_computeSecondOrderReferenceStressDecomposition, * boo
     variableVector dPressuredStress, dPressuredRCG;
     variableMatrix dDevStressdStress, dDevStressdRCG;
 
-    error = tardigradeMicromorphicTools::computeSecondOrderReferenceStressDecomposition( S, C, deviatoricResultJ, pressureResultJ,
+    tardigradeMicromorphicTools::computeSecondOrderReferenceStressDecomposition( S, C, deviatoricResultJ, pressureResultJ,
                                                                                dDevStressdStress, dDevStressdRCG,
                                                                                dPressuredStress, dPressuredRCG );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( pressureResultJ == pressureAnswer );
 
@@ -1296,12 +1293,12 @@ BOOST_AUTO_TEST_CASE( test_computeSecondOrderReferenceStressDecomposition, * boo
 
     variableMatrix d2DevStressdStressdRCGJ2, d2PressuredStressdRCGJ2;
 
-    error = tardigradeMicromorphicTools::computeSecondOrderReferenceStressDecomposition( S, C, deviatoricResultJ2, pressureResultJ2,
+    tardigradeMicromorphicTools::computeSecondOrderReferenceStressDecomposition( S, C, deviatoricResultJ2, pressureResultJ2,
                                                                                dDevStressdStressJ2, dDevStressdRCGJ2,
                                                                                dPressuredStressJ2, dPressuredRCGJ2,
                                                                                d2DevStressdStressdRCGJ2, d2PressuredStressdRCGJ2 );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( pressureResultJ2 == pressureAnswer );
 
@@ -1316,13 +1313,13 @@ BOOST_AUTO_TEST_CASE( test_computeSecondOrderReferenceStressDecomposition, * boo
         variableVector vec_resultp, vec_resultm;
         variableType   sca_resultp, sca_resultm;
 
-        error = tardigradeMicromorphicTools::computeSecondOrderReferenceStressDecomposition( S + delta, C, vec_resultp, sca_resultp );
+        tardigradeMicromorphicTools::computeSecondOrderReferenceStressDecomposition( S + delta, C, vec_resultp, sca_resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeSecondOrderReferenceStressDecomposition( S - delta, C, vec_resultm, sca_resultm );
+        tardigradeMicromorphicTools::computeSecondOrderReferenceStressDecomposition( S - delta, C, vec_resultm, sca_resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( vec_resultp - vec_resultm ) / ( 2 * delta[ i ] );
 
@@ -1352,13 +1349,13 @@ BOOST_AUTO_TEST_CASE( test_computeSecondOrderReferenceStressDecomposition, * boo
         variableVector vec_resultp, vec_resultm;
         variableType   sca_resultp, sca_resultm;
 
-        error = tardigradeMicromorphicTools::computeSecondOrderReferenceStressDecomposition( S, C + delta, vec_resultp, sca_resultp );
+        tardigradeMicromorphicTools::computeSecondOrderReferenceStressDecomposition( S, C + delta, vec_resultp, sca_resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeSecondOrderReferenceStressDecomposition( S, C - delta, vec_resultm, sca_resultm );
+        tardigradeMicromorphicTools::computeSecondOrderReferenceStressDecomposition( S, C - delta, vec_resultm, sca_resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( vec_resultp - vec_resultm ) / ( 2 * delta[ i ] );
 
@@ -1378,17 +1375,17 @@ BOOST_AUTO_TEST_CASE( test_computeSecondOrderReferenceStressDecomposition, * boo
 
         variableMatrix mat_resultp, mat_resultm;
 
-        error = tardigradeMicromorphicTools::computeSecondOrderReferenceStressDecomposition( S, C + delta, deviatoricResultJ, pressureResultJ,
+        tardigradeMicromorphicTools::computeSecondOrderReferenceStressDecomposition( S, C + delta, deviatoricResultJ, pressureResultJ,
                                                                                    mat_resultp, dDevStressdRCGP, 
                                                                                    vec_resultp, dPressuredRCGP );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeSecondOrderReferenceStressDecomposition( S, C - delta, deviatoricResultJ, pressureResultJ,
+        tardigradeMicromorphicTools::computeSecondOrderReferenceStressDecomposition( S, C - delta, deviatoricResultJ, pressureResultJ,
                                                                                    mat_resultm, dDevStressdRCGP, 
                                                                                    vec_resultm, dPressuredRCGP );
 
-        BOOST_CHECK( !error );
+        
 
         constantMatrix gradMat = ( mat_resultp - mat_resultm ) / ( 2 * delta[ i ] );
 
@@ -1437,9 +1434,9 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceHigherOrderStressPressure, * boost::u
 
     variableVector result;
 
-    errorOut error = tardigradeMicromorphicTools::computeReferenceHigherOrderStressPressure( M, C, result );
+    tardigradeMicromorphicTools::computeReferenceHigherOrderStressPressure( M, C, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
@@ -1447,17 +1444,17 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceHigherOrderStressPressure, * boost::u
     
     variableVector resultJ;
     variableMatrix dpdM, dpdC;
-    error = tardigradeMicromorphicTools::computeReferenceHigherOrderStressPressure( M, C, resultJ, dpdM, dpdC );
+    tardigradeMicromorphicTools::computeReferenceHigherOrderStressPressure( M, C, resultJ, dpdM, dpdC );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( answer == resultJ, CHECK_PER_ELEMENT );
 
     variableVector resultJ2;
     variableMatrix dpdMJ2, dpdCJ2, d2pdMdC;
-    error = tardigradeMicromorphicTools::computeReferenceHigherOrderStressPressure( M, C, resultJ2, dpdMJ2, dpdCJ2, d2pdMdC );
+    tardigradeMicromorphicTools::computeReferenceHigherOrderStressPressure( M, C, resultJ2, dpdMJ2, dpdCJ2, d2pdMdC );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( answer == resultJ2, CHECK_PER_ELEMENT );
 
@@ -1469,13 +1466,13 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceHigherOrderStressPressure, * boost::u
 
         variableVector resultp, resultm;
 
-        error = tardigradeMicromorphicTools::computeReferenceHigherOrderStressPressure( M + delta, C, resultp );
+        tardigradeMicromorphicTools::computeReferenceHigherOrderStressPressure( M + delta, C, resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeReferenceHigherOrderStressPressure( M - delta, C, resultm );
+        tardigradeMicromorphicTools::computeReferenceHigherOrderStressPressure( M - delta, C, resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultp - resultm ) / ( 2 * delta[ i ] );
 
@@ -1500,13 +1497,13 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceHigherOrderStressPressure, * boost::u
 
         variableVector resultp, resultm;
 
-        error = tardigradeMicromorphicTools::computeReferenceHigherOrderStressPressure( M, C + delta, resultp );
+        tardigradeMicromorphicTools::computeReferenceHigherOrderStressPressure( M, C + delta, resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeReferenceHigherOrderStressPressure( M, C - delta, resultm );
+        tardigradeMicromorphicTools::computeReferenceHigherOrderStressPressure( M, C - delta, resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( resultp - resultm ) / ( 2 * delta[ i ] );
 
@@ -1531,13 +1528,13 @@ BOOST_AUTO_TEST_CASE( test_computeReferenceHigherOrderStressPressure, * boost::u
 
         variableMatrix resultp, resultm;
 
-        error = tardigradeMicromorphicTools::computeReferenceHigherOrderStressPressure( M, C + delta, resultJ, resultp, dpdCJ2 );
+        tardigradeMicromorphicTools::computeReferenceHigherOrderStressPressure( M, C + delta, resultJ, resultp, dpdCJ2 );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeReferenceHigherOrderStressPressure( M, C - delta, resultJ, resultm, dpdCJ2 );
+        tardigradeMicromorphicTools::computeReferenceHigherOrderStressPressure( M, C - delta, resultJ, resultm, dpdCJ2 );
 
-        BOOST_CHECK( !error );
+        
 
         constantMatrix gradCol = ( resultp - resultm ) / ( 2 * delta[ i ] );
 
@@ -1586,9 +1583,9 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderReferenceStressDecomposition, * boo
     variableVector pressureAnswer = { 0.56778037,  0.11342234, -0.43082224 };
 
     variableVector deviatoricResult, pressureResult;
-    errorOut error = tardigradeMicromorphicTools::computeHigherOrderReferenceStressDecomposition( M, C, deviatoricResult, pressureResult );
+    tardigradeMicromorphicTools::computeHigherOrderReferenceStressDecomposition( M, C, deviatoricResult, pressureResult );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( deviatoricResult == deviatoricAnswer, CHECK_PER_ELEMENT );
 
@@ -1601,11 +1598,11 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderReferenceStressDecomposition, * boo
     variableMatrix dPressuredStress, dPressuredRCG;
     variableMatrix dDevStressdStress, dDevStressdRCG;
 
-    error = tardigradeMicromorphicTools::computeHigherOrderReferenceStressDecomposition( M, C, deviatoricResultJ, pressureResultJ,
+    tardigradeMicromorphicTools::computeHigherOrderReferenceStressDecomposition( M, C, deviatoricResultJ, pressureResultJ,
                                                                                dDevStressdStress, dDevStressdRCG,
                                                                                dPressuredStress, dPressuredRCG );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( pressureResultJ == pressureAnswer, CHECK_PER_ELEMENT );
 
@@ -1619,12 +1616,12 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderReferenceStressDecomposition, * boo
 
     variableMatrix d2DevStressdStressdRCGJ2, d2PressuredStressdRCGJ2;
 
-    error = tardigradeMicromorphicTools::computeHigherOrderReferenceStressDecomposition( M, C, deviatoricResultJ2, pressureResultJ2,
+    tardigradeMicromorphicTools::computeHigherOrderReferenceStressDecomposition( M, C, deviatoricResultJ2, pressureResultJ2,
                                                                                dDevStressdStressJ2, dDevStressdRCGJ2,
                                                                                dPressuredStressJ2, dPressuredRCGJ2,
                                                                                d2DevStressdStressdRCGJ2, d2PressuredStressdRCGJ2 );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( pressureResultJ2 == pressureAnswer, CHECK_PER_ELEMENT );
 
@@ -1639,13 +1636,13 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderReferenceStressDecomposition, * boo
         variableVector dev_resultp, dev_resultm;
         variableVector pre_resultp, pre_resultm;
 
-        error = tardigradeMicromorphicTools::computeHigherOrderReferenceStressDecomposition( M + delta, C, dev_resultp, pre_resultp );
+        tardigradeMicromorphicTools::computeHigherOrderReferenceStressDecomposition( M + delta, C, dev_resultp, pre_resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeHigherOrderReferenceStressDecomposition( M - delta, C, dev_resultm, pre_resultm );
+        tardigradeMicromorphicTools::computeHigherOrderReferenceStressDecomposition( M - delta, C, dev_resultm, pre_resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( dev_resultp - dev_resultm ) / ( 2 * delta[ i ] );
 
@@ -1679,13 +1676,13 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderReferenceStressDecomposition, * boo
         variableVector dev_resultp, pre_resultp;
         variableVector dev_resultm, pre_resultm;
 
-        error = tardigradeMicromorphicTools::computeHigherOrderReferenceStressDecomposition( M, C + delta, dev_resultp, pre_resultp );
+        tardigradeMicromorphicTools::computeHigherOrderReferenceStressDecomposition( M, C + delta, dev_resultp, pre_resultp );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeHigherOrderReferenceStressDecomposition( M, C - delta, dev_resultm, pre_resultm );
+        tardigradeMicromorphicTools::computeHigherOrderReferenceStressDecomposition( M, C - delta, dev_resultm, pre_resultm );
 
-        BOOST_CHECK( !error );
+        
 
         constantVector gradCol = ( dev_resultp - dev_resultm ) / ( 2 * delta[ i ] );
 
@@ -1710,17 +1707,17 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderReferenceStressDecomposition, * boo
         variableMatrix dev_mat_resultp, pre_mat_resultp;
         variableMatrix dev_mat_resultm, pre_mat_resultm;
 
-        error = tardigradeMicromorphicTools::computeHigherOrderReferenceStressDecomposition( M, C + delta, deviatoricResultJ, pressureResultJ,
+        tardigradeMicromorphicTools::computeHigherOrderReferenceStressDecomposition( M, C + delta, deviatoricResultJ, pressureResultJ,
                                                                                    dev_mat_resultp, dDevStressdRCGP, 
                                                                                    pre_mat_resultp, dPressuredRCGP );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeHigherOrderReferenceStressDecomposition( M, C - delta, deviatoricResultJ, pressureResultJ,
+        tardigradeMicromorphicTools::computeHigherOrderReferenceStressDecomposition( M, C - delta, deviatoricResultJ, pressureResultJ,
                                                                                    dev_mat_resultm, dDevStressdRCGP, 
                                                                                    pre_mat_resultm, dPressuredRCGP );
 
-        BOOST_CHECK( !error );
+        
 
         constantMatrix gradMat = ( dev_mat_resultp - dev_mat_resultm ) / ( 2 * delta[ i ] );
 
@@ -1773,9 +1770,9 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderStressNorm, * boost::unit_test::tol
 
     variableVector result;
 
-    errorOut error = tardigradeMicromorphicTools::computeHigherOrderStressNorm( M, result );
+    tardigradeMicromorphicTools::computeHigherOrderStressNorm( M, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
@@ -1783,18 +1780,18 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderStressNorm, * boost::unit_test::tol
     variableVector resultJ;
     variableMatrix dNormMdMJ;
 
-    error = tardigradeMicromorphicTools::computeHigherOrderStressNorm( M, resultJ, dNormMdMJ );
+    tardigradeMicromorphicTools::computeHigherOrderStressNorm( M, resultJ, dNormMdMJ );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( answer == resultJ, CHECK_PER_ELEMENT );
 
     variableVector resultJ2;
     variableMatrix dNormMdMJ2, d2NormMdM2J2;
 
-    error = tardigradeMicromorphicTools::computeHigherOrderStressNorm( M, resultJ2, dNormMdMJ2, d2NormMdM2J2 );
+    tardigradeMicromorphicTools::computeHigherOrderStressNorm( M, resultJ2, dNormMdMJ2, d2NormMdM2J2 );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( answer == resultJ2, CHECK_PER_ELEMENT );
 
@@ -1806,13 +1803,13 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderStressNorm, * boost::unit_test::tol
 
         variableVector resultP, resultM;
 
-        error = tardigradeMicromorphicTools::computeHigherOrderStressNorm( M + delta, resultP );
+        tardigradeMicromorphicTools::computeHigherOrderStressNorm( M + delta, resultP );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeHigherOrderStressNorm( M - delta, resultM );
+        tardigradeMicromorphicTools::computeHigherOrderStressNorm( M - delta, resultM );
 
-        BOOST_CHECK( !error );
+        
 
         variableVector gradCol = ( resultP - resultM ) / ( 2 * delta[i] );
 
@@ -1826,13 +1823,13 @@ BOOST_AUTO_TEST_CASE( test_computeHigherOrderStressNorm, * boost::unit_test::tol
 
         variableMatrix derP, derM;
 
-        error = tardigradeMicromorphicTools::computeHigherOrderStressNorm( M + delta, resultP, derP );
+        tardigradeMicromorphicTools::computeHigherOrderStressNorm( M + delta, resultP, derP );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::computeHigherOrderStressNorm( M - delta, resultM, derM );
+        tardigradeMicromorphicTools::computeHigherOrderStressNorm( M - delta, resultM, derM );
 
-        BOOST_CHECK( !error );
+        
 
         variableMatrix gradMat = ( derP - derM ) / ( 2 * delta[i] );
 
@@ -1870,18 +1867,18 @@ BOOST_AUTO_TEST_CASE( test_assembleDeformationGradient, * boost::unit_test::tole
 
     variableVector result;
 
-    errorOut error = tardigradeMicromorphicTools::assembleDeformationGradient( displacementGradient, result );
+    tardigradeMicromorphicTools::assembleDeformationGradient( displacementGradient, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
     //Tests of the Jacobians
     variableVector resultJ;
     variableVector dFdGradU;
-    error = tardigradeMicromorphicTools::assembleDeformationGradient( displacementGradient, resultJ, dFdGradU );
+    tardigradeMicromorphicTools::assembleDeformationGradient( displacementGradient, resultJ, dFdGradU );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( answer == resultJ, CHECK_PER_ELEMENT );
 
@@ -1893,13 +1890,13 @@ BOOST_AUTO_TEST_CASE( test_assembleDeformationGradient, * boost::unit_test::tole
 
         variableVector P, M;
 
-        error = tardigradeMicromorphicTools::assembleDeformationGradient( displacementGradient + delta, P );
+        tardigradeMicromorphicTools::assembleDeformationGradient( displacementGradient + delta, P );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::assembleDeformationGradient( displacementGradient - delta, M );
+        tardigradeMicromorphicTools::assembleDeformationGradient( displacementGradient - delta, M );
 
-        BOOST_CHECK( !error );
+        
 
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
@@ -1925,9 +1922,9 @@ BOOST_AUTO_TEST_CASE( test_assembleMicroDeformation, * boost::unit_test::toleran
 
     variableVector result;
 
-    errorOut error = tardigradeMicromorphicTools::assembleMicroDeformation( microDisplacement, result );
+    tardigradeMicromorphicTools::assembleMicroDeformation( microDisplacement, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
@@ -1935,9 +1932,9 @@ BOOST_AUTO_TEST_CASE( test_assembleMicroDeformation, * boost::unit_test::toleran
     variableVector resultJ;
     variableVector dChidPhi;
 
-    error = tardigradeMicromorphicTools::assembleMicroDeformation( microDisplacement, resultJ, dChidPhi );
+    tardigradeMicromorphicTools::assembleMicroDeformation( microDisplacement, resultJ, dChidPhi );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( answer == resultJ, CHECK_PER_ELEMENT );
 
@@ -1949,13 +1946,13 @@ BOOST_AUTO_TEST_CASE( test_assembleMicroDeformation, * boost::unit_test::toleran
 
         variableVector P, M;
 
-        error = tardigradeMicromorphicTools::assembleMicroDeformation( microDisplacement + delta, P );
+        tardigradeMicromorphicTools::assembleMicroDeformation( microDisplacement + delta, P );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::assembleMicroDeformation( microDisplacement - delta, M );
+        tardigradeMicromorphicTools::assembleMicroDeformation( microDisplacement - delta, M );
 
-        BOOST_CHECK( !error );
+        
 
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
@@ -1991,9 +1988,9 @@ BOOST_AUTO_TEST_CASE( test_assembleGradientMicroDeformation, * boost::unit_test:
 
     variableVector result;
 
-    errorOut error = tardigradeMicromorphicTools::assembleGradientMicroDeformation( gradientMicroDisplacement, result );
+    tardigradeMicromorphicTools::assembleGradientMicroDeformation( gradientMicroDisplacement, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
@@ -2001,9 +1998,9 @@ BOOST_AUTO_TEST_CASE( test_assembleGradientMicroDeformation, * boost::unit_test:
     variableVector resultJ;
     variableVector dGradChidGradPhi;
 
-    error = tardigradeMicromorphicTools::assembleGradientMicroDeformation( gradientMicroDisplacement, resultJ, dGradChidGradPhi );
+    tardigradeMicromorphicTools::assembleGradientMicroDeformation( gradientMicroDisplacement, resultJ, dGradChidGradPhi );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( answer == resultJ, CHECK_PER_ELEMENT );
 
@@ -2015,13 +2012,13 @@ BOOST_AUTO_TEST_CASE( test_assembleGradientMicroDeformation, * boost::unit_test:
 
         variableVector P, M;
 
-        error = tardigradeMicromorphicTools::assembleGradientMicroDeformation( gradientMicroDisplacement + delta, P );
+        tardigradeMicromorphicTools::assembleGradientMicroDeformation( gradientMicroDisplacement + delta, P );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::assembleGradientMicroDeformation( gradientMicroDisplacement - delta, M );
+        tardigradeMicromorphicTools::assembleGradientMicroDeformation( gradientMicroDisplacement - delta, M );
 
-        BOOST_CHECK( !error );
+        
 
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
@@ -2052,15 +2049,15 @@ BOOST_AUTO_TEST_CASE( test_pullBackCauchyStress, * boost::unit_test::tolerance( 
 
     variableVector result, resultPF;
 
-    errorOut error = tardigradeMicromorphicTools::pullBackCauchyStress( cauchyStress, deformationGradient, result );
+    tardigradeMicromorphicTools::pullBackCauchyStress( cauchyStress, deformationGradient, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
-    error = tardigradeMicromorphicTools::pushForwardPK2Stress( result, deformationGradient, resultPF );
+    tardigradeMicromorphicTools::pushForwardPK2Stress( result, deformationGradient, resultPF );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultPF == cauchyStress, CHECK_PER_ELEMENT );
 
@@ -2068,9 +2065,9 @@ BOOST_AUTO_TEST_CASE( test_pullBackCauchyStress, * boost::unit_test::tolerance( 
     variableVector resultJ;
     variableMatrix dPK2dCauchy, dPK2dF;
 
-    error = tardigradeMicromorphicTools::pullBackCauchyStress( cauchyStress, deformationGradient, resultJ, dPK2dCauchy, dPK2dF );
+    tardigradeMicromorphicTools::pullBackCauchyStress( cauchyStress, deformationGradient, resultJ, dPK2dCauchy, dPK2dF );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
@@ -2082,13 +2079,13 @@ BOOST_AUTO_TEST_CASE( test_pullBackCauchyStress, * boost::unit_test::tolerance( 
 
         variableVector P, M;
 
-        error = tardigradeMicromorphicTools::pullBackCauchyStress( cauchyStress + delta, deformationGradient, P );
+        tardigradeMicromorphicTools::pullBackCauchyStress( cauchyStress + delta, deformationGradient, P );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::pullBackCauchyStress( cauchyStress - delta, deformationGradient, M );
+        tardigradeMicromorphicTools::pullBackCauchyStress( cauchyStress - delta, deformationGradient, M );
 
-        BOOST_CHECK( !error );
+        
 
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
@@ -2104,13 +2101,13 @@ BOOST_AUTO_TEST_CASE( test_pullBackCauchyStress, * boost::unit_test::tolerance( 
 
         variableVector P, M;
 
-        error = tardigradeMicromorphicTools::pullBackCauchyStress( cauchyStress, deformationGradient + delta, P );
+        tardigradeMicromorphicTools::pullBackCauchyStress( cauchyStress, deformationGradient + delta, P );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::pullBackCauchyStress( cauchyStress, deformationGradient - delta, M );
+        tardigradeMicromorphicTools::pullBackCauchyStress( cauchyStress, deformationGradient - delta, M );
 
-        BOOST_CHECK( !error );
+        
 
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
@@ -2141,15 +2138,15 @@ BOOST_AUTO_TEST_CASE( test_pullBackMicroStress, * boost::unit_test::tolerance( D
 
     variableVector result, resultPF;
 
-    errorOut error = tardigradeMicromorphicTools::pullBackMicroStress( microStress, deformationGradient, result );
+    tardigradeMicromorphicTools::pullBackMicroStress( microStress, deformationGradient, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
-    error = tardigradeMicromorphicTools::pushForwardReferenceMicroStress( result, deformationGradient, resultPF );
+    tardigradeMicromorphicTools::pushForwardReferenceMicroStress( result, deformationGradient, resultPF );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultPF == microStress, CHECK_PER_ELEMENT );
 
@@ -2157,9 +2154,9 @@ BOOST_AUTO_TEST_CASE( test_pullBackMicroStress, * boost::unit_test::tolerance( D
     variableVector resultJ;
     variableMatrix dSigmads, dSigmadF;
 
-    error = tardigradeMicromorphicTools::pullBackMicroStress( microStress, deformationGradient, resultJ, dSigmads, dSigmadF );
+    tardigradeMicromorphicTools::pullBackMicroStress( microStress, deformationGradient, resultJ, dSigmads, dSigmadF );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
@@ -2171,13 +2168,13 @@ BOOST_AUTO_TEST_CASE( test_pullBackMicroStress, * boost::unit_test::tolerance( D
 
         variableVector P, M;
 
-        error = tardigradeMicromorphicTools::pullBackMicroStress( microStress + delta, deformationGradient, P );
+        tardigradeMicromorphicTools::pullBackMicroStress( microStress + delta, deformationGradient, P );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::pullBackMicroStress( microStress - delta, deformationGradient, M );
+        tardigradeMicromorphicTools::pullBackMicroStress( microStress - delta, deformationGradient, M );
 
-        BOOST_CHECK( !error );
+        
 
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
@@ -2193,13 +2190,13 @@ BOOST_AUTO_TEST_CASE( test_pullBackMicroStress, * boost::unit_test::tolerance( D
 
         variableVector P, M;
 
-        error = tardigradeMicromorphicTools::pullBackMicroStress( microStress, deformationGradient + delta, P );
+        tardigradeMicromorphicTools::pullBackMicroStress( microStress, deformationGradient + delta, P );
 
-        BOOST_CHECK( !error );
+        
 
-        error = tardigradeMicromorphicTools::pullBackMicroStress( microStress, deformationGradient - delta, M );
+        tardigradeMicromorphicTools::pullBackMicroStress( microStress, deformationGradient - delta, M );
 
-        BOOST_CHECK( !error );
+        
 
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
@@ -2241,18 +2238,18 @@ BOOST_AUTO_TEST_CASE( test_pullBackHigherOrderStress, * boost::unit_test::tolera
 
     variableVector result;
 
-    errorOut error = tardigradeMicromorphicTools::pullBackHigherOrderStress( higherOrderStress, deformationGradient,
+    tardigradeMicromorphicTools::pullBackHigherOrderStress( higherOrderStress, deformationGradient,
                                                                    microDeformation, result );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
     variableVector resultPF;
 
-    error = tardigradeMicromorphicTools::pushForwardHigherOrderStress( result, deformationGradient, microDeformation, resultPF );
+    tardigradeMicromorphicTools::pushForwardHigherOrderStress( result, deformationGradient, microDeformation, resultPF );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( higherOrderStress == resultPF, CHECK_PER_ELEMENT );
 
@@ -2260,10 +2257,10 @@ BOOST_AUTO_TEST_CASE( test_pullBackHigherOrderStress, * boost::unit_test::tolera
     variableVector resultJ;
     variableMatrix dMdm, dMdF, dMdChi;
 
-    error = tardigradeMicromorphicTools::pullBackHigherOrderStress( higherOrderStress, deformationGradient,
+    tardigradeMicromorphicTools::pullBackHigherOrderStress( higherOrderStress, deformationGradient,
                                                           microDeformation, resultJ, dMdm, dMdF, dMdChi );
 
-    BOOST_CHECK( !error );
+    
 
     BOOST_TEST( answer == resultJ, CHECK_PER_ELEMENT );
 
@@ -2275,15 +2272,15 @@ BOOST_AUTO_TEST_CASE( test_pullBackHigherOrderStress, * boost::unit_test::tolera
 
         variableVector P, M;
 
-        error = tardigradeMicromorphicTools::pullBackHigherOrderStress( higherOrderStress + delta, deformationGradient,
+        tardigradeMicromorphicTools::pullBackHigherOrderStress( higherOrderStress + delta, deformationGradient,
                                                               microDeformation, P );
 
-        BOOST_CHECK( !error );    
+            
 
-        error = tardigradeMicromorphicTools::pullBackHigherOrderStress( higherOrderStress - delta, deformationGradient,
+        tardigradeMicromorphicTools::pullBackHigherOrderStress( higherOrderStress - delta, deformationGradient,
                                                               microDeformation, M );
 
-        BOOST_CHECK( !error );    
+            
 
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
@@ -2299,15 +2296,15 @@ BOOST_AUTO_TEST_CASE( test_pullBackHigherOrderStress, * boost::unit_test::tolera
 
         variableVector P, M;
 
-        error = tardigradeMicromorphicTools::pullBackHigherOrderStress( higherOrderStress, deformationGradient + delta,
+        tardigradeMicromorphicTools::pullBackHigherOrderStress( higherOrderStress, deformationGradient + delta,
                                                               microDeformation, P );
 
-        BOOST_CHECK( !error );
+        
     
-        error = tardigradeMicromorphicTools::pullBackHigherOrderStress( higherOrderStress, deformationGradient - delta,
+        tardigradeMicromorphicTools::pullBackHigherOrderStress( higherOrderStress, deformationGradient - delta,
                                                               microDeformation, M );
    
-        BOOST_CHECK( !error ); 
+         
 
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
@@ -2323,15 +2320,15 @@ BOOST_AUTO_TEST_CASE( test_pullBackHigherOrderStress, * boost::unit_test::tolera
 
         variableVector P, M;
 
-        error = tardigradeMicromorphicTools::pullBackHigherOrderStress( higherOrderStress, deformationGradient,
+        tardigradeMicromorphicTools::pullBackHigherOrderStress( higherOrderStress, deformationGradient,
                                                               microDeformation + delta, P );
 
-        BOOST_CHECK( !error );    
+            
 
-        error = tardigradeMicromorphicTools::pullBackHigherOrderStress( higherOrderStress, deformationGradient,
+        tardigradeMicromorphicTools::pullBackHigherOrderStress( higherOrderStress, deformationGradient,
                                                               microDeformation - delta, M );
 
-        BOOST_CHECK( !error );    
+            
 
         variableVector gradCol = ( P - M ) / ( 2 * delta[ i ] );
 
