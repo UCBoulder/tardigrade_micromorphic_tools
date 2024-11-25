@@ -6,6 +6,27 @@ Changelog
 #########
 
 ******************
+1.4.0 (unreleased)
+******************
+
+Internal Changes
+================
+- Changed the fuzzyEquals in the tests to use BOOST_TEST (:pull:`7`). By `Nathan Miller`_.
+- Completed first pass of improving the computational efficiency (:pull:`9`). By `Nathan Miller`_.
+- Moved the computation of the determinants to exposed Eigen::Map rather than tardigradeVectorTools (:pull:`10`). By `Nathan Miller`_.
+- Removed calls to matrixMultiply rather than tardigradeVectorTools (:pull:`11`). By `Nathan Miller`_.
+- Changed returning new errorOut objects to TARDIGRADE_ERROR_TOOLS_CHECK macros (:pull:`12`). By `Nathan Miller`_.
+- Added ability to set version when doing FetchContent builds (:pull:`15`). By `Nathan Miller`_.
+
+Breaking changes
+================
+- Added vector-based Jacobians (:pull:`1`, :pull:`4`, :pull:`5`). By `Nathan Miller`_.
+
+Bug Fixes
+=========
+- Removed trailing whitespace from add_library call (:pull:`14`). By `Nathan Miller`_.
+
+******************
 1.3.2 (2023-09-29)
 ******************
 

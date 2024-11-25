@@ -18,100 +18,137 @@
 
 namespace tardigradeMicromorphicTools{
 
-    typedef double variableType;
-    typedef std::vector< variableType > variableVector;
-    typedef std::vector< variableVector > variableMatrix;
+    typedef double variableType; //!< Type definition for variable values
+    typedef std::vector< variableType > variableVector; //!< Type definition for vectors of variable values
+    typedef std::vector< variableVector > variableMatrix; //!< Type definition for matrices of variable values
 
-    typedef double parameterType;
-    typedef std::vector< parameterType > parameterVector;
-    typedef std::vector< parameterVector > parameterMatrix;
+    typedef double parameterType; //!< Type definition for parameter values
+    typedef std::vector< parameterType > parameterVector; //!< Type definition for vectors of parameters
+    typedef std::vector< parameterVector > parameterMatrix; //!< Type definition for matrices of parameters
 
-    typedef double constantType;
-    typedef std::vector< constantType > constantVector;
-    typedef std::vector< constantVector > constantMatrix;
+    typedef double constantType; //!< Type definition for constants
+    typedef std::vector< constantType > constantVector; //!< Type definition for vectors of constants
+    typedef std::vector< constantVector > constantMatrix; //!< Type definition for matrices of constants
 
-    typedef tardigradeErrorTools::Node errorNode;
-    typedef errorNode* errorOut;
-
-    errorOut computePsi( const variableVector &deformationGradient, const variableVector &microDeformation,
+    void computePsi( const variableVector &deformationGradient, const variableVector &microDeformation,
                          variableVector &Psi );
 
-    errorOut computePsi( const variableVector &deformationGradient, const variableVector &microDeformation,
+    void computePsi( const variableVector &deformationGradient, const variableVector &microDeformation,
+                         variableVector &Psi, variableVector &dPsidF, variableVector &dPsidChi );
+
+    void computePsi( const variableVector &deformationGradient, const variableVector &microDeformation,
                          variableVector &Psi, variableMatrix &dPsidF, variableMatrix &dPsidChi );
 
-    errorOut computeGamma( const variableVector &deformationGradient, const variableVector &gradChi,
+    void computeGamma( const variableVector &deformationGradient, const variableVector &gradChi,
                            variableVector &Gamma );
 
-    errorOut computeGamma( const variableVector &deformationGradient, const variableVector &gradChi,
+    void computeGamma( const variableVector &deformationGradient, const variableVector &gradChi,
+                           variableVector &Gamma, variableVector &dGammadF, variableVector &dGammadGradChi );
+
+    void computeGamma( const variableVector &deformationGradient, const variableVector &gradChi,
                            variableVector &Gamma, variableMatrix &dGammadF, variableMatrix &dGammadGradChi );
 
-    errorOut computeMicroStrain( const variableVector &Psi, variableVector &microStrain );
+    void computeMicroStrain( const variableVector &Psi, variableVector &microStrain );
 
-    errorOut computeMicroStrain( const variableVector &Psi, variableVector &microStrain,
+    void computeMicroStrain( const variableVector &Psi, variableVector &microStrain,
+                                 variableVector &dMicroStraindPsi );
+
+    void computeMicroStrain( const variableVector &Psi, variableVector &microStrain,
                                  variableMatrix &dMicroStraindPsi );
 
-
-    errorOut pushForwardPK2Stress( const variableVector &PK2Stress,
+    void pushForwardPK2Stress( const variableVector &PK2Stress,
                                    const variableVector &deformationGradient,
                                    variableVector &cauchyStress );
 
-    errorOut pushForwardPK2Stress( const variableVector &PK2Stress,
+    void pushForwardPK2Stress( const variableVector &PK2Stress,
+                                   const variableVector &deformationGradient,
+                                   variableVector &cauchyStress, 
+                                   variableVector &dcauchyStressdPK2Stress,
+                                   variableVector &dcauchyStressdDeformationGradient );
+
+    void pushForwardPK2Stress( const variableVector &PK2Stress,
                                    const variableVector &deformationGradient,
                                    variableVector &cauchyStress, 
                                    variableMatrix &dcauchyStressdPK2Stress,
                                    variableMatrix &dcauchyStressdDeformationGradient );
 
-    errorOut pullBackCauchyStress( const variableVector &cauchyStress,
+    void pullBackCauchyStress( const variableVector &cauchyStress,
                                    const variableVector &deformationGradient,
                                    variableVector &PK2Stress );
 
-    errorOut pullBackCauchyStress( const variableVector &cauchyStress,
+    void pullBackCauchyStress( const variableVector &cauchyStress,
+                                   const variableVector &deformationGradient,
+                                   variableVector &PK2Stress, 
+                                   variableVector &dcauchyStressdPK2Stress,
+                                   variableVector &dcauchyStressdDeformationGradient );
+
+    void pullBackCauchyStress( const variableVector &cauchyStress,
                                    const variableVector &deformationGradient,
                                    variableVector &PK2Stress, 
                                    variableMatrix &dcauchyStressdPK2Stress,
                                    variableMatrix &dcauchyStressdDeformationGradient );
 
-    errorOut pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
+    void pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
                                               const variableVector &deformationGradient,
                                               variableType &detF, variableVector &microStress );
 
-    errorOut pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
+    void pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
                                               const variableVector &deformationGradient,
                                               variableVector &microStress );
 
-    errorOut pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
+    void pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
+                                              const variableVector &deformationGradient,
+                                              variableVector &microStress, 
+                                              variableVector &dMicroStressdReferenceMicroStress,
+                                              variableVector &dMicroStressdDeformationGradient );
+
+    void pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
                                               const variableVector &deformationGradient,
                                               variableVector &microStress, 
                                               variableMatrix &dMicroStressdReferenceMicroStress,
                                               variableMatrix &dMicroStressdDeformationGradient );
 
-    errorOut pullBackMicroStress( const variableVector &microStress,
+    void pullBackMicroStress( const variableVector &microStress,
                                   const variableVector &deformationGradient,
                                   variableType &detF, variableVector &inverseDeformationGradient,
                                   variableVector &referenceMicroStress );
 
-    errorOut pullBackMicroStress( const variableVector &microStress,
+    void pullBackMicroStress( const variableVector &microStress,
                                   const variableVector &deformationGradient,
                                   variableVector &referenceMicroStress );
 
-    errorOut pullBackMicroStress( const variableVector &microStress,
+    void pullBackMicroStress( const variableVector &microStress,
+                                  const variableVector &deformationGradient,
+                                  variableVector &referenceMicroStress, 
+                                  variableVector &dReferenceMicroStressdMicroStress,
+                                  variableVector &dReferenceMicroStressdDeformationGradient );
+
+    void pullBackMicroStress( const variableVector &microStress,
                                   const variableVector &deformationGradient,
                                   variableVector &referenceMicroStress, 
                                   variableMatrix &dReferenceMicroStressdMicroStress,
                                   variableMatrix &dReferenceMicroStressdDeformationGradient );
 
-    errorOut pushForwardHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void pushForwardHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                            const variableVector &deformationGradient,
                                            const variableVector &microDeformation,
                                            variableVector &higherOrderStress );
 
-    errorOut pushForwardHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void pushForwardHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                            const variableVector &deformationGradient,
                                            const variableVector &microDeformation,
                                            variableType &detF,
                                            variableVector &higherOrderStress );
 
-    errorOut pushForwardHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void pushForwardHigherOrderStress( const variableVector &referenceHigherOrderStress,
+                                           const variableVector &deformationGradient,
+                                           const variableVector &microDeformation,
+                                           variableVector &higherOrderStress,
+                                           variableVector &dHigherOrderStressdReferenceHigherOrderStress,
+                                           variableVector &dHigherOrderStressdDeformationGradient,
+                                           variableVector &dHigherOrderStressdMicroDeformation );
+
+    void pushForwardHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                            const variableVector &deformationGradient,
                                            const variableVector &microDeformation,
                                            variableVector &higherOrderStress,
@@ -119,19 +156,27 @@ namespace tardigradeMicromorphicTools{
                                            variableMatrix &dHigherOrderStressdDeformationGradient,
                                            variableMatrix &dHigherOrderStressdMicroDeformation );
 
-    errorOut pullBackHigherOrderStress( const variableVector &higherOrderStress,
+    void pullBackHigherOrderStress( const variableVector &higherOrderStress,
                                         const variableVector &deformationGradient,
                                         const variableVector &microDeformation,
                                         variableVector &referenceHigherOrderStress );
 
-    errorOut pullBackHigherOrderStress( const variableVector &higherOrderStress,
+    void pullBackHigherOrderStress( const variableVector &higherOrderStress,
                                         const variableVector &deformationGradient,
                                         const variableVector &microDeformation,
                                         variableType &detF, variableVector &inverseDeformationGradient,
                                         variableVector &inverseMicroDeformation,
                                         variableVector &referenceHigherOrderStress );
 
-    errorOut pullBackHigherOrderStress( const variableVector &higherOrderStress,
+    void pullBackHigherOrderStress( const variableVector &higherOrderStress,
+                                        const variableVector &deformationGradient,
+                                        const variableVector &microDeformation,
+                                        variableVector &referenceHigherOrderStress,
+                                        variableVector &dHigherOrderStressdReferenceHigherOrderStress,
+                                        variableVector &dHigherOrderStressdDeformationGradient,
+                                        variableVector &dHigherOrderStressdMicroDeformation );
+
+    void pullBackHigherOrderStress( const variableVector &higherOrderStress,
                                         const variableVector &deformationGradient,
                                         const variableVector &microDeformation,
                                         variableVector &referenceHigherOrderStress,
@@ -139,144 +184,201 @@ namespace tardigradeMicromorphicTools{
                                         variableMatrix &dHigherOrderStressdDeformationGradient,
                                         variableMatrix &dHigherOrderStressdMicroDeformation );
 
-    errorOut computeDeviatoricSecondOrderStress( const variableVector &secondOrderStress,
+    void computeDeviatoricSecondOrderStress( const variableVector &secondOrderStress,
                                                  variableVector &deviatoricSecondOrderStress );
 
-    errorOut computeDeviatoricSecondOrderStress( const variableVector &secondOrderStress,
+    void computeDeviatoricSecondOrderStress( const variableVector &secondOrderStress,
+                                                 variableVector &deviatoricSecondOrderStress,
+                                                 variableVector &dDeviatoricStressdStress );
+
+    void computeDeviatoricSecondOrderStress( const variableVector &secondOrderStress,
                                                  variableVector &deviatoricSecondOrderStress,
                                                  variableMatrix &dDeviatoricStressdStress );
 
-    errorOut computeReferenceSecondOrderStressPressure( const variableVector &referenceStressMeasure,
+    void computeReferenceSecondOrderStressPressure( const variableVector &referenceStressMeasure,
                                                         const variableVector &rightCauchyGreen,  variableType &pressure );
 
-    errorOut computeReferenceSecondOrderStressPressure( const variableVector &referenceStressMeasure,
+    void computeReferenceSecondOrderStressPressure( const variableVector &referenceStressMeasure,
                                                         const variableVector &rightCauchyGreen, variableType &pressure,
                                                         variableVector &dpdStress, variableVector &dpdRCG );
 
-    errorOut computeReferenceSecondOrderStressPressure( const variableVector &referenceStressMeasure,
+    void computeReferenceSecondOrderStressPressure( const variableVector &referenceStressMeasure,
+                                                        const variableVector &rightCauchyGreen, variableType &pressure,
+                                                        variableVector &dpdStress, variableVector &dpdRCG,
+                                                        variableVector &d2pdStressdRCG );
+
+    void computeReferenceSecondOrderStressPressure( const variableVector &referenceStressMeasure,
                                                         const variableVector &rightCauchyGreen, variableType &pressure,
                                                         variableVector &dpdStress, variableVector &dpdRCG,
                                                         variableMatrix &d2pdStressdRCG );
 
-    errorOut computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
+    void computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           variableVector &deviatoricSecondOrderReferenceStress );
 
-    errorOut computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
+    void computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           const variableType &pressure,
                                                           variableVector &deviatoricSecondOrderReferenceStress );
 
-    errorOut computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
+    void computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           variableVector &deviatoricSecondOrderReferenceStress,
                                                           variableMatrix &dDeviatoricReferenceStressdReferenceStress,
                                                           variableMatrix &dDeviatoricReferenceStressdRCG );
 
-    errorOut computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
+    void computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
+                                                          const variableVector &rightCauchyGreenDeformation,
+                                                          variableVector &deviatoricSecondOrderReferenceStress,
+                                                          variableVector &dDeviatoricReferenceStressdReferenceStress,
+                                                          variableVector &dDeviatoricReferenceStressdRCG );
+
+    void computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           const variableType &pressure,
                                                           const variableVector &dPressuredStress,
                                                           const variableVector &dPressuredRCG,
                                                           variableVector &deviatoricSecondOrderReferenceStress,
-                                                          variableMatrix &dDeviatoricReferenceStressdReferenceStress,
-                                                          variableMatrix &dDeviatoricReferenceStressdRCG );
+                                                          variableVector &dDeviatoricReferenceStressdReferenceStress,
+                                                          variableVector &dDeviatoricReferenceStressdRCG );
 
-    errorOut computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
+    void computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           variableVector &deviatoricSecondOrderReferenceStress,
                                                           variableMatrix &dDeviatoricReferenceStressdReferenceStress,
                                                           variableMatrix &dDeviatoricReferenceStressdRCG,
                                                           variableMatrix &d2DevSdSdRCG);
 
-    errorOut computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
+    void computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
+                                                          const variableVector &rightCauchyGreenDeformation,
+                                                          variableVector &deviatoricSecondOrderReferenceStress,
+                                                          variableVector &dDeviatoricReferenceStressdReferenceStress,
+                                                          variableVector &dDeviatoricReferenceStressdRCG,
+                                                          variableVector &d2DevSdSdRCG);
+
+    void computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           const variableType &pressure,
                                                           const variableVector &dPressuredStress,
                                                           const variableVector &dPressuredRCG,
-                                                          const variableMatrix &d2PressuredStressdRCG,
+                                                          const variableVector &d2PressuredStressdRCG,
                                                           variableVector &deviatoricSecondOrderReferenceStress,
-                                                          variableMatrix &dDeviatoricReferenceStressdReferenceStress,
-                                                          variableMatrix &dDeviatoricReferenceStressdRCG,
-                                                          variableMatrix &d2DevSdSdRCG);
+                                                          variableVector &dDeviatoricReferenceStressdReferenceStress,
+                                                          variableVector &dDeviatoricReferenceStressdRCG,
+                                                          variableVector &d2DevSdSdRCG);
 
-    errorOut computeDeviatoricHigherOrderStress( const variableVector &higherOrderStress,
+    void computeDeviatoricHigherOrderStress( const variableVector &higherOrderStress,
                                                  variableVector &deviatoricHigherOrderStress );
     
-    errorOut computeDeviatoricHigherOrderStress( const variableVector &higherOrderStress,
+    void computeDeviatoricHigherOrderStress( const variableVector &higherOrderStress,
+                                                 variableVector &deviatoricHigherOrderStress,
+                                                 variableVector &dDeviatoricHigherOrderStressdHigherOrderStress);
+
+    void computeDeviatoricHigherOrderStress( const variableVector &higherOrderStress,
                                                  variableVector &deviatoricHigherOrderStress,
                                                  variableMatrix &dDeviatoricHigherOrderStressdHigherOrderStress);
 
-    errorOut computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress, 
+    void computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress, 
                                                         const variableVector &rightCauchyGreenDeformation,
                                                         variableVector &referenceHigherOrderPressure );
 
-    errorOut computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress, 
+    void computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress, 
+                                                        const variableVector &rightCauchyGreenDeformation,
+                                                        variableVector &referenceHigherOrderPressure,
+                                                        variableVector &dpdM, variableVector &dpdC );
+
+    void computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress, 
                                                         const variableVector &rightCauchyGreenDeformation,
                                                         variableVector &referenceHigherOrderPressure,
                                                         variableMatrix &dpdM, variableMatrix &dpdC );
 
-    errorOut computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress,
+    void computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress,
+                                                        const variableVector &rightCauchyGreenDeformation,
+                                                        variableVector &referenceHigherOrderPressure,
+                                                        variableVector &dpdM, variableVector &dpdC,
+                                                        variableVector &d2pdMdC );
+
+    void computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress,
                                                         const variableVector &rightCauchyGreenDeformation,
                                                         variableVector &referenceHigherOrderPressure,
                                                         variableMatrix &dpdM, variableMatrix &dpdC,
                                                         variableMatrix &d2pdMdC );
 
-    errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           variableVector &deviatoricReferenceHigherOrderStress );
 
-    errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           const variableVector &pressure,
                                                           variableVector &deviatoricReferenceHigherOrderStress );
     
-    errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+                                                          const variableVector &rightCauchyGreenDeformation,
+                                                          variableVector &deviatoricReferenceHigherOrderStress,
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdRCG );
+
+    void computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           variableVector &deviatoricReferenceHigherOrderStress,
                                                           variableMatrix &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
                                                           variableMatrix &dDeviatoricReferenceHigherOrderStressdRCG );
 
-    errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           const variableVector &pressure,
-                                                          const variableMatrix &dPressuredStress,
-                                                          const variableMatrix &dPressuredRCG,
+                                                          const variableVector &dPressuredStress,
+                                                          const variableVector &dPressuredRCG,
                                                           variableVector &deviatoricReferenceHigherOrderStress,
-                                                          variableMatrix &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
-                                                          variableMatrix &dDeviatoricReferenceHigherOrderStressdRCG );
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdRCG );
 
-    errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+                                                          const variableVector &rightCauchyGreenDeformation,
+                                                          variableVector &deviatoricReferenceHigherOrderStress,
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdRCG,
+                                                          variableVector &d2DevMdMdRCG );
+
+    void computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           variableVector &deviatoricReferenceHigherOrderStress,
                                                           variableMatrix &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
                                                           variableMatrix &dDeviatoricReferenceHigherOrderStressdRCG,
                                                           variableMatrix &d2DevMdMdRCG );
 
-    errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           const variableVector &pressure,
-                                                          const variableMatrix &dPressuredStress,
-                                                          const variableMatrix &dPressuredRCG,
-                                                          const variableMatrix &d2PressuredStressdRCG,
+                                                          const variableVector &dPressuredStress,
+                                                          const variableVector &dPressuredRCG,
+                                                          const variableVector &d2PressuredStressdRCG,
                                                           variableVector &deviatoricReferenceHigherOrderStress,
-                                                          variableMatrix &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
-                                                          variableMatrix &dDeviatoricReferenceHigherOrderStressdRCG,
-                                                          variableMatrix &d2DevMdMdRCG );
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
+                                                          variableVector &dDeviatoricReferenceHigherOrderStressdRCG,
+                                                          variableVector &d2DevMdMdRCG );
 
-    errorOut computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
+    void computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
                                                              const variableVector &rightCauchyGreenDeformation,
                                                              variableVector &deviatoricSecondOrderReferenceStress,
                                                              variableType &pressure );
 
-    errorOut computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
+    void computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
+                                                             const variableVector &rightCauchyGreenDeformation,
+                                                             variableVector &deviatoricSecondOrderReferenceStress,
+                                                             variableType &pressure, variableVector &dDevStressdStress,
+                                                             variableVector &dDevStressdRCG, variableVector &dPressuredStress,
+                                                             variableVector &dPressuredRCG );
+
+    void computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
                                                              const variableVector &rightCauchyGreenDeformation,
                                                              variableVector &deviatoricSecondOrderReferenceStress,
                                                              variableType &pressure, variableMatrix &dDevStressdStress,
                                                              variableMatrix &dDevStressdRCG, variableVector &dPressuredStress,
                                                              variableVector &dPressuredRCG );
 
-    errorOut computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
+    void computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
                                                              const variableVector &rightCauchyGreenDeformation,
                                                              variableVector &deviatoricSecondOrderReferenceStress,
                                                              variableType &pressure, variableMatrix &dDevStressdStress,
@@ -284,19 +386,42 @@ namespace tardigradeMicromorphicTools{
                                                              variableVector &dPressuredRCG, variableMatrix &d2DevStressdStressdRCG,
                                                              variableMatrix &d2PressuredStressdRCG );
 
-    errorOut computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
+    void computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
+                                                             const variableVector &rightCauchyGreenDeformation,
+                                                             variableVector &deviatoricSecondOrderReferenceStress,
+                                                             variableType &pressure, variableVector &dDevStressdStress,
+                                                             variableVector &dDevStressdRCG, variableVector &dPressuredStress,
+                                                             variableVector &dPressuredRCG, variableVector &d2DevStressdStressdRCG,
+                                                             variableVector &d2PressuredStressdRCG );
+
+    void computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
                                                              const variableVector &rightCauchyGreenDeformation,
                                                              variableVector &deviatoricHigherOrderReferenceStress,
                                                              variableVector &pressure );
 
-    errorOut computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
+    void computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
+                                                             const variableVector &rightCauchyGreenDeformation,
+                                                             variableVector &deviatoricHigherOrderReferenceStress,
+                                                             variableVector &pressure, variableVector &dDevStressdStress,
+                                                             variableVector &dDevStressdRCG, variableVector &dPressuredStress,
+                                                             variableVector &dPressuredRCG );
+
+    void computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
                                                              const variableVector &rightCauchyGreenDeformation,
                                                              variableVector &deviatoricHigherOrderReferenceStress,
                                                              variableVector &pressure, variableMatrix &dDevStressdStress,
                                                              variableMatrix &dDevStressdRCG, variableMatrix &dPressuredStress,
                                                              variableMatrix &dPressuredRCG );
 
-    errorOut computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
+    void computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
+                                                             const variableVector &rightCauchyGreenDeformation,
+                                                             variableVector &deviatoricHigherOrderReferenceStress,
+                                                             variableVector &pressure, variableVector &dDevStressdStress,
+                                                             variableVector &dDevStressdRCG, variableVector &dPressuredStress,
+                                                             variableVector &dPressuredRCG, variableVector &d2DevStressdStressdRCG,
+                                                             variableVector &d2PressuredStressdRCG );
+
+    void computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
                                                              const variableVector &rightCauchyGreenDeformation,
                                                              variableVector &deviatoricHigherOrderReferenceStress,
                                                              variableVector &pressure, variableMatrix &dDevStressdStress,
@@ -304,32 +429,41 @@ namespace tardigradeMicromorphicTools{
                                                              variableMatrix &dPressuredRCG, variableMatrix &d2DevStressdStressdRCG,
                                                              variableMatrix &d2PressuredStressdRCG );
 
-    errorOut computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm );
+    void computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm );
 
-    errorOut computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
+    void computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
+                                           variableVector &dHigherOrderStressNormdHigherOrderStress,
+                                           double tol = 1e-9 );
+
+    void computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
                                            variableMatrix &dHigherOrderStressNormdHigherOrderStress,
                                            double tol = 1e-9 );
 
-    errorOut computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
+    void computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
+                                           variableVector &dHigherOrderStressNormdHigherOrderStress,
+                                           variableVector &d2HigherOrderStressNormdHigherOrderStress2,
+                                           double tol = 1e-9 );
+
+    void computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
                                            variableMatrix &dHigherOrderStressNormdHigherOrderStress,
                                            variableMatrix &d2HigherOrderStressNormdHigherOrderStress2,
                                            double tol = 1e-9 );
 
-    errorOut assembleDeformationGradient( const variableMatrix &displacementGradient, variableVector &deformationGradient );
+    void assembleDeformationGradient( const variableVector &displacementGradient, variableVector &deformationGradient );
 
-    errorOut assembleDeformationGradient( const variableMatrix &displacementGradient, variableVector &deformationGradient,
-                                          variableMatrix &dFdGradU );
+    void assembleDeformationGradient( const variableVector &displacementGradient, variableVector &deformationGradient,
+                                          variableVector &dFdGradU );
 
-    errorOut assembleMicroDeformation( const variableVector &microDisplacement, variableVector &microDeformation );
+    void assembleMicroDeformation( const variableVector &microDisplacement, variableVector &microDeformation );
 
-    errorOut assembleMicroDeformation( const variableVector &microDisplacement, variableVector &microDeformation,
-                                       variableMatrix &dChidPhi );
+    void assembleMicroDeformation( const variableVector &microDisplacement, variableVector &microDeformation,
+                                       variableVector &dChidPhi );
 
-    errorOut assembleGradientMicroDeformation( const variableMatrix &gradientMicroDisplacement,
+    void assembleGradientMicroDeformation( const variableVector &gradientMicroDisplacement,
                                                variableVector &gradientMicroDeformation );
 
-    errorOut assembleGradientMicroDeformation( const variableMatrix &gradientMicroDisplacement,
-                                               variableVector &gradientMicroDeformation, variableMatrix &dGradChidGradPhi );
+    void assembleGradientMicroDeformation( const variableVector &gradientMicroDisplacement,
+                                               variableVector &gradientMicroDeformation, variableVector &dGradChidGradPhi );
 }
 
 #endif
