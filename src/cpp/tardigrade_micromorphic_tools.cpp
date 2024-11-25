@@ -12,7 +12,7 @@
 
 namespace tardigradeMicromorphicTools{
 
-    errorOut computePsi( const variableVector &deformationGradient, const variableVector &microDeformation,
+    void computePsi( const variableVector &deformationGradient, const variableVector &microDeformation,
                          variableVector &Psi ){
         /*!
          * Computes the micromorphic quantity psi defined as:
@@ -39,10 +39,10 @@ namespace tardigradeMicromorphicTools{
 
         map3 = ( map1.transpose( ) * map2 ).eval( );
 
-        return NULL;
+        return;
     }
 
-    errorOut computePsi( const variableVector &deformationGradient, const variableVector &microDeformation,
+    void computePsi( const variableVector &deformationGradient, const variableVector &microDeformation,
                          variableVector &Psi, variableMatrix &dPsidF, variableMatrix &dPsidChi ){
         /*!
          * Computes the micromorphic quantity psi defined as:
@@ -72,11 +72,11 @@ namespace tardigradeMicromorphicTools{
         dPsidF   = tardigradeVectorTools::inflate( _dPsidF, sot_dim, sot_dim );
         dPsidChi = tardigradeVectorTools::inflate( _dPsidChi, sot_dim, sot_dim );
 
-        return NULL;
+        return;
 
     }
 
-    errorOut computePsi( const variableVector &deformationGradient, const variableVector &microDeformation,
+    void computePsi( const variableVector &deformationGradient, const variableVector &microDeformation,
                          variableVector &Psi, variableVector &dPsidF, variableVector &dPsidChi ){
         /*!
          * Computes the micromorphic quantity psi defined as:
@@ -112,10 +112,10 @@ namespace tardigradeMicromorphicTools{
                 }
             }
         }
-        return NULL;
+        return;
     }
 
-    errorOut computeGamma( const variableVector &deformationGradient, const variableVector &gradChi,
+    void computeGamma( const variableVector &deformationGradient, const variableVector &gradChi,
                            variableVector &Gamma ){
         /*!
          * Compute the deformation metric Gamma:
@@ -149,10 +149,10 @@ namespace tardigradeMicromorphicTools{
             }
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut computeGamma( const variableVector &deformationGradient, const variableVector &gradChi,
+    void computeGamma( const variableVector &deformationGradient, const variableVector &gradChi,
                            variableVector &Gamma, variableMatrix &dGammadF, variableMatrix &dGammadGradChi ){
         /*!
          * Compute the deformation metric Gamma:
@@ -185,11 +185,11 @@ namespace tardigradeMicromorphicTools{
         dGammadF       = tardigradeVectorTools::inflate( _dGammadF, tot_dim, sot_dim );
         dGammadGradChi = tardigradeVectorTools::inflate( _dGammadGradChi, tot_dim, tot_dim ); 
 
-        return NULL;
+        return;
 
     }
 
-    errorOut computeGamma( const variableVector &deformationGradient, const variableVector &gradChi,
+    void computeGamma( const variableVector &deformationGradient, const variableVector &gradChi,
                            variableVector &Gamma, variableVector &dGammadF, variableVector &dGammadGradChi ){
         /*!
          * Compute the deformation metric Gamma:
@@ -231,10 +231,10 @@ namespace tardigradeMicromorphicTools{
             }
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut computeMicroStrain( const variableVector &Psi, variableVector &microStrain ){
+    void computeMicroStrain( const variableVector &Psi, variableVector &microStrain ){
         /*!
          * Compute the microstrain defined as:
          * \f$ \Epsilon_{IJ} = \Psi_{IJ} - eye_{IJ} \f$
@@ -252,10 +252,10 @@ namespace tardigradeMicromorphicTools{
         microStrain = Psi;
         for ( unsigned int i = 0; i < dim; i++ ){ microStrain[ dim * i + i ] -= 1.; }
 
-        return NULL;
+        return;
     }
 
-    errorOut computeMicroStrain( const variableVector &Psi, variableVector &microStrain,
+    void computeMicroStrain( const variableVector &Psi, variableVector &microStrain,
                                  variableVector &dMicroStraindPsi ){
         /*!
          * Compute the microstrain defined as:
@@ -277,11 +277,11 @@ namespace tardigradeMicromorphicTools{
         dMicroStraindPsi = variableVector( sot_dim * sot_dim, 0 );
         for ( unsigned int i = 0; i < sot_dim; i++ ){ dMicroStraindPsi[ sot_dim * i + i ] = 1; };
 
-        return NULL;
+        return;
 
     }
 
-    errorOut computeMicroStrain( const variableVector &Psi, variableVector &microStrain,
+    void computeMicroStrain( const variableVector &Psi, variableVector &microStrain,
                                  variableMatrix &dMicroStraindPsi ){
         /*!
          * Compute the microstrain defined as:
@@ -304,11 +304,11 @@ namespace tardigradeMicromorphicTools{
 
         dMicroStraindPsi = tardigradeVectorTools::inflate( _dMicroStraindPsi, sot_dim, sot_dim );
 
-        return NULL;
+        return;
 
     }
 
-    errorOut pushForwardPK2Stress( const variableVector &PK2Stress,
+    void pushForwardPK2Stress( const variableVector &PK2Stress,
                                    const variableVector &deformationGradient,
                                    variableVector &cauchyStress ){
         /*!
@@ -329,11 +329,11 @@ namespace tardigradeMicromorphicTools{
         TARDIGRADE_ERROR_TOOLS_CATCH( pushForwardReferenceMicroStress( PK2Stress, deformationGradient, 
                                                                        detF, cauchyStress ) );
 
-        return NULL;
+        return;
 
     }
 
-    errorOut pushForwardPK2Stress( const variableVector &PK2Stress,
+    void pushForwardPK2Stress( const variableVector &PK2Stress,
                                    const variableVector &deformationGradient,
                                    variableVector &cauchyStress,
                                    variableVector &dCauchyStressdPK2Stress,
@@ -367,12 +367,12 @@ namespace tardigradeMicromorphicTools{
                                                                        dCauchyStressdPK2Stress,
                                                                        dCauchyStressdDeformationGradient ) );
 
-        return NULL;
+        return;
 
     }
 
 
-    errorOut pushForwardPK2Stress( const variableVector &PK2Stress,
+    void pushForwardPK2Stress( const variableVector &PK2Stress,
                                    const variableVector &deformationGradient,
                                    variableVector &cauchyStress,
                                    variableMatrix &dCauchyStressdPK2Stress,
@@ -405,11 +405,11 @@ namespace tardigradeMicromorphicTools{
         TARDIGRADE_ERROR_TOOLS_CATCH( pushForwardReferenceMicroStress( PK2Stress, deformationGradient, cauchyStress,
                                                                        dCauchyStressdPK2Stress,
                                                                        dCauchyStressdDeformationGradient ) );
-        return NULL;
+        return;
 
     }
 
-    errorOut pullBackCauchyStress( const variableVector &cauchyStress,
+    void pullBackCauchyStress( const variableVector &cauchyStress,
                                    const variableVector &deformationGradient,
                                    variableVector &PK2Stress ){
         /*!
@@ -427,11 +427,11 @@ namespace tardigradeMicromorphicTools{
 
         TARDIGRADE_ERROR_TOOLS_CATCH( pullBackMicroStress( cauchyStress, deformationGradient, PK2Stress ) );
 
-        return NULL;
+        return;
 
     }
 
-    errorOut pullBackCauchyStress( const variableVector &cauchyStress,
+    void pullBackCauchyStress( const variableVector &cauchyStress,
                                    const variableVector &deformationGradient,
                                    variableVector &PK2Stress, variableVector &dPK2StressdCauchyStress,
                                    variableVector &dPK2StressdDeformationGradient ){
@@ -459,12 +459,12 @@ namespace tardigradeMicromorphicTools{
         TARDIGRADE_ERROR_TOOLS_CATCH( pullBackMicroStress( cauchyStress, deformationGradient, PK2Stress,
                                                            dPK2StressdCauchyStress, dPK2StressdDeformationGradient ) );
 
-        return NULL;
+        return;
 
     }
 
 
-    errorOut pullBackCauchyStress( const variableVector &cauchyStress,
+    void pullBackCauchyStress( const variableVector &cauchyStress,
                                    const variableVector &deformationGradient,
                                    variableVector &PK2Stress, variableMatrix &dPK2StressdCauchyStress,
                                    variableMatrix &dPK2StressdDeformationGradient ){
@@ -492,11 +492,11 @@ namespace tardigradeMicromorphicTools{
         TARDIGRADE_ERROR_TOOLS_CATCH( pullBackMicroStress( cauchyStress, deformationGradient, PK2Stress,
                                                            dPK2StressdCauchyStress, dPK2StressdDeformationGradient ) );
 
-        return NULL;
+        return;
 
     }
 
-    errorOut pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
+    void pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
                                               const variableVector &deformationGradient,
                                               variableVector &microStress ){
         /*!
@@ -519,7 +519,7 @@ namespace tardigradeMicromorphicTools{
 
     }
 
-    errorOut pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
+    void pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
                                               const variableVector &deformationGradient,
                                               variableType &detF, variableVector &microStress ){
         /*!
@@ -555,10 +555,10 @@ namespace tardigradeMicromorphicTools{
 
         map3 = ( map1 * map2 * map1.transpose( ) / detF ).eval( );
 
-        return NULL;
+        return;
     }
 
-    errorOut pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
+    void pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
                                               const variableVector &deformationGradient,
                                               variableVector &microStress,
                                               variableMatrix &dMicroStressdReferenceMicroStress,
@@ -598,10 +598,10 @@ namespace tardigradeMicromorphicTools{
         dMicroStressdReferenceMicroStress = tardigradeVectorTools::inflate( _dMicroStressdReferenceMicroStress, 9, 9 );
         dMicroStressdDeformationGradient  = tardigradeVectorTools::inflate( _dMicroStressdDeformationGradient, 9, 9 );
 
-        return NULL;
+        return;
 
     }
-    errorOut pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
+    void pushForwardReferenceMicroStress( const variableVector &referenceMicroStress,
                                               const variableVector &deformationGradient,
                                               variableVector &microStress,
                                               variableVector &dMicroStressdReferenceMicroStress,
@@ -680,10 +680,10 @@ namespace tardigradeMicromorphicTools{
 
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut pullBackMicroStress( const variableVector &microStress,
+    void pullBackMicroStress( const variableVector &microStress,
                                   const variableVector &deformationGradient,
                                   variableVector &referenceMicroStress ){
         /*!
@@ -707,7 +707,7 @@ namespace tardigradeMicromorphicTools{
 
     }
 
-    errorOut pullBackMicroStress( const variableVector &microStress,
+    void pullBackMicroStress( const variableVector &microStress,
                                   const variableVector &deformationGradient,
                                   variableType &detF, variableVector &inverseDeformationGradient,
                                   variableVector &referenceMicroStress ){
@@ -763,10 +763,10 @@ namespace tardigradeMicromorphicTools{
 
         referenceMicroStress *= detF;
 
-        return NULL;
+        return;
     }
 
-    errorOut pullBackMicroStress( const variableVector &microStress,
+    void pullBackMicroStress( const variableVector &microStress,
                                   const variableVector &deformationGradient,
                                   variableVector &referenceMicroStress,
                                   variableMatrix &dReferenceMicroStressdMicroStress,
@@ -804,12 +804,12 @@ namespace tardigradeMicromorphicTools{
         dReferenceMicroStressdMicroStress = tardigradeVectorTools::inflate( _dReferenceMicroStressdMicroStress, 9, 9 );
         dReferenceMicroStressdDeformationGradient  = tardigradeVectorTools::inflate( _dReferenceMicroStressdDeformationGradient, 9, 9 );
 
-        return NULL;
+        return;
 
 
     }
 
-    errorOut pullBackMicroStress( const variableVector &microStress,
+    void pullBackMicroStress( const variableVector &microStress,
                                   const variableVector &deformationGradient,
                                   variableVector &referenceMicroStress,
                                   variableVector &dReferenceMicroStressdMicroStress,
@@ -865,10 +865,10 @@ namespace tardigradeMicromorphicTools{
             }
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut pushForwardHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void pushForwardHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                            const variableVector &deformationGradient,
                                            const variableVector &microDeformation,
                                            variableVector &higherOrderStress ){
@@ -890,7 +890,7 @@ namespace tardigradeMicromorphicTools{
                                              microDeformation, detF, higherOrderStress );
     }
 
-    errorOut pushForwardHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void pushForwardHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                            const variableVector &deformationGradient,
                                            const variableVector &microDeformation,
                                            variableType &detF,
@@ -962,10 +962,10 @@ namespace tardigradeMicromorphicTools{
             }
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut pushForwardHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void pushForwardHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                            const variableVector &deformationGradient,
                                            const variableVector &microDeformation,
                                            variableVector &higherOrderStress,
@@ -1014,10 +1014,10 @@ namespace tardigradeMicromorphicTools{
         dHigherOrderStressdDeformationGradient        = tardigradeVectorTools::inflate( _dHigherOrderStressdDeformationGradient        , 27,  9 );
         dHigherOrderStressdMicroDeformation           = tardigradeVectorTools::inflate( _dHigherOrderStressdMicroDeformation           , 27,  9 );
 
-        return NULL;
+        return;
 
     }
-    errorOut pushForwardHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void pushForwardHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                            const variableVector &deformationGradient,
                                            const variableVector &microDeformation,
                                            variableVector &higherOrderStress,
@@ -1119,10 +1119,10 @@ namespace tardigradeMicromorphicTools{
             }
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut pullBackHigherOrderStress( const variableVector &higherOrderStress,
+    void pullBackHigherOrderStress( const variableVector &higherOrderStress,
                                         const variableVector &deformationGradient,
                                         const variableVector &microDeformation,
                                         variableVector &referenceHigherOrderStress ){
@@ -1145,7 +1145,7 @@ namespace tardigradeMicromorphicTools{
                                           inverseMicroDeformation, referenceHigherOrderStress );
     }
 
-    errorOut pullBackHigherOrderStress( const variableVector &higherOrderStress,
+    void pullBackHigherOrderStress( const variableVector &higherOrderStress,
                                         const variableVector &deformationGradient,
                                         const variableVector &microDeformation,
                                         variableType &detF, variableVector &inverseDeformationGradient,
@@ -1233,10 +1233,10 @@ namespace tardigradeMicromorphicTools{
             }
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut pullBackHigherOrderStress( const variableVector &higherOrderStress,
+    void pullBackHigherOrderStress( const variableVector &higherOrderStress,
                                         const variableVector &deformationGradient,
                                         const variableVector &microDeformation,
                                         variableVector &referenceHigherOrderStress,
@@ -1280,11 +1280,11 @@ namespace tardigradeMicromorphicTools{
         dReferenceHigherOrderStressdDeformationGradient = tardigradeVectorTools::inflate( _dReferenceHigherOrderStressdDeformationGradient, 27,  9 );
         dReferenceHigherOrderStressdMicroDeformation    = tardigradeVectorTools::inflate( _dReferenceHigherOrderStressdMicroDeformation   , 27,  9 );
 
-        return NULL;
+        return;
 
     }
 
-    errorOut pullBackHigherOrderStress( const variableVector &higherOrderStress,
+    void pullBackHigherOrderStress( const variableVector &higherOrderStress,
                                         const variableVector &deformationGradient,
                                         const variableVector &microDeformation,
                                         variableVector &referenceHigherOrderStress,
@@ -1357,10 +1357,10 @@ namespace tardigradeMicromorphicTools{
             }
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut computeDeviatoricHigherOrderStress( const variableVector &higherOrderStress,
+    void computeDeviatoricHigherOrderStress( const variableVector &higherOrderStress,
                                                  variableVector &deviatoricHigherOrderStress ){
         /*!
          * Compute the deviatoric part of the higher order stress.
@@ -1388,10 +1388,10 @@ namespace tardigradeMicromorphicTools{
             }
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut computeDeviatoricHigherOrderStress( const variableVector &higherOrderStress,
+    void computeDeviatoricHigherOrderStress( const variableVector &higherOrderStress,
                                                  variableVector &deviatoricHigherOrderStress,
                                                  variableVector &dDeviatoricHigherOrderStressdHigherOrderStress){
         /*!
@@ -1428,10 +1428,10 @@ namespace tardigradeMicromorphicTools{
             }
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut computeDeviatoricHigherOrderStress( const variableVector &higherOrderStress,
+    void computeDeviatoricHigherOrderStress( const variableVector &higherOrderStress,
                                                  variableVector &deviatoricHigherOrderStress,
                                                  variableMatrix &dDeviatoricHigherOrderStressdHigherOrderStress){
         /*!
@@ -1459,10 +1459,10 @@ namespace tardigradeMicromorphicTools{
 
         dDeviatoricHigherOrderStressdHigherOrderStress = tardigradeVectorTools::inflate( _dDeviatoricHigherOrderStressdHigherOrderStress, tot_dim, tot_dim );
 
-        return NULL;
+        return;
     }
 
-    errorOut computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress,
+    void computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress,
                                                         const variableVector &rightCauchyGreenDeformation,
                                                         variableVector &referenceHigherOrderPressure ){
         /*!
@@ -1498,10 +1498,10 @@ namespace tardigradeMicromorphicTools{
         }
 
         referenceHigherOrderPressure /= 3;
-        return NULL;
+        return;
     }
 
-    errorOut computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress,
+    void computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress,
                                                         const variableVector &rightCauchyGreenDeformation,
                                                         variableVector &referenceHigherOrderPressure,
                                                         variableMatrix &dpdM, variableMatrix &dpdC ){
@@ -1537,11 +1537,11 @@ namespace tardigradeMicromorphicTools{
         dpdM = tardigradeVectorTools::inflate( _dpdM, 3, 27 );
         dpdC = tardigradeVectorTools::inflate( _dpdC, 3,  9 );
 
-        return NULL;
+        return;
 
     }
 
-    errorOut computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress,
+    void computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress,
                                                         const variableVector &rightCauchyGreenDeformation,
                                                         variableVector &referenceHigherOrderPressure,
                                                         variableVector &dpdM, variableVector &dpdC ){
@@ -1590,10 +1590,10 @@ namespace tardigradeMicromorphicTools{
         dpdM /= 3;
         dpdC /= 3;
 
-        return NULL;
+        return;
     }
 
-    errorOut computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress,
+    void computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress,
                                                         const variableVector &rightCauchyGreenDeformation,
                                                         variableVector &referenceHigherOrderPressure,
                                                         variableMatrix &dpdM, variableMatrix &dpdC,
@@ -1636,10 +1636,10 @@ namespace tardigradeMicromorphicTools{
         dpdC    = tardigradeVectorTools::inflate(    _dpdC, 3,   9 );
         d2pdMdC = tardigradeVectorTools::inflate( _d2pdMdC, 3, 243 );
 
-        return NULL;
+        return;
     }
 
-    errorOut computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress,
+    void computeReferenceHigherOrderStressPressure( const variableVector &referenceHigherOrderStress,
                                                         const variableVector &rightCauchyGreenDeformation,
                                                         variableVector &referenceHigherOrderPressure,
                                                         variableVector &dpdM, variableVector &dpdC,
@@ -1687,10 +1687,10 @@ namespace tardigradeMicromorphicTools{
             }
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           variableVector &deviatoricReferenceHigherOrderStress ){
         /*!
@@ -1712,7 +1712,7 @@ namespace tardigradeMicromorphicTools{
                                                             pressure, deviatoricReferenceHigherOrderStress );
     }
 
-    errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           const variableVector &pressure,
                                                           variableVector &deviatoricReferenceHigherOrderStress ){
@@ -1745,10 +1745,10 @@ namespace tardigradeMicromorphicTools{
             }
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           variableVector &deviatoricReferenceHigherOrderStress,
                                                           variableMatrix &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
@@ -1784,11 +1784,11 @@ namespace tardigradeMicromorphicTools{
         dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress = tardigradeVectorTools::inflate( _dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress, 27, 27 );
         dDeviatoricReferenceHigherOrderStressdRCG                        = tardigradeVectorTools::inflate( _dDeviatoricReferenceHigherOrderStressdRCG                       , 27,  9 );
 
-        return NULL;
+        return;
 
     }
 
-    errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           variableVector &deviatoricReferenceHigherOrderStress,
                                                           variableVector &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
@@ -1828,7 +1828,7 @@ namespace tardigradeMicromorphicTools{
 
     }
 
-    errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           const variableVector &pressure,
                                                           const variableVector &dPressuredStress,
@@ -1906,10 +1906,10 @@ namespace tardigradeMicromorphicTools{
             }
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           variableVector &deviatoricReferenceHigherOrderStress,
                                                           variableMatrix &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
@@ -1954,10 +1954,10 @@ namespace tardigradeMicromorphicTools{
         dDeviatoricReferenceHigherOrderStressdRCG                        = tardigradeVectorTools::inflate( _dDeviatoricReferenceHigherOrderStressdRCG                       , 27,   9 );
         d2MdMdRCG                                                        = tardigradeVectorTools::inflate( _d2MdMdRCG                                                       , 27, 243 );
 
-        return NULL;
+        return;
     }
 
-    errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           variableVector &deviatoricReferenceHigherOrderStress,
                                                           variableVector &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
@@ -2002,7 +2002,7 @@ namespace tardigradeMicromorphicTools{
                                                             d2MdMdRCG );
     }
 
-    errorOut computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
+    void computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           const variableVector &pressure,
                                                           const variableVector &dPressuredStress,
@@ -2113,10 +2113,10 @@ namespace tardigradeMicromorphicTools{
             }
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut computeDeviatoricSecondOrderStress( const variableVector &secondOrderStress,
+    void computeDeviatoricSecondOrderStress( const variableVector &secondOrderStress,
                                                  variableVector &deviatoricSecondOrderStress ){
         /*!
          * Compute the deviatoric part of a second order stress measure in the current configuration.
@@ -2135,10 +2135,10 @@ namespace tardigradeMicromorphicTools{
         deviatoricSecondOrderStress = secondOrderStress;
         for ( unsigned int i = 0; i < dim; i++ ){ deviatoricSecondOrderStress[ dim * i + i ] -= trace / 3.; }
 
-        return NULL;
+        return;
     }
 
-    errorOut computeDeviatoricSecondOrderStress( const variableVector &secondOrderStress,
+    void computeDeviatoricSecondOrderStress( const variableVector &secondOrderStress,
                                                  variableVector &deviatoricSecondOrderStress,
                                                  variableVector &dDeviatoricStressdStress ){
         /*!
@@ -2171,10 +2171,10 @@ namespace tardigradeMicromorphicTools{
             }
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut computeDeviatoricSecondOrderStress( const variableVector &secondOrderStress,
+    void computeDeviatoricSecondOrderStress( const variableVector &secondOrderStress,
                                                  variableVector &deviatoricSecondOrderStress,
                                                  variableMatrix &dDeviatoricStressdStress ){
         /*!
@@ -2200,10 +2200,10 @@ namespace tardigradeMicromorphicTools{
 
         dDeviatoricStressdStress = tardigradeVectorTools::inflate( _dDeviatoricStressdStress, sot_dim, sot_dim );
 
-        return NULL;
+        return;
     }
 
-    errorOut computeReferenceSecondOrderStressPressure( const variableVector &referenceStressMeasure,
+    void computeReferenceSecondOrderStressPressure( const variableVector &referenceStressMeasure,
                                                         const variableVector &rightCauchyGreen,  variableType &pressure ){
         /*!
          * Compute the pressure part of a second order stress measure in the reference configuration.
@@ -2221,10 +2221,10 @@ namespace tardigradeMicromorphicTools{
 
         pressure = tardigradeVectorTools::dot( referenceStressMeasure, rightCauchyGreen ) / 3;
 
-        return NULL;
+        return;
     }
 
-    errorOut computeReferenceSecondOrderStressPressure( const variableVector &referenceStressMeasure,
+    void computeReferenceSecondOrderStressPressure( const variableVector &referenceStressMeasure,
                                                         const variableVector &rightCauchyGreen,  variableType &pressure,
                                                         variableVector &dpdStress, variableVector &dpdRCG ){
         /*!
@@ -2251,10 +2251,10 @@ namespace tardigradeMicromorphicTools{
         dpdStress = rightCauchyGreen / 3;
         dpdRCG    = referenceStressMeasure / 3;
 
-        return NULL;
+        return;
     }
 
-    errorOut computeReferenceSecondOrderStressPressure( const variableVector &referenceStressMeasure,
+    void computeReferenceSecondOrderStressPressure( const variableVector &referenceStressMeasure,
                                                         const variableVector &rightCauchyGreen,  variableType &pressure,
                                                         variableVector &dpdStress, variableVector &dpdRCG,
                                                         variableMatrix &d2pdStressdRCG ){
@@ -2288,11 +2288,11 @@ namespace tardigradeMicromorphicTools{
 
         d2pdStressdRCG = tardigradeVectorTools::inflate( _d2pdStressdRCG, 9, 9 );
 
-        return NULL;
+        return;
 
     }
 
-    errorOut computeReferenceSecondOrderStressPressure( const variableVector &referenceStressMeasure,
+    void computeReferenceSecondOrderStressPressure( const variableVector &referenceStressMeasure,
                                                         const variableVector &rightCauchyGreen,  variableType &pressure,
                                                         variableVector &dpdStress, variableVector &dpdRCG,
                                                         variableVector &d2pdStressdRCG ){
@@ -2327,10 +2327,10 @@ namespace tardigradeMicromorphicTools{
         d2pdStressdRCG = variableVector( sot_dim * sot_dim, 0 );
         for ( unsigned int i = 0; i < sot_dim; i++ ){ d2pdStressdRCG[ sot_dim * i + i ] = 1./3; }
 
-        return NULL;
+        return;
     }
 
-    errorOut computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
+    void computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           variableVector &deviatoricSecondOrderReferenceStress ){
         /*!
@@ -2351,7 +2351,7 @@ namespace tardigradeMicromorphicTools{
                                                             pressure, deviatoricSecondOrderReferenceStress );
     }
 
-    errorOut computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
+    void computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           const variableType &pressure,
                                                           variableVector &deviatoricSecondOrderReferenceStress ){
@@ -2376,10 +2376,10 @@ namespace tardigradeMicromorphicTools{
 
         deviatoricSecondOrderReferenceStress = secondOrderReferenceStress - pressure * invRCG;
 
-        return NULL;
+        return;
     }
 
-    errorOut computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
+    void computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           variableVector &deviatoricSecondOrderReferenceStress,
                                                           variableMatrix &dDeviatoricReferenceStressdReferenceStress,
@@ -2415,11 +2415,11 @@ namespace tardigradeMicromorphicTools{
         dDeviatoricReferenceStressdReferenceStress = tardigradeVectorTools::inflate( _dDeviatoricReferenceStressdReferenceStress, 9, 9 );
         dDeviatoricReferenceStressdRCG             = tardigradeVectorTools::inflate( _dDeviatoricReferenceStressdRCG            , 9, 9 );
 
-        return NULL;
+        return;
 
     }
 
-    errorOut computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
+    void computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           variableVector &deviatoricSecondOrderReferenceStress,
                                                           variableVector &dDeviatoricReferenceStressdReferenceStress,
@@ -2455,7 +2455,7 @@ namespace tardigradeMicromorphicTools{
                                                             dDeviatoricReferenceStressdRCG );
     }
 
-    errorOut computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
+    void computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           const variableType &pressure,
                                                           const variableVector &dPressuredStress,
@@ -2519,10 +2519,10 @@ namespace tardigradeMicromorphicTools{
             }
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
+    void computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           const variableType &pressure,
                                                           const variableVector &dPressuredStress,
@@ -2612,10 +2612,10 @@ namespace tardigradeMicromorphicTools{
             }
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
+    void computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           variableVector &deviatoricSecondOrderReferenceStress,
                                                           variableMatrix &dDeviatoricReferenceStressdReferenceStress,
@@ -2659,10 +2659,10 @@ namespace tardigradeMicromorphicTools{
         dDeviatoricReferenceStressdRCG             = tardigradeVectorTools::inflate( _dDeviatoricReferenceStressdRCG             , 9,  9 );
         d2DevSdSdRCG                               = tardigradeVectorTools::inflate( _d2DevSdSdRCG                               , 9, 81 );
 
-        return NULL;
+        return;
 
     }
-    errorOut computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
+    void computeDeviatoricReferenceSecondOrderStress( const variableVector &secondOrderReferenceStress,
                                                           const variableVector &rightCauchyGreenDeformation,
                                                           variableVector &deviatoricSecondOrderReferenceStress,
                                                           variableVector &dDeviatoricReferenceStressdReferenceStress,
@@ -2706,7 +2706,7 @@ namespace tardigradeMicromorphicTools{
                                                             d2DevSdSdRCG );
     }
 
-    errorOut computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
+    void computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
                                                              const variableVector &rightCauchyGreenDeformation,
                                                              variableVector &deviatoricSecondOrderReferenceStress,
                                                              variableType &pressure ){
@@ -2731,10 +2731,10 @@ namespace tardigradeMicromorphicTools{
                                                                                    pressure,
                                                                                    deviatoricSecondOrderReferenceStress ) );
 
-        return NULL;
+        return;
     }
 
-    errorOut computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
+    void computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
                                                              const variableVector &rightCauchyGreenDeformation,
                                                              variableVector &deviatoricSecondOrderReferenceStress,
                                                              variableType &pressure, variableMatrix &dDevStressdStress,
@@ -2774,11 +2774,11 @@ namespace tardigradeMicromorphicTools{
         dDevStressdStress = tardigradeVectorTools::inflate( _dDevStressdStress, 9, 9 );
         dDevStressdRCG    = tardigradeVectorTools::inflate( _dDevStressdRCG,    9, 9 );
 
-        return NULL;
+        return;
 
     }
 
-    errorOut computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
+    void computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
                                                              const variableVector &rightCauchyGreenDeformation,
                                                              variableVector &deviatoricSecondOrderReferenceStress,
                                                              variableType &pressure, variableVector &dDevStressdStress,
@@ -2815,10 +2815,10 @@ namespace tardigradeMicromorphicTools{
                                                                                    deviatoricSecondOrderReferenceStress,
                                                                                    dDevStressdStress, dDevStressdRCG ) );
 
-        return NULL;
+        return;
     }
 
-    errorOut computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
+    void computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
                                                              const variableVector &rightCauchyGreenDeformation,
                                                              variableVector &deviatoricSecondOrderReferenceStress,
                                                              variableType &pressure, variableMatrix &dDevStressdStress,
@@ -2869,11 +2869,11 @@ namespace tardigradeMicromorphicTools{
         d2DevStressdStressdRCG = tardigradeVectorTools::inflate( _d2DevStressdStressdRCG, 9, 81 );
         d2PressuredStressdRCG  = tardigradeVectorTools::inflate( _d2PressuredStressdRCG , 9,  9 );
 
-        return NULL;
+        return;
 
     }
 
-    errorOut computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
+    void computeSecondOrderReferenceStressDecomposition( const variableVector &secondOrderReferenceStress,
                                                              const variableVector &rightCauchyGreenDeformation,
                                                              variableVector &deviatoricSecondOrderReferenceStress,
                                                              variableType &pressure, variableVector &dDevStressdStress,
@@ -2919,10 +2919,10 @@ namespace tardigradeMicromorphicTools{
                                                                                    dDevStressdStress, dDevStressdRCG,
                                                                                    d2DevStressdStressdRCG ) );
 
-        return NULL;
+        return;
     }
 
-    errorOut computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
+    void computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
                                                              const variableVector &rightCauchyGreenDeformation,
                                                              variableVector &deviatoricHigherOrderReferenceStress,
                                                              variableVector &pressure ){
@@ -2947,10 +2947,10 @@ namespace tardigradeMicromorphicTools{
                                                                                    pressure,
                                                                                    deviatoricHigherOrderReferenceStress ) );
 
-        return NULL;
+        return;
     }
 
-    errorOut computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
+    void computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
                                                              const variableVector &rightCauchyGreenDeformation,
                                                              variableVector &deviatoricHigherOrderReferenceStress,
                                                              variableVector &pressure, variableMatrix &dDevStressdStress,
@@ -2993,11 +2993,11 @@ namespace tardigradeMicromorphicTools{
         dPressuredStress  = tardigradeVectorTools::inflate( _dPressuredStress  ,  3, 27 );
         dPressuredRCG     = tardigradeVectorTools::inflate( _dPressuredRCG     ,  3,  9 );
 
-        return NULL;
+        return;
 
     }
 
-    errorOut computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
+    void computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
                                                              const variableVector &rightCauchyGreenDeformation,
                                                              variableVector &deviatoricHigherOrderReferenceStress,
                                                              variableVector &pressure, variableVector &dDevStressdStress,
@@ -3035,10 +3035,10 @@ namespace tardigradeMicromorphicTools{
                                                                                    deviatoricHigherOrderReferenceStress,
                                                                                    dDevStressdStress, dDevStressdRCG ) );
 
-        return NULL;
+        return;
     }
 
-    errorOut computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
+    void computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
                                                              const variableVector &rightCauchyGreenDeformation,
                                                              variableVector &deviatoricHigherOrderReferenceStress,
                                                              variableVector &pressure, variableMatrix &dDevStressdStress,
@@ -3091,11 +3091,11 @@ namespace tardigradeMicromorphicTools{
         d2DevStressdStressdRCG = tardigradeVectorTools::inflate( _d2DevStressdStressdRCG, 27, 243 );
         d2PressuredStressdRCG  = tardigradeVectorTools::inflate( _d2PressuredStressdRCG ,  3, 243 );
 
-        return NULL;
+        return;
 
     }
 
-    errorOut computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
+    void computeHigherOrderReferenceStressDecomposition( const variableVector &higherOrderReferenceStress,
                                                              const variableVector &rightCauchyGreenDeformation,
                                                              variableVector &deviatoricHigherOrderReferenceStress,
                                                              variableVector &pressure, variableVector &dDevStressdStress,
@@ -3139,10 +3139,10 @@ namespace tardigradeMicromorphicTools{
                                                                                    dDevStressdStress, dDevStressdRCG,
                                                                                    d2DevStressdStressdRCG ) );
 
-        return NULL;
+        return;
     }
 
-    errorOut computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm ){
+    void computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm ){
         /*!
          * Compute the norm of the higher order stress which is defined as
          * \f$|| M ||_K = \sqrt{ M_{IJK} M_{IJK} }\f$
@@ -3171,10 +3171,10 @@ namespace tardigradeMicromorphicTools{
             higherOrderStressNorm[ K ] = std::sqrt( higherOrderStressNorm[ K ] );
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
+    void computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
                                            variableMatrix &dHigherOrderStressNormdHigherOrderStress,
                                            double tol ){
         /*!
@@ -3205,10 +3205,10 @@ namespace tardigradeMicromorphicTools{
 
         dHigherOrderStressNormdHigherOrderStress = tardigradeVectorTools::inflate( _dHigherOrderStressNormdHigherOrderStress, 3, 27 );
 
-        return NULL;
+        return;
 
     }
-    errorOut computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
+    void computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
                                            variableVector &dHigherOrderStressNormdHigherOrderStress,
                                            double tol ){
         /*!
@@ -3247,10 +3247,10 @@ namespace tardigradeMicromorphicTools{
             }
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
+    void computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
                                            variableMatrix &dHigherOrderStressNormdHigherOrderStress,
                                            variableMatrix &d2HigherOrderStressNormdHigherOrderStress2,
                                            double tol ){
@@ -3289,11 +3289,11 @@ namespace tardigradeMicromorphicTools{
         dHigherOrderStressNormdHigherOrderStress   = tardigradeVectorTools::inflate( _dHigherOrderStressNormdHigherOrderStress, 3, 27 );
         d2HigherOrderStressNormdHigherOrderStress2 = tardigradeVectorTools::inflate( _d2HigherOrderStressNormdHigherOrderStress2, 3, 27 * 27 );
 
-        return NULL;
+        return;
 
     }
 
-    errorOut computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
+    void computeHigherOrderStressNorm( const variableVector &higherOrderStress, variableVector &higherOrderStressNorm,
                                            variableVector &dHigherOrderStressNormdHigherOrderStress,
                                            variableVector &d2HigherOrderStressNormdHigherOrderStress2,
                                            double tol ){
@@ -3351,10 +3351,10 @@ namespace tardigradeMicromorphicTools{
             }
         }
 
-        return NULL;
+        return;
     }
 
-    errorOut assembleDeformationGradient( const variableVector &displacementGradient, variableVector &deformationGradient ){
+    void assembleDeformationGradient( const variableVector &displacementGradient, variableVector &deformationGradient ){
         /*!
          * Assemble the deformation gradient from the gradient of the displacement.
          *
@@ -3371,10 +3371,10 @@ namespace tardigradeMicromorphicTools{
         deformationGradient = displacementGradient;
         for ( unsigned int i = 0; i < dim; i++ ){ deformationGradient[ dim * i + i ] += 1; }
 
-        return NULL;
+        return;
     }
 
-    errorOut assembleDeformationGradient( const variableVector &displacementGradient, variableVector &deformationGradient,
+    void assembleDeformationGradient( const variableVector &displacementGradient, variableVector &deformationGradient,
                                           variableVector &dFdGradU ){
         /*!
          * Assemble the deformation gradient from the gradient of the displacement.
@@ -3393,10 +3393,10 @@ namespace tardigradeMicromorphicTools{
         dFdGradU = variableVector( sot_dim * sot_dim, 0 );
         for ( unsigned int i = 0; i < sot_dim; i++ ){ dFdGradU[ sot_dim * i + i ] = 1; }
 
-        return NULL;
+        return;
     }
 
-    errorOut assembleMicroDeformation( const variableVector &microDisplacement, variableVector &microDeformation ){
+    void assembleMicroDeformation( const variableVector &microDisplacement, variableVector &microDeformation ){
         /*!
          * Assemble the micro deformation from the micro displacement
          *
@@ -3413,10 +3413,10 @@ namespace tardigradeMicromorphicTools{
         microDeformation = microDisplacement;
         for ( unsigned int i = 0; i < dim; i++ ){ microDeformation[ dim * i + i ] += 1; }
 
-        return NULL;
+        return;
     }
 
-    errorOut assembleMicroDeformation( const variableVector &microDisplacement, variableVector &microDeformation,
+    void assembleMicroDeformation( const variableVector &microDisplacement, variableVector &microDeformation,
                                        variableVector &dChidPhi ){
         /*!
          * Assemble the micro deformation from the micro displacement
@@ -3435,10 +3435,10 @@ namespace tardigradeMicromorphicTools{
         dChidPhi = variableVector( sot_dim * sot_dim, 0 );
         for ( unsigned int i = 0; i < sot_dim; i++ ){ dChidPhi[ sot_dim * i + i ] = 1; }
 
-        return NULL;
+        return;
     }
 
-    errorOut assembleGradientMicroDeformation( const variableVector &gradientMicroDisplacement,
+    void assembleGradientMicroDeformation( const variableVector &gradientMicroDisplacement,
                                                variableVector &gradientMicroDeformation ){
         /*!
          * Assemble the gradient of the micro deformation from the gradient of the micro displacement
@@ -3456,10 +3456,10 @@ namespace tardigradeMicromorphicTools{
 
         gradientMicroDeformation = gradientMicroDisplacement;
 
-        return NULL;
+        return;
     } 
 
-    errorOut assembleGradientMicroDeformation( const variableVector &gradientMicroDisplacement,
+    void assembleGradientMicroDeformation( const variableVector &gradientMicroDisplacement,
                                                variableVector &gradientMicroDeformation,
                                                variableVector &dGradChidGradPhi ){
         /*!
@@ -3482,6 +3482,6 @@ namespace tardigradeMicromorphicTools{
         dGradChidGradPhi = variableVector( tot_dim * tot_dim, 0 );
         for ( unsigned int i = 0; i < tot_dim; i++ ){ dGradChidGradPhi[ tot_dim * i + i ] = 1; }
 
-        return NULL;
+        return;
     }
 }
