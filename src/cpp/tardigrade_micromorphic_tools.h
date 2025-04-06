@@ -75,6 +75,10 @@ namespace tardigradeMicromorphicTools{
     void dCauchyStressdPK2Stress( const variableVector &deformationGradient,
                                   variableVector &dCauchyStressdPK2Stress );
 
+    void dCauchyStressdPK2Stress( const variableVector &deformationGradient,
+                                  variableVector &dCauchyStressdPK2Stress,
+                                  variableVector &dRdF );
+
     void pullBackCauchyStress( const variableVector &cauchyStress,
                                    const variableVector &deformationGradient,
                                    variableVector &PK2Stress );
@@ -113,6 +117,10 @@ namespace tardigradeMicromorphicTools{
 
     void dSymmetricMicroStressdReferenceSymmetricMicroStress( const variableVector &deformationGradient,
                                                               variableVector &dSymmetricMicroStressdReferenceSymmetricMicroStress );
+
+    void dSymmetricMicroStressdReferenceSymmetricMicroStress( const variableVector &deformationGradient,
+                                                              variableVector &dSymmetricMicroStressdReferenceSymmetricMicroStress,
+                                                              variableVector &dRdF );
 
     void pullBackMicroStress( const variableVector &microStress,
                                   const variableVector &deformationGradient,
@@ -165,6 +173,12 @@ namespace tardigradeMicromorphicTools{
     void dHigherOrderStressdReferenceHigherOrderStress( const variableVector &deformationGradient,
                                                         const variableVector &microDeformation,
                                                         variableVector &dHigherOrderStressdReferenceHigherOrderStress );
+
+    void dHigherOrderStressdReferenceHigherOrderStress( const variableVector &deformationGradient,
+                                                        const variableVector &microDeformation,
+                                                        variableVector &dHigherOrderStressdReferenceHigherOrderStress,
+                                                        variableVector &dRdF,
+                                                        variableVector &dRdChi );
 
     void pullBackHigherOrderStress( const variableVector &higherOrderStress,
                                         const variableVector &deformationGradient,
