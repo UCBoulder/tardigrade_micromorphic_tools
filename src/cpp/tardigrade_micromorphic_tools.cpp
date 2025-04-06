@@ -3500,8 +3500,8 @@ namespace tardigradeMicromorphicTools{
 
         variableType detF;
 
-        Eigen::Map< const Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map1( deformationGradient.data( ), dim, dim );
-        detF = map1.determinant( );
+        Eigen::Map< const Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( deformationGradient.data( ), dim, dim );
+        detF = map.determinant( );
 
         //Assemble the derivative
         dCauchyStressdPK2Stress = variableVector( sot_dim * sot_dim, 0 );
@@ -3543,6 +3543,31 @@ namespace tardigradeMicromorphicTools{
          * \param &dHigherOrderStressdReferenceHigherOrderStress: The derivative of the higher order stress w.r.t. the reference higher order stress
          */
 
+        //Assume 3d
+        constexpr unsigned int dim = 3;
+        constexpr unsigned int tot_dim = dim * dim * dim;
+
+        variableType detF;
+
+        Eigen::Map< const Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( deformationGradient.data( ), dim, dim );
+        detF = map.determinant( );
+
+        dHigherOrderStressdReferenceHigherOrderStress = variableVector( tot_dim * tot_dim, 0 );
+
+        for ( unsigned int i = 0; i < dim; i++ ){
+            for ( unsigned int j = 0; j < dim; j++ ){
+                for ( unsigned int k = 0; k < dim; k++ ){
+                    for ( unsigned int l = 0; l < dim; l++ ){
+                        for ( unsigned int M = 0; M < dim; M++ ){
+                            for ( unsigned int N = 0; N < dim; N++ ){
+                                dHigherOrderStressdReferenceHigherOrderStress[ dim * dim * tot_dim * i + dim * tot_dim * j + tot_dim * k + dim * dim * l + dim * M + N ] = deformationGradient[ dim * i + l ] * deformationGradient[ dim * j + M ] * microDeformation[ dim * k + N] / detF;
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }

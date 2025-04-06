@@ -202,7 +202,10 @@ BOOST_AUTO_TEST_CASE( test_pushForwardPK2Stress, * boost::unit_test::tolerance( 
     tardigradeMicromorphicTools::pushForwardPK2Stress( PK2Stress, deformationGradient, resultJ,
                                                      dCauchydPK2, dCauchydF );
 
-    
+    variableVector _dCauchydPK2;
+    tardigradeMicromorphicTools::dCauchyStressdPK2Stress( deformationGradient, _dCauchydPK2 );
+
+    BOOST_TEST( _dCauchydPK2 == tardigradeVectorTools::appendVectors( dCauchydPK2 ), CHECK_PER_ELEMENT );
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
@@ -280,7 +283,10 @@ BOOST_AUTO_TEST_CASE( test_pushForwardReferenceMicroStress, * boost::unit_test::
     tardigradeMicromorphicTools::pushForwardReferenceMicroStress( referenceMicroStress, deformationGradient, resultJ,
                                                                 dsdS, dsdF );
 
-    
+    variableVector _dsdS;
+    tardigradeMicromorphicTools::dSymmetricMicroStressdReferenceSymmetricMicroStress( deformationGradient, _dsdS );
+
+    BOOST_TEST( _dsdS == tardigradeVectorTools::appendVectors( dsdS ), CHECK_PER_ELEMENT );
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
@@ -464,7 +470,10 @@ BOOST_AUTO_TEST_CASE( test_pushForwardHigherOrderStress, * boost::unit_test::tol
                                                              dHigherOrderStressdDeformationGradient,
                                                              dHigherOrderStressdMicroDeformation );
 
-    
+    variableVector _dmdM;
+    tardigradeMicromorphicTools::dHigherOrderStressdReferenceHigherOrderStress( deformationGradient, microDeformation, _dmdM );
+
+    BOOST_TEST( _dmdM == tardigradeVectorTools::appendVectors( dHigherOrderStressdReferenceHigherOrderStress ), CHECK_PER_ELEMENT );
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
@@ -2067,8 +2076,6 @@ BOOST_AUTO_TEST_CASE( test_pullBackCauchyStress, * boost::unit_test::tolerance( 
 
     tardigradeMicromorphicTools::pullBackCauchyStress( cauchyStress, deformationGradient, resultJ, dPK2dCauchy, dPK2dF );
 
-    
-
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
     //Test the Jacobian w.r.t. the Cauchy stress
@@ -2155,8 +2162,6 @@ BOOST_AUTO_TEST_CASE( test_pullBackMicroStress, * boost::unit_test::tolerance( D
     variableMatrix dSigmads, dSigmadF;
 
     tardigradeMicromorphicTools::pullBackMicroStress( microStress, deformationGradient, resultJ, dSigmads, dSigmadF );
-
-    
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
