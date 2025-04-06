@@ -3594,7 +3594,7 @@ namespace tardigradeMicromorphicTools{
          * \param &dRdF: The derivative of the result w.r.t. the deformation gradient
          */
 
-        dCauchyStressdPK2Stress( deformationGradient, dSymmetricMicroStressdReferenceSymmetricMicroStress );
+        dCauchyStressdPK2Stress( deformationGradient, dSymmetricMicroStressdReferenceSymmetricMicroStress, dRdF );
 
     }
 
@@ -3648,7 +3648,7 @@ namespace tardigradeMicromorphicTools{
          * \param &microDeformation: The micro deformationt from the reference configuration to the current configuration
          * \param &dHigherOrderStressdReferenceHigherOrderStress: The derivative of the higher order stress w.r.t. the reference higher order stress
          * \param &dRdF: The derivative of the result w.r.t. the deformation gradient
-         * \param &dRdF: The derivative of the result w.r.t. the micro deformation
+         * \param &dRdChi: The derivative of the result w.r.t. the micro deformation
          */
 
         //Assume 3d
