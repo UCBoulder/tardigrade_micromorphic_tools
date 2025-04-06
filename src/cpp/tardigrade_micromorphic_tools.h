@@ -67,10 +67,17 @@ namespace tardigradeMicromorphicTools{
                                    variableVector &dcauchyStressdDeformationGradient );
 
     void pushForwardPK2Stress( const variableVector &PK2Stress,
-                                   const variableVector &deformationGradient,
-                                   variableVector &cauchyStress, 
-                                   variableMatrix &dcauchyStressdPK2Stress,
-                                   variableMatrix &dcauchyStressdDeformationGradient );
+                               const variableVector &deformationGradient,
+                               variableVector &cauchyStress, 
+                               variableMatrix &dcauchyStressdPK2Stress,
+                               variableMatrix &dcauchyStressdDeformationGradient );
+
+    void dCauchyStressdPK2Stress( const variableVector &deformationGradient,
+                                  variableVector &dCauchyStressdPK2Stress );
+
+    void dCauchyStressdPK2Stress( const variableVector &deformationGradient,
+                                  variableVector &dCauchyStressdPK2Stress,
+                                  variableVector &dRdF );
 
     void pullBackCauchyStress( const variableVector &cauchyStress,
                                    const variableVector &deformationGradient,
@@ -107,6 +114,13 @@ namespace tardigradeMicromorphicTools{
                                               variableVector &microStress, 
                                               variableMatrix &dMicroStressdReferenceMicroStress,
                                               variableMatrix &dMicroStressdDeformationGradient );
+
+    void dSymmetricMicroStressdReferenceSymmetricMicroStress( const variableVector &deformationGradient,
+                                                              variableVector &dSymmetricMicroStressdReferenceSymmetricMicroStress );
+
+    void dSymmetricMicroStressdReferenceSymmetricMicroStress( const variableVector &deformationGradient,
+                                                              variableVector &dSymmetricMicroStressdReferenceSymmetricMicroStress,
+                                                              variableVector &dRdF );
 
     void pullBackMicroStress( const variableVector &microStress,
                                   const variableVector &deformationGradient,
@@ -155,6 +169,16 @@ namespace tardigradeMicromorphicTools{
                                            variableMatrix &dHigherOrderStressdReferenceHigherOrderStress,
                                            variableMatrix &dHigherOrderStressdDeformationGradient,
                                            variableMatrix &dHigherOrderStressdMicroDeformation );
+
+    void dHigherOrderStressdReferenceHigherOrderStress( const variableVector &deformationGradient,
+                                                        const variableVector &microDeformation,
+                                                        variableVector &dHigherOrderStressdReferenceHigherOrderStress );
+
+    void dHigherOrderStressdReferenceHigherOrderStress( const variableVector &deformationGradient,
+                                                        const variableVector &microDeformation,
+                                                        variableVector &dHigherOrderStressdReferenceHigherOrderStress,
+                                                        variableVector &dRdF,
+                                                        variableVector &dRdChi );
 
     void pullBackHigherOrderStress( const variableVector &higherOrderStress,
                                         const variableVector &deformationGradient,
