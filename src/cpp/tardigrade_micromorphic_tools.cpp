@@ -3484,4 +3484,65 @@ namespace tardigradeMicromorphicTools{
 
         return;
     }
+
+    void dCauchyStressdPK2Stress( const variableVector &deformationGradient,
+                                  variableVector &dCauchyStressdPK2Stress ){
+        /*!
+         * Compute the derivative of the Cauchy stress w.r.t. the PK2 stress
+         * 
+         * \param &deformationGradient: The deformation gradient from the reference configuration to the current configuration
+         * \param &dCauchyStressdPK2Stress: The derivative of the Cauchy stress w.r.t. the PK2 stress
+         */
+
+        //Assume 3d
+        constexpr unsigned int dim = 3;
+        constexpr unsigned int sot_dim = dim * dim;
+
+        variableType detF;
+
+        Eigen::Map< const Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map1( deformationGradient.data( ), dim, dim );
+        detF = map1.determinant( );
+
+        //Assemble the derivative
+        dCauchyStressdPK2Stress = variableVector( sot_dim * sot_dim, 0 );
+
+        for ( unsigned int i = 0; i < dim; i++ ){
+            for ( unsigned int j = 0; j < dim; j++ ){
+                for ( unsigned int k = 0; k < dim; k++ ){
+                    for ( unsigned int K = 0; K < dim; K++ ){
+                        dCauchyStressdPK2Stress[ dim * sot_dim * i + sot_dim * j + dim * k + K ] = deformationGradient[ dim * i + k ]
+                                                                                                 * deformationGradient[ dim * j + K ] / detF;
+                    }
+                }
+            }
+        }
+
+    }
+
+    void dSymmetricMicroStressdReferenceSymmetricMicroStress( const variableVector &deformationGradient,
+                                                              variableVector &dSymmetricMicroStressdReferenceSymmetricMicroStress ){
+        /*!
+         * Compute the derivative of the symmetric micro stress w.r.t. the reference symmetric micro stress
+         * 
+         * \param &deformationGradient: The deformation gradient from the reference configuration to the current configuration
+         * \param &dSymmetricMicroStressdReferenceSymmetricMicroStress: The derivative of the symmetric micro stress w.r.t. the reference symmetric micro stress
+         */
+
+        dCauchyStressdPK2Stress( deformationGradient, dSymmetricMicroStressdReferenceSymmetricMicroStress );
+
+    }
+
+    void dHigherOrderStressdReferenceHigherOrderStress( const variableVector &deformationGradient,
+                                                        const variableVector &microDeformation,
+                                                        variableVector &dHigherOrderStressdReferenceHigherOrderStress ){
+        /*!
+         * Compute the derivative of the higher order stress w.r.t. the reference higher order stress
+         * 
+         * \param &deformationGradient: The deformation gradient from the reference configuration to the current configuration
+         * \param &microDeformation: The micro deformationt from the reference configuration to the current configuration
+         * \param &dHigherOrderStressdReferenceHigherOrderStress: The derivative of the higher order stress w.r.t. the reference higher order stress
+         */
+
+    }
+
 }
