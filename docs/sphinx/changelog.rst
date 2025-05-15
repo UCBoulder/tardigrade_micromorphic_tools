@@ -6,7 +6,23 @@ Changelog
 #########
 
 ******************
-1.4.0 (unreleased)
+1.4.2 (2025-05-15)
+******************
+
+Documentation
+=============
+- Updated the documentation to remove LANL links where appropriate (:pull:`23`). By `Nathan Miller`_.
+
+******************
+1.4.1 (2025-05-15)
+******************
+
+Internal Changes
+================
+- Added ability to perform conda packaging (:pull:`21`). By `Nathan Miller`_.
+
+******************
+1.4.0 (2024-11-25)
 ******************
 
 Internal Changes

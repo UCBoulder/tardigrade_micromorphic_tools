@@ -4,16 +4,15 @@ package:
   version: {{ VERSION }}
 
 about:
-  home: https://github.com/lanl/tardigrade-micromorphic-tools
+  home: https://github.com/UCBoulder/tardigrade_micromorphic_tools/
   license: BSD-3-Clause
   license_file: LICENSE
   summary: 'A collection of useful tools and utilities for micromorphic continuum mechanics'
   description: |
-    tardigrade-micromorphic-tools (C20048 Tardigrade) A collection of useful tools and utilities for micromorphic
+    tardigrade_micromorphic_tools A collection of useful tools and utilities for micromorphic
     continuum mechanics. These utilities are intended to reduce the implementation time of  constitutive model
     development by providing a library of functions which are verified and ready to be implemented.
-  doc_url: https://lanl.github.io/tardigrade-micromorphic-tools
-  dev_url: https://github.com/lanl/tardigrade-micromorphic-tools
+  dev_url: https://github.com/UCBoulder/tardigrade_micromorphic_tools/
 
 source:
   path: '..'
