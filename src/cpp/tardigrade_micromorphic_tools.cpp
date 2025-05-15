@@ -3484,4 +3484,214 @@ namespace tardigradeMicromorphicTools{
 
         return;
     }
+
+    void dCauchyStressdPK2Stress( const variableVector &deformationGradient,
+                                  variableVector &dCauchyStressdPK2Stress ){
+        /*!
+         * Compute the derivative of the Cauchy stress w.r.t. the PK2 stress
+         * 
+         * \param &deformationGradient: The deformation gradient from the reference configuration to the current configuration
+         * \param &dCauchyStressdPK2Stress: The derivative of the Cauchy stress w.r.t. the PK2 stress
+         */
+
+        //Assume 3d
+        constexpr unsigned int dim = 3;
+        constexpr unsigned int sot_dim = dim * dim;
+
+        variableType detF;
+
+        Eigen::Map< const Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( deformationGradient.data( ), dim, dim );
+        detF = map.determinant( );
+
+        //Assemble the derivative
+        dCauchyStressdPK2Stress = variableVector( sot_dim * sot_dim, 0 );
+
+        for ( unsigned int i = 0; i < dim; i++ ){
+            for ( unsigned int j = 0; j < dim; j++ ){
+                for ( unsigned int k = 0; k < dim; k++ ){
+                    for ( unsigned int K = 0; K < dim; K++ ){
+                        dCauchyStressdPK2Stress[ dim * sot_dim * i + sot_dim * j + dim * k + K ] = deformationGradient[ dim * i + k ]
+                                                                                                 * deformationGradient[ dim * j + K ] / detF;
+                    }
+                }
+            }
+        }
+
+    }
+
+    void dCauchyStressdPK2Stress( const variableVector &deformationGradient,
+                                  variableVector &dCauchyStressdPK2Stress,
+                                  variableVector &dRdF ){
+        /*!
+         * Compute the derivative of the Cauchy stress w.r.t. the PK2 stress
+         * 
+         * \param &deformationGradient: The deformation gradient from the reference configuration to the current configuration
+         * \param &dCauchyStressdPK2Stress: The derivative of the Cauchy stress w.r.t. the PK2 stress
+         * \param &dRdF: The derivative of the result w.r.t. the deformation gradient
+         */
+
+        //Assume 3d
+        constexpr unsigned int dim = 3;
+        constexpr unsigned int sot_dim = dim * dim;
+
+        variableType detF;
+
+        variableVector inverseDeformationGradient = deformationGradient;
+        Eigen::Map< const Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map1( deformationGradient.data( ), dim, dim );
+        Eigen::Map< Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map2( inverseDeformationGradient.data( ), dim, dim );
+        detF = map1.determinant( );
+        map2 = map2.inverse( ).transpose( ).eval( );
+
+        //Assemble the derivative
+        dCauchyStressdPK2Stress = variableVector( sot_dim * sot_dim, 0 );
+        dRdF = variableVector( sot_dim * sot_dim * sot_dim, 0 );
+
+        for ( unsigned int i = 0; i < dim; i++ ){
+            for ( unsigned int j = 0; j < dim; j++ ){
+                for ( unsigned int k = 0; k < dim; k++ ){
+                    for ( unsigned int K = 0; K < dim; K++ ){
+                        dCauchyStressdPK2Stress[ dim * sot_dim * i + sot_dim * j + dim * k + K ] += deformationGradient[ dim * i + k ]
+                                                                                                  * deformationGradient[ dim * j + K ] / detF;
+
+                        dRdF[ dim * sot_dim * sot_dim * i + sot_dim * sot_dim * j + dim * sot_dim * k + sot_dim * K + dim * i + k ] += deformationGradient[ dim * j + K ] / detF;
+
+                        dRdF[ dim * sot_dim * sot_dim * i + sot_dim * sot_dim * j + dim * sot_dim * k + sot_dim * K + dim * j + K ] += deformationGradient[ dim * i + k ] / detF;
+
+                        for ( unsigned int aA = 0; aA < sot_dim; ++aA ){
+                            dRdF[ dim * sot_dim * sot_dim * i + sot_dim * sot_dim * j + dim * sot_dim * k + sot_dim * K + aA ] +=
+                                                                                                 - deformationGradient[ dim * i + k ]
+                                                                                                 * deformationGradient[ dim * j + K ]
+                                                                                                 * inverseDeformationGradient[ aA ] / detF;
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    void dSymmetricMicroStressdReferenceSymmetricMicroStress( const variableVector &deformationGradient,
+                                                              variableVector &dSymmetricMicroStressdReferenceSymmetricMicroStress ){
+        /*!
+         * Compute the derivative of the symmetric micro stress w.r.t. the reference symmetric micro stress
+         * 
+         * \param &deformationGradient: The deformation gradient from the reference configuration to the current configuration
+         * \param &dSymmetricMicroStressdReferenceSymmetricMicroStress: The derivative of the symmetric micro stress w.r.t. the reference symmetric micro stress
+         */
+
+        dCauchyStressdPK2Stress( deformationGradient, dSymmetricMicroStressdReferenceSymmetricMicroStress );
+
+    }
+
+    void dSymmetricMicroStressdReferenceSymmetricMicroStress( const variableVector &deformationGradient,
+                                                              variableVector &dSymmetricMicroStressdReferenceSymmetricMicroStress,
+                                                              variableVector &dRdF ){
+        /*!
+         * Compute the derivative of the symmetric micro stress w.r.t. the reference symmetric micro stress
+         * 
+         * \param &deformationGradient: The deformation gradient from the reference configuration to the current configuration
+         * \param &dSymmetricMicroStressdReferenceSymmetricMicroStress: The derivative of the symmetric micro stress w.r.t. the reference symmetric micro stress
+         * \param &dRdF: The derivative of the result w.r.t. the deformation gradient
+         */
+
+        dCauchyStressdPK2Stress( deformationGradient, dSymmetricMicroStressdReferenceSymmetricMicroStress, dRdF );
+
+    }
+
+    void dHigherOrderStressdReferenceHigherOrderStress( const variableVector &deformationGradient,
+                                                        const variableVector &microDeformation,
+                                                        variableVector &dHigherOrderStressdReferenceHigherOrderStress ){
+        /*!
+         * Compute the derivative of the higher order stress w.r.t. the reference higher order stress
+         * 
+         * \param &deformationGradient: The deformation gradient from the reference configuration to the current configuration
+         * \param &microDeformation: The micro deformationt from the reference configuration to the current configuration
+         * \param &dHigherOrderStressdReferenceHigherOrderStress: The derivative of the higher order stress w.r.t. the reference higher order stress
+         */
+
+        //Assume 3d
+        constexpr unsigned int dim = 3;
+        constexpr unsigned int tot_dim = dim * dim * dim;
+
+        variableType detF;
+
+        Eigen::Map< const Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map( deformationGradient.data( ), dim, dim );
+        detF = map.determinant( );
+
+        dHigherOrderStressdReferenceHigherOrderStress = variableVector( tot_dim * tot_dim, 0 );
+
+        for ( unsigned int i = 0; i < dim; i++ ){
+            for ( unsigned int j = 0; j < dim; j++ ){
+                for ( unsigned int k = 0; k < dim; k++ ){
+                    for ( unsigned int l = 0; l < dim; l++ ){
+                        for ( unsigned int M = 0; M < dim; M++ ){
+                            for ( unsigned int N = 0; N < dim; N++ ){
+                                dHigherOrderStressdReferenceHigherOrderStress[ dim * dim * tot_dim * i + dim * tot_dim * j + tot_dim * k + dim * dim * l + dim * M + N ] = deformationGradient[ dim * i + l ] * deformationGradient[ dim * j + M ] * microDeformation[ dim * k + N] / detF;
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void dHigherOrderStressdReferenceHigherOrderStress( const variableVector &deformationGradient,
+                                                        const variableVector &microDeformation,
+                                                        variableVector &dHigherOrderStressdReferenceHigherOrderStress,
+                                                        variableVector &dRdF,
+                                                        variableVector &dRdChi ){
+        /*!
+         * Compute the derivative of the higher order stress w.r.t. the reference higher order stress
+         * 
+         * \param &deformationGradient: The deformation gradient from the reference configuration to the current configuration
+         * \param &microDeformation: The micro deformationt from the reference configuration to the current configuration
+         * \param &dHigherOrderStressdReferenceHigherOrderStress: The derivative of the higher order stress w.r.t. the reference higher order stress
+         * \param &dRdF: The derivative of the result w.r.t. the deformation gradient
+         * \param &dRdChi: The derivative of the result w.r.t. the micro deformation
+         */
+
+        //Assume 3d
+        constexpr unsigned int dim = 3;
+        constexpr unsigned int sot_dim = dim * dim;
+        constexpr unsigned int tot_dim = dim * dim * dim;
+
+        variableType detF;
+
+        variableVector inverseDeformationGradient = deformationGradient;
+        Eigen::Map< const Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map1( deformationGradient.data( ), dim, dim );
+        Eigen::Map< Eigen::Matrix< variableType, dim, dim, Eigen::RowMajor > > map2( inverseDeformationGradient.data( ), dim, dim );
+        detF = map1.determinant( );
+        map2 = map2.inverse( ).transpose( ).eval( );
+
+        dHigherOrderStressdReferenceHigherOrderStress = variableVector( tot_dim * tot_dim, 0 );
+        dRdF =  variableVector( tot_dim * tot_dim * sot_dim, 0 );
+        dRdChi = variableVector( tot_dim * tot_dim * sot_dim, 0 );
+
+        for ( unsigned int i = 0; i < dim; i++ ){
+            for ( unsigned int j = 0; j < dim; j++ ){
+                for ( unsigned int k = 0; k < dim; k++ ){
+                    for ( unsigned int l = 0; l < dim; l++ ){
+                        for ( unsigned int M = 0; M < dim; M++ ){
+                            for ( unsigned int N = 0; N < dim; N++ ){
+                                dHigherOrderStressdReferenceHigherOrderStress[ dim * dim * tot_dim * i + dim * tot_dim * j + tot_dim * k + dim * dim * l + dim * M + N ] += deformationGradient[ dim * i + l ] * deformationGradient[ dim * j + M ] * microDeformation[ dim * k + N] / detF;
+
+                                dRdF[ dim * dim * tot_dim * sot_dim * i + dim * tot_dim * sot_dim * j + tot_dim * sot_dim * k + dim * dim * sot_dim * l + dim * sot_dim * M + sot_dim * N + dim * i + l ] += deformationGradient[ dim * j + M ] * microDeformation[ dim * k + N] / detF;
+
+                                dRdF[ dim * dim * tot_dim * sot_dim * i + dim * tot_dim * sot_dim * j + tot_dim * sot_dim * k + dim * dim * sot_dim * l + dim * sot_dim * M + sot_dim * N + dim * j + M ] += deformationGradient[ dim * i + l ] * microDeformation[ dim * k + N] / detF;
+
+                                dRdChi[ dim * dim * tot_dim * sot_dim * i + dim * tot_dim * sot_dim * j + tot_dim * sot_dim * k + dim * dim * sot_dim * l + dim * sot_dim * M + sot_dim * N + dim * k + N ] += deformationGradient[ dim * i + l ] * deformationGradient[ dim * j + M ] / detF;
+
+                                for ( unsigned int aA = 0; aA < sot_dim; ++aA ){
+
+                                    dRdF[ dim * dim * tot_dim * sot_dim * i + dim * tot_dim * sot_dim * j + tot_dim * sot_dim * k + dim * dim * sot_dim * l + dim * sot_dim * M + sot_dim * N + aA ] -= deformationGradient[ dim * i + l ] * deformationGradient[ dim * j + M ] * microDeformation[ dim * k + N]  * inverseDeformationGradient[ aA ] / detF;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }

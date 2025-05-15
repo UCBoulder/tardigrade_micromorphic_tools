@@ -202,7 +202,10 @@ BOOST_AUTO_TEST_CASE( test_pushForwardPK2Stress, * boost::unit_test::tolerance( 
     tardigradeMicromorphicTools::pushForwardPK2Stress( PK2Stress, deformationGradient, resultJ,
                                                      dCauchydPK2, dCauchydF );
 
-    
+    variableVector _dCauchydPK2;
+    tardigradeMicromorphicTools::dCauchyStressdPK2Stress( deformationGradient, _dCauchydPK2 );
+
+    BOOST_TEST( _dCauchydPK2 == tardigradeVectorTools::appendVectors( dCauchydPK2 ), CHECK_PER_ELEMENT );
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
@@ -280,7 +283,10 @@ BOOST_AUTO_TEST_CASE( test_pushForwardReferenceMicroStress, * boost::unit_test::
     tardigradeMicromorphicTools::pushForwardReferenceMicroStress( referenceMicroStress, deformationGradient, resultJ,
                                                                 dsdS, dsdF );
 
-    
+    variableVector _dsdS;
+    tardigradeMicromorphicTools::dSymmetricMicroStressdReferenceSymmetricMicroStress( deformationGradient, _dsdS );
+
+    BOOST_TEST( _dsdS == tardigradeVectorTools::appendVectors( dsdS ), CHECK_PER_ELEMENT );
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
@@ -464,7 +470,10 @@ BOOST_AUTO_TEST_CASE( test_pushForwardHigherOrderStress, * boost::unit_test::tol
                                                              dHigherOrderStressdDeformationGradient,
                                                              dHigherOrderStressdMicroDeformation );
 
-    
+    variableVector _dmdM;
+    tardigradeMicromorphicTools::dHigherOrderStressdReferenceHigherOrderStress( deformationGradient, microDeformation, _dmdM );
+
+    BOOST_TEST( _dmdM == tardigradeVectorTools::appendVectors( dHigherOrderStressdReferenceHigherOrderStress ), CHECK_PER_ELEMENT );
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
@@ -2067,8 +2076,6 @@ BOOST_AUTO_TEST_CASE( test_pullBackCauchyStress, * boost::unit_test::tolerance( 
 
     tardigradeMicromorphicTools::pullBackCauchyStress( cauchyStress, deformationGradient, resultJ, dPK2dCauchy, dPK2dF );
 
-    
-
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
     //Test the Jacobian w.r.t. the Cauchy stress
@@ -2155,8 +2162,6 @@ BOOST_AUTO_TEST_CASE( test_pullBackMicroStress, * boost::unit_test::tolerance( D
     variableMatrix dSigmads, dSigmadF;
 
     tardigradeMicromorphicTools::pullBackMicroStress( microStress, deformationGradient, resultJ, dSigmads, dSigmadF );
-
-    
 
     BOOST_TEST( resultJ == answer, CHECK_PER_ELEMENT );
 
@@ -2335,6 +2340,220 @@ BOOST_AUTO_TEST_CASE( test_pullBackHigherOrderStress, * boost::unit_test::tolera
         for ( unsigned int j = 0; j < gradCol.size(); j++ ){
             BOOST_TEST( gradCol[ j ] == dMdChi[ j ][ i ] );
         }
+    }
+
+    return;
+
+}
+
+BOOST_AUTO_TEST_CASE( test_dCauchyStressdPK2StressJacobians, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
+    /*!
+     * Test the computation of the push-foward operation on the PK2 Stress.
+     *
+     * :param std::ofstream &results: The output file.
+     */
+
+    variableVector deformationGradient  = { -1.08831037, -0.66333427, -0.48239487,
+                                            -0.904554  ,  1.28942848, -0.02156112,
+                                            -0.08464824, -0.07730218,  0.86415668 };
+
+    variableVector result, resultJ;
+
+    variableVector dRdF;
+
+    tardigradeMicromorphicTools::dCauchyStressdPK2Stress( deformationGradient, result );
+
+    tardigradeMicromorphicTools::dCauchyStressdPK2Stress( deformationGradient, resultJ, dRdF );
+
+    BOOST_TEST( result == resultJ, CHECK_PER_ELEMENT );
+
+    //Test Jacobian
+
+    double eps = 1e-5;
+
+    {
+
+        variableVector x = deformationGradient;
+        constexpr unsigned int VAR_SIZE = 9;
+        constexpr unsigned int OUT_SIZE = 81;
+
+        for ( unsigned int i = 0; i < VAR_SIZE; ++i ){
+
+            double delta = eps * std::fabs( x[ i ] ) + eps;
+
+            variableVector xp = x;
+            variableVector xm = x;
+
+            xp[ i ] += delta;
+            xm[ i ] -= delta;
+
+            variableVector vp, vm;
+
+            tardigradeMicromorphicTools::dCauchyStressdPK2Stress( xp, vp );
+            tardigradeMicromorphicTools::dCauchyStressdPK2Stress( xm, vm );
+
+            for ( unsigned int j = 0; j < OUT_SIZE; ++j ){
+
+                BOOST_TEST( dRdF[ VAR_SIZE * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
+
+            }
+
+        }
+
+    }
+
+    return;
+}
+
+BOOST_AUTO_TEST_CASE( test_dSymmetricMicroStressdReferenceSymmetricMicroStressJacobians, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
+    /*!
+     * Test the computation of the push-foward operation on the PK2 Stress.
+     *
+     * :param std::ofstream &results: The output file.
+     */
+
+    variableVector deformationGradient  = { -1.08831037, -0.66333427, -0.48239487,
+                                            -0.904554  ,  1.28942848, -0.02156112,
+                                            -0.08464824, -0.07730218,  0.86415668 };
+
+    variableVector result, resultJ;
+
+    variableVector dRdF;
+
+    tardigradeMicromorphicTools::dSymmetricMicroStressdReferenceSymmetricMicroStress( deformationGradient, result );
+
+    tardigradeMicromorphicTools::dSymmetricMicroStressdReferenceSymmetricMicroStress( deformationGradient, resultJ, dRdF );
+
+    BOOST_TEST( result == resultJ, CHECK_PER_ELEMENT );
+
+    //Test Jacobian
+
+    double eps = 1e-5;
+
+    {
+
+        variableVector x = deformationGradient;
+        constexpr unsigned int VAR_SIZE = 9;
+        constexpr unsigned int OUT_SIZE = 81;
+
+        for ( unsigned int i = 0; i < VAR_SIZE; ++i ){
+
+            double delta = eps * std::fabs( x[ i ] ) + eps;
+
+            variableVector xp = x;
+            variableVector xm = x;
+
+            xp[ i ] += delta;
+            xm[ i ] -= delta;
+
+            variableVector vp, vm;
+
+            tardigradeMicromorphicTools::dSymmetricMicroStressdReferenceSymmetricMicroStress( xp, vp );
+            tardigradeMicromorphicTools::dSymmetricMicroStressdReferenceSymmetricMicroStress( xm, vm );
+
+            for ( unsigned int j = 0; j < OUT_SIZE; ++j ){
+
+                BOOST_TEST( dRdF[ VAR_SIZE * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
+
+            }
+
+        }
+
+    }
+
+    return;
+}
+
+BOOST_AUTO_TEST_CASE( test_dHigherOrderStressdReferenceHigherOrderStressJacobians, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
+    /*!
+     * Test the computation of the push-foward operation on the PK2 Stress.
+     *
+     * :param std::ofstream &results: The output file.
+     */
+
+    variableVector deformationGradient  = { -1.08831037, -0.66333427, -0.48239487,
+                                            -0.904554  ,  1.28942848, -0.02156112,
+                                            -0.08464824, -0.07730218,  0.86415668 };
+
+    variableVector microDeformation = { -0.25781969, -0.39826899, -0.79493259,
+                                         0.38104724, -0.00830511, -0.51985409,
+                                        -0.36415661, -0.6871168 ,  0.54018665 };
+
+    variableVector result, resultJ;
+
+    variableVector dRdF, dRdChi;
+
+    tardigradeMicromorphicTools::dHigherOrderStressdReferenceHigherOrderStress( deformationGradient, microDeformation, result );
+
+    tardigradeMicromorphicTools::dHigherOrderStressdReferenceHigherOrderStress( deformationGradient, microDeformation, resultJ, dRdF, dRdChi );
+
+    BOOST_TEST( result == resultJ, CHECK_PER_ELEMENT );
+
+    //Test Jacobian
+
+    double eps = 1e-5;
+
+    {
+
+        variableVector x = deformationGradient;
+        constexpr unsigned int VAR_SIZE = 9;
+        constexpr unsigned int OUT_SIZE = 729;
+
+        for ( unsigned int i = 0; i < VAR_SIZE; ++i ){
+
+            double delta = eps * std::fabs( x[ i ] ) + eps;
+
+            variableVector xp = x;
+            variableVector xm = x;
+
+            xp[ i ] += delta;
+            xm[ i ] -= delta;
+
+            variableVector vp, vm;
+
+            tardigradeMicromorphicTools::dHigherOrderStressdReferenceHigherOrderStress( xp, microDeformation, vp );
+            tardigradeMicromorphicTools::dHigherOrderStressdReferenceHigherOrderStress( xm, microDeformation, vm );
+
+            for ( unsigned int j = 0; j < OUT_SIZE; ++j ){
+
+                BOOST_TEST( dRdF[ VAR_SIZE * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
+
+            }
+
+        }
+
+    }
+
+    {
+
+        variableVector x = microDeformation;
+        constexpr unsigned int VAR_SIZE = 9;
+        constexpr unsigned int OUT_SIZE = 729;
+
+        for ( unsigned int i = 0; i < VAR_SIZE; ++i ){
+
+            double delta = eps * std::fabs( x[ i ] ) + eps;
+
+            variableVector xp = x;
+            variableVector xm = x;
+
+            xp[ i ] += delta;
+            xm[ i ] -= delta;
+
+            variableVector vp, vm;
+
+            tardigradeMicromorphicTools::dHigherOrderStressdReferenceHigherOrderStress( deformationGradient, xp, vp );
+            tardigradeMicromorphicTools::dHigherOrderStressdReferenceHigherOrderStress( deformationGradient, xm, vm );
+
+
+            for ( unsigned int j = 0; j < OUT_SIZE; ++j ){
+
+                BOOST_TEST( dRdChi[ VAR_SIZE * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
+
+            }
+
+        }
+
     }
 
     return;

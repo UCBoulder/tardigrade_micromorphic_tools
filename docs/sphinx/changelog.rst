@@ -18,6 +18,11 @@ Internal Changes
 - Changed returning new errorOut objects to TARDIGRADE_ERROR_TOOLS_CHECK macros (:pull:`12`). By `Nathan Miller`_.
 - Added ability to set version when doing FetchContent builds (:pull:`15`). By `Nathan Miller`_.
 
+New Features
+============
+- Added the calculation of the gradients of the stress maps ( :pull:`19`). By `Nathan Miller`_.
+- Allow users to perform a full build of the Tardigrade stack (:pull:`20`). By `Nathan Miller`_.
+
 Breaking changes
 ================
 - Added vector-based Jacobians (:pull:`1`, :pull:`4`, :pull:`5`). By `Nathan Miller`_.
