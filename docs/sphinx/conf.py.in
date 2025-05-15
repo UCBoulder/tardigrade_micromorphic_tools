@@ -48,7 +48,7 @@ extlinks = {
      "merge": ("https://re-git.lanl.gov/aea/stub-repositories/tardigrade_micromorphic_tools/-/merge_requests/%s", "MERGE-%s"),
      "issue": ("https://re-git.lanl.gov/aea/stub-repositories/tardigrade_micromorphic_tools/-/issues/%s", "ISSUE-%s"),
      # Maintain the old Atlassian links until the servers don't exist. Required for changelog entries.
-     "pull": ("https://github.com/UCBoulder/tardigrade_micromorphic_tools/pull/%s","%s")
+     "pull": ("https://github.com/UCBoulder/tardigrade_micromorphic_tools/pull/%s","%s"),
      "jira": ("https://xcp-jira.lanl.gov/browse/VIP-%s", "VIP-%s"),
 }
 
