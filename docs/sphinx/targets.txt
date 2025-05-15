@@ -47,8 +47,9 @@
 .. _`Doxygen comments for Fortran`: https://www.doxygen.nl/manual/docblocks.html#fortranblocks
 
 .. Project specific links
-.. _`upstream repository`: https://re-git.lanl.gov/aea/stub-repositories/tardigrade_micromorphic_tools 
+.. _`upstream repository`: https://github.com/UCBoulder/tardigrade_micromorphic_tools/
 .. _`Gitlab project issues`: https://re-git.lanl.gov/aea/stub-repositories/tardigrade_micromorphic_tools/-/issues
+.. _`Github project issues`: https://github.com/UCBoulder/tardigrade_micromorphic_tools/pulls
 
 .. Abaqus reference links
 .. _`Abaqus Solid Continuum Elements`: http://simulia.lanl.gov:8080/EstProdDocs2019/English/DSSIMULIA_Established.htm?show=SIMACAEELMRefMap/simaelm-c-solidcont.htm
@@ -57,7 +58,7 @@
 
 .. email addresses
 .. _`Kyle Brindley`: kbrindley@lanl.gov
-.. _`Nathan Miller`: nathanm@lanl.gov
+.. _`Nathan Miller`: Nathan.A.Miller@colorado.edu
 .. _`Prabhu Khalsa`: prabhu@lanl.gov
 .. _`Sergio Cordova`: sergioc@lanl.gov
 .. _`w13dev`: w13dev@lanl.gov

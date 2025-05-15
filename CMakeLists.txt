@@ -37,10 +37,6 @@ endif()
 
 # Get version number from Git
 if(${not_conda_test} STREQUAL "true")
-    # TODO: On osx-arm64 some c++ projects struggle to find $PREFIX/bin/python during conda-builds and others don't.
-    # Trace the source and remove the hint when CMake configures with the correct python version during conda-build.
-    # FIXME: troubleshoot sstbigbird/RHEL8 python interpretter mismatch
-    # https://re-git.lanl.gov/aea/material-models/tardigrade_micromorphic_tools/-/issues/9
     if (DEFINED ENV{PREFIX})
         set(Python_ROOT_DIR "$ENV{PREFIX}/bin")
     endif()
