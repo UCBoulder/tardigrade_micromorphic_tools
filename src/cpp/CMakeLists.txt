@@ -30,3 +30,13 @@ install(
     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+
+get_target_property(target_sources ${PROJECT_NAME} SOURCES)
+foreach(source ${target_sources})
+    set_property(
+        GLOBAL
+        APPEND
+        PROPERTY
+            CLANG_FORMAT_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${source}"
+    )
+endforeach(source)
