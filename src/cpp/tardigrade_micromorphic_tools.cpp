@@ -1968,7 +1968,7 @@ namespace tardigradeMicromorphicTools {
          *     deviatoric part of the reference higher order stress w.r.t. the reference higher order stress.
          * \param &dDeviatoricReferenceHigherOrderStressdRCG: The Jacobian of the
          *     deviatoric part of the reference higher order stress w.r.t. the right Cauchy-Green deformation tensor.
-         * \param &d2MdMdRCG: The mixed second derivative of the deviatoric part of the reference higher order
+         * \param &d2DevMdMdRCG: The mixed second derivative of the deviatoric part of the reference higher order
          *     stress tensor with respect to the reference higher order stress tensor and the right Cauchy-Green
          * deformation tensor.
          */
