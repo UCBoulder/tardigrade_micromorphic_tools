@@ -1914,7 +1914,7 @@ namespace tardigradeMicromorphicTools{
                                                           variableVector &deviatoricReferenceHigherOrderStress,
                                                           variableMatrix &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
                                                           variableMatrix &dDeviatoricReferenceHigherOrderStressdRCG,
-                                                          variableMatrix &d2MdMdRCG ){
+                                                          variableMatrix &d2DevMdMdRCG ){
         /*!
          * Compute the deviatoric part of the higher order stress in the reference configuration.
          *
@@ -1942,17 +1942,17 @@ namespace tardigradeMicromorphicTools{
 
         variableVector _dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress;
         variableVector _dDeviatoricReferenceHigherOrderStressdRCG;
-        variableVector _d2MdMdRCG;
+        variableVector _d2DevMdMdRCG;
 
         TARDIGRADE_ERROR_TOOLS_CATCH( computeDeviatoricReferenceHigherOrderStress( referenceHigherOrderStress, rightCauchyGreenDeformation,
                                                                                    deviatoricReferenceHigherOrderStress,
                                                                                    _dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
                                                                                    _dDeviatoricReferenceHigherOrderStressdRCG,
-                                                                                   _d2MdMdRCG ) );
+                                                                                   _d2DevMdMdRCG ) );
 
         dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress = tardigradeVectorTools::inflate( _dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress, 27,  27 );
         dDeviatoricReferenceHigherOrderStressdRCG                        = tardigradeVectorTools::inflate( _dDeviatoricReferenceHigherOrderStressdRCG                       , 27,   9 );
-        d2MdMdRCG                                                        = tardigradeVectorTools::inflate( _d2MdMdRCG                                                       , 27, 243 );
+        d2DevMdMdRCG                                                     = tardigradeVectorTools::inflate( _d2DevMdMdRCG                                                    , 27, 243 );
 
         return;
     }
@@ -1962,7 +1962,7 @@ namespace tardigradeMicromorphicTools{
                                                           variableVector &deviatoricReferenceHigherOrderStress,
                                                           variableVector &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
                                                           variableVector &dDeviatoricReferenceHigherOrderStressdRCG,
-                                                          variableVector &d2MdMdRCG ){
+                                                          variableVector &d2DevMdMdRCG ){
         /*!
          * Compute the deviatoric part of the higher order stress in the reference configuration.
          *
@@ -1983,7 +1983,7 @@ namespace tardigradeMicromorphicTools{
          * \   deviatoric part of the reference higher order stress w.r.t. the reference higher order stress.
          * \param &dDeviatoricReferenceHigherOrderStressdRCG: The Jacobian of the 
          * \   deviatoric part of the reference higher order stress w.r.t. the right Cauchy-Green deformation tensor.
-         * \param &d2MdMdRCG: The mixed second derivative of the deviatoric part of the reference higher order 
+         * \param &d2DevMdMdRCG: The mixed second derivative of the deviatoric part of the reference higher order 
          *     stress tensor with respect to the reference higher order stress tensor and the right Cauchy-Green deformation 
          *     tensor.
          */
@@ -1999,7 +1999,7 @@ namespace tardigradeMicromorphicTools{
                                                             deviatoricReferenceHigherOrderStress,
                                                             dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
                                                             dDeviatoricReferenceHigherOrderStressdRCG,
-                                                            d2MdMdRCG );
+                                                            d2DevMdMdRCG );
     }
 
     void computeDeviatoricReferenceHigherOrderStress( const variableVector &referenceHigherOrderStress,
@@ -2011,7 +2011,7 @@ namespace tardigradeMicromorphicTools{
                                                           variableVector &deviatoricReferenceHigherOrderStress,
                                                           variableVector &dDeviatoricReferenceHigherOrderStressdReferenceHigherOrderStress,
                                                           variableVector &dDeviatoricReferenceHigherOrderStressdRCG,
-                                                          variableVector &d2MdMdRCG ){
+                                                          variableVector &d2DevMdMdRCG ){
         /*!
          * Compute the deviatoric part of the higher order stress in the reference configuration.
          *
@@ -2038,7 +2038,7 @@ namespace tardigradeMicromorphicTools{
          * \   deviatoric part of the reference higher order stress w.r.t. the reference higher order stress.
          * \param &dDeviatoricReferenceHigherOrderStressdRCG: The Jacobian of the 
          * \   deviatoric part of the reference higher order stress w.r.t. the right Cauchy-Green deformation tensor.
-         * \param &d2MdMdRCG: The mixed second derivative of the deviatoric part of the reference higher order 
+         * \param &d2DevMdMdRCG: The mixed second derivative of the deviatoric part of the reference higher order 
          *     stress tensor with respect to the reference higher order stress tensor and the right Cauchy-Green deformation 
          *     tensor.
          */
@@ -2091,7 +2091,7 @@ namespace tardigradeMicromorphicTools{
 
         //Compute the second order Jacobian
 
-        d2MdMdRCG = variableVector( tot_dim * tot_dim * sot_dim, 0 );
+        d2DevMdMdRCG = variableVector( tot_dim * tot_dim * sot_dim, 0 );
 
         for ( unsigned int I = 0; I < dim; I++ ){
             for ( unsigned int J = 0; J < dim; J++ ){
@@ -2101,7 +2101,7 @@ namespace tardigradeMicromorphicTools{
                             for ( unsigned int N = 0; N < dim; N++ ){
                                 for ( unsigned int O = 0; O < dim; O++ ){
                                     for ( unsigned int P = 0; P < dim; P++ ){
-                                        d2MdMdRCG[ dim * dim * tot_dim * sot_dim * I + dim * tot_dim * sot_dim * J + tot_dim * sot_dim * K + dim * dim * dim * dim * L + dim * dim * dim * M + dim * dim * N + dim * O + P ]
+                                        d2DevMdMdRCG[ dim * dim * tot_dim * sot_dim * I + dim * tot_dim * sot_dim * J + tot_dim * sot_dim * K + dim * dim * dim * dim * L + dim * dim * dim * M + dim * dim * N + dim * O + P ]
                                             = invRCG[ dim * I + O ] * invRCG[ dim * P + J ] * dPressuredStress[ tot_dim * K + dim * dim * L + dim * M + N ]
                                             - invRCG[ dim * I + J ] * d2PressuredStressdRCG[ tot_dim * sot_dim * K + dim * dim * dim * dim * L + dim * dim * dim * M + dim * dim * N + dim * O + P ];
                                     }
