@@ -1,4 +1,8 @@
 # Project files
+VERSION
+_version.py
+conda_bld
+conda-bld
 
 # Temp files
 *.swp
