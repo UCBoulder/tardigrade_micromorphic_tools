@@ -401,4 +401,4 @@ styles the exceptions to the notional PEP-8 fall back:
 
 1. `Doxygen`_ style docstrings are required for automated, API from source documentation.
 
-.. contribution-end-do-not-remov
+.. contribution-end-do-not-remove

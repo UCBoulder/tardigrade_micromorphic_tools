@@ -1,4 +1,4 @@
-{% set name = "tardigrade_constitutive_tools" %}
+{% set name = "tardigrade_micromorphic_tools" %}
 {% set version = "0.0.0" %}
 
 package:
