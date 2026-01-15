@@ -1,14 +1,7 @@
 # Project
 add_library(${PROJECT_NAME} SHARED "${PROJECT_NAME}.cpp" "${PROJECT_NAME}.h")
-set_target_properties(
-    ${PROJECT_NAME}
-    PROPERTIES PUBLIC_HEADER ${PROJECT_NAME}.h
-)
-target_link_libraries(
-    ${PROJECT_NAME}
-    tardigrade_error_tools
-    tardigrade_constitutive_tools
-)
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER ${PROJECT_NAME}.h)
+target_link_libraries(${PROJECT_NAME} tardigrade_error_tools tardigrade_constitutive_tools)
 
 target_compile_options(${PROJECT_NAME} PUBLIC)
 
@@ -33,10 +26,5 @@ install(
 
 get_target_property(target_sources ${PROJECT_NAME} SOURCES)
 foreach(source ${target_sources})
-    set_property(
-        GLOBAL
-        APPEND
-        PROPERTY
-            CLANG_FORMAT_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${source}"
-    )
+    set_property(GLOBAL APPEND PROPERTY CLANG_FORMAT_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/${source}")
 endforeach(source)

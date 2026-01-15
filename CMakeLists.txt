@@ -9,10 +9,7 @@ set(CMAKE_SRC_PATH "src/cmake")
 set(DOXYGEN_SRC_PATH "docs/doxygen")
 set(SPHINX_SRC_PATH "docs/sphinx")
 # Add the cmake folder to locate project CMake module(s)
-set(CMAKE_MODULE_PATH
-    "${PROJECT_SOURCE_DIR}/${CMAKE_SRC_PATH}"
-    ${CMAKE_MODULE_PATH}
-)
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/${CMAKE_SRC_PATH}" ${CMAKE_MODULE_PATH})
 
 set(TARDIGRADE_MICROMORPHIC_TOOLS_BUILD_PYTHON_BINDINGS
     ON
@@ -48,9 +45,7 @@ elseif(cmake_build_type_lower STREQUAL "conda-test")
 endif()
 
 if(CMAKE_EXPORT_COMPILE_COMMANDS)
-    set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES
-        ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES}
-    )
+    set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
 endif()
 
 # Get version number from Git
@@ -68,12 +63,7 @@ if(${not_conda_test} STREQUAL "true")
     if(${${PROJECT_NAME}_VERSION_STRING_FULL} STREQUAL "")
         set(${PROJECT_NAME}_VERSION 0.0.0)
     else()
-        string(
-            REGEX MATCH
-            "[0-9]+\.[0-9]+\.[0-9]+"
-            ${PROJECT_NAME}_VERSION
-            ${${PROJECT_NAME}_VERSION_STRING_FULL}
-        )
+        string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" ${PROJECT_NAME}_VERSION ${${PROJECT_NAME}_VERSION_STRING_FULL})
     endif()
     project(${PROJECT_NAME} VERSION ${${PROJECT_NAME}_VERSION})
 endif()
@@ -113,11 +103,7 @@ endif()
 
 # Find related, but external, projects in installed environment
 include(FetchContent)
-set(upstream_packages
-    "tardigrade_error_tools"
-    "tardigrade_vector_tools"
-    "tardigrade_constitutive_tools"
-)
+set(upstream_packages "tardigrade_error_tools" "tardigrade_vector_tools" "tardigrade_constitutive_tools")
 if(${not_conda_test} STREQUAL "false")
     # During conda-build testing, we must find the installed project files as if they were an external project
     set(upstream_packages ${upstream_packages} ${PROJECT_NAME})
@@ -138,16 +124,11 @@ foreach(package ${upstream_packages})
         message(STATUS "Found ${package}: ${${package}_DIR}")
     else()
         # Find related, but external, projects using FetchContent and building locally
-        message(
-            WARNING
-            "Did not find an installed ${package} package. Attempting local build with FetchContent."
-        )
+        message(WARNING "Did not find an installed ${package} package. Attempting local build with FetchContent.")
         if(NOT DEFINED ${package_upper}_FETCHCONTENT_VERSION)
             set(${package_upper}_FETCHCONTENT_VERSION "origin/dev")
         endif()
-        message(
-            "${package_upper} is being built with version ${${package_upper}_FETCHCONTENT_VERSION}"
-        )
+        message("${package_upper} is being built with version ${${package_upper}_FETCHCONTENT_VERSION}")
         FetchContent_Declare(
             ${package}
             GIT_REPOSITORY http://github.com/UCBoulder/${package}.git
@@ -202,9 +183,7 @@ if(${not_conda_test} STREQUAL "true")
         endif()
 
         install(
-            FILES
-                "${PROJECT_BINARY_DIR}/${package}Config.cmake"
-                "${PROJECT_BINARY_DIR}/${package}ConfigVersion.cmake"
+            FILES "${PROJECT_BINARY_DIR}/${package}Config.cmake" "${PROJECT_BINARY_DIR}/${package}ConfigVersion.cmake"
             DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${package}/cmake
         )
     endforeach(package)
@@ -213,17 +192,11 @@ endif()
 #================================================================================== SETUP CLANG FORMATTING TARGETS ===
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-    get_property(
-        CLANG_FORMAT_SOURCE_FILES_VALUE
-        GLOBAL
-        PROPERTY CLANG_FORMAT_SOURCE_FILES
-    )
+    get_property(CLANG_FORMAT_SOURCE_FILES_VALUE GLOBAL PROPERTY CLANG_FORMAT_SOURCE_FILES)
 
     add_custom_target(
         cpp-format-check
-        COMMAND
-            ${CLANG_FORMAT_EXECUTABLE} -style=file --dry-run -Werror
-            ${CLANG_FORMAT_SOURCE_FILES_VALUE}
+        COMMAND ${CLANG_FORMAT_EXECUTABLE} -style=file --dry-run -Werror ${CLANG_FORMAT_SOURCE_FILES_VALUE}
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         COMMENT "Check the C++ code format with clang-format"
     )
@@ -231,9 +204,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
     add_custom_target(
         cpp-format
-        COMMAND
-            ${CLANG_FORMAT_EXECUTABLE} -style=file -i
-            ${CLANG_FORMAT_SOURCE_FILES_VALUE}
+        COMMAND ${CLANG_FORMAT_EXECUTABLE} -style=file -i ${CLANG_FORMAT_SOURCE_FILES_VALUE}
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         COMMENT "Format the C++ code with clang-format"
     )

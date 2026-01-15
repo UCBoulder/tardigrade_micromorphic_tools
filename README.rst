@@ -376,7 +376,7 @@ full project from the source directory via
 
 .. code-block:
 
-   $ run-clang-tidy -config-file=.clang-tidy -header-filter=*.h -p build
+   $ run-clang-tidy -config-file=.clang-tidy -p build -extra-arg="-mno-sse2"
 
 The formatting can be checked using `clang-format`_ by running
 

@@ -24,4 +24,4 @@ sphinx_rtd_theme>=0.4.3
 sphinxcontrib-bibtex
 tardigrade_error_tools>=0.9.7
 tardigrade_vector_tools>=0.8.7
-#tardigrade_constitutive_tools>=0.8.2 # TODO: Enable when available in conda-forge
+tardigrade_constitutive_tools>=0.8.5

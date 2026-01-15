@@ -1,14 +1,8 @@
 find_package(Doxygen REQUIRED)
 
 # Find all the public headers
-file(
-    GLOB_RECURSE PROJECT_PUBLIC_HEADERS
-    ${PROJECT_SOURCE_DIR}/${CPP_SRC_PATH}/*.h
-)
-file(
-    GLOB_RECURSE PROJECT_SOURCE_FILES
-    ${PROJECT_SOURCE_DIR}/${CPP_SRC_PATH}/*.cpp
-)
+file(GLOB_RECURSE PROJECT_PUBLIC_HEADERS ${PROJECT_SOURCE_DIR}/${CPP_SRC_PATH}/*.h)
+file(GLOB_RECURSE PROJECT_SOURCE_FILES ${PROJECT_SOURCE_DIR}/${CPP_SRC_PATH}/*.cpp)
 
 #=================================================================== DOXYGEN ===
 # Set doxygen variables
