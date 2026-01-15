@@ -15,7 +15,7 @@ build:
   script:
     - set -x
     # Build and install c++ libraries
-    - cmake -S . -B build -DCMAKE_BUILD_TYPE=Release - DCMAKE_INSTALL_LIBDIR=lib
+    - cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib  # Conda-forge feedstock must replace ``-DCMAKE_INSTALL_LIBDIR=lib`` with ``${CMAKE_ARGS}``
     - cmake --build build --target tardigrade_micromorphic_tools
     - cmake --install build --prefix ${PREFIX}
   skip: true  # [win]
@@ -24,8 +24,7 @@ requirements:
   host:
     - python
     - cross-python_{{ target_platform }}    # [build_platform != target_platform]
-    - cython #Maybe we don't need this?
-    - {{ compiler('cxx') }}
+    - {{ compiler('cxx') }}  # Conda-forge feedstock also requires ``{{ stdlib('c') }}`, but this breaks the in-repo recipe.
     - make
     - cmake >=3.30
     - breathe >=4.3.0
@@ -45,12 +44,9 @@ requirements:
     - tardigrade_constitutive_tools >=0.8.5
   run:
     - eigen >=3.3.7
-    - tardigrade_error_tools >=0.7
-    - tardigrade_vector_tools >=0.7
-    - tardigrade_constitutive_tools >=0.7
-    - libgcc-ng     # [linux]
-    - libstdcxx-ng  # [linux]
-    - libcxx        # [osx]
+    - tardigrade_error_tools >=0.9.8
+    - tardigrade_vector_tools >=0.8.7
+    - tardigrade_constitutive_tools >=0.8.5
 
 test:
   requires:
@@ -66,11 +62,10 @@ test:
     - src/cpp/tests/CMakeLists.txt
     - src/cpp/tests/test_tardigrade_micromorphic_tools.cpp
   commands:
-    - mkdir build-tests
-    - cd build-tests
-    - cmake .. -DCMAKE_BUILD_TYPE=conda-test -DCMAKE_INSTALL_LIBDIR=lib
-    - cmake --build . --target all --verbose
-    - ctest --test-dir build --output-on-failure -R 'test_'
+    - set -x
+    - cmake -S . -B build -DCMAKE_BUILD_TYPE=conda-test -DCMAKE_INSTALL_LIBDIR=lib
+    - cmake --build build --target all --verbose --parallel 4
+    - ctest --test-dir build --output-on-failure -R 'test_' --parallel 4
 
 about:
   home: https://github.com/UCBoulder/tardigrade_micromorphic_tools/
