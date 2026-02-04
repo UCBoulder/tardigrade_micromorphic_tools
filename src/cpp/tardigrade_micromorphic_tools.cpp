@@ -249,8 +249,8 @@ namespace tardigradeMicromorphicTools {
          */
 
         // Assume 3d
-        constexpr unsigned int dim     = 3;
-        constexpr unsigned int sot_dim = dim * dim;
+        constexpr unsigned int dim = 3;
+        TARDIGRADE_ERROR_TOOLS_EVAL(constexpr unsigned int sot_dim = dim * dim;)
 
         TARDIGRADE_ERROR_TOOLS_CHECK(Psi.size() == sot_dim, "Psi is not of the correct size");
 
@@ -1380,9 +1380,9 @@ namespace tardigradeMicromorphicTools {
          */
 
         // Assume 3d
-        constexpr unsigned int dim     = 3;
-        constexpr unsigned int sot_dim = dim * dim;
-        constexpr unsigned int tot_dim = sot_dim * dim;
+        constexpr unsigned int dim = 3;
+        TARDIGRADE_ERROR_TOOLS_EVAL(constexpr unsigned int sot_dim = dim * dim;)
+        TARDIGRADE_ERROR_TOOLS_EVAL(constexpr unsigned int tot_dim = sot_dim * dim;)
 
         TARDIGRADE_ERROR_TOOLS_CHECK(higherOrderStress.size() == tot_dim,
                                      "The higher order stress has an incorrect size");
@@ -1496,7 +1496,7 @@ namespace tardigradeMicromorphicTools {
         // Assume 3D
         constexpr unsigned int dim     = 3;
         constexpr unsigned int sot_dim = dim * dim;
-        constexpr unsigned int tot_dim = sot_dim * dim;
+        TARDIGRADE_ERROR_TOOLS_EVAL(constexpr unsigned int tot_dim = sot_dim * dim;)
 
         TARDIGRADE_ERROR_TOOLS_CHECK(rightCauchyGreenDeformation.size() == sot_dim,
                                      "The right Cauchy-Green deformation tensor must have nine terms.");
@@ -3191,9 +3191,9 @@ namespace tardigradeMicromorphicTools {
          */
 
         // Assume 3D
-        constexpr unsigned int dim     = 3;
-        constexpr unsigned int sot_dim = dim * dim;
-        constexpr unsigned int tot_dim = sot_dim * dim;
+        constexpr unsigned int dim = 3;
+        TARDIGRADE_ERROR_TOOLS_EVAL(constexpr unsigned int sot_dim = dim * dim;)
+        TARDIGRADE_ERROR_TOOLS_EVAL(constexpr unsigned int tot_dim = sot_dim * dim;)
 
         TARDIGRADE_ERROR_TOOLS_CHECK(higherOrderStress.size() == tot_dim,
                                      "The higher order stress does not have the expected dimension");
@@ -3410,8 +3410,8 @@ namespace tardigradeMicromorphicTools {
          */
 
         // Assume 3D
-        constexpr unsigned int dim     = 3;
-        constexpr unsigned int sot_dim = dim * dim;
+        constexpr unsigned int dim = 3;
+        TARDIGRADE_ERROR_TOOLS_EVAL(constexpr unsigned int sot_dim = dim * dim;)
 
         TARDIGRADE_ERROR_TOOLS_CHECK(displacementGradient.size() == sot_dim,
                                      "The gradient of the deformation is not 3D");
@@ -3457,8 +3457,8 @@ namespace tardigradeMicromorphicTools {
          */
 
         // Assume 3D
-        constexpr unsigned int dim     = 3;
-        constexpr unsigned int sot_dim = dim * dim;
+        constexpr unsigned int dim = 3;
+        TARDIGRADE_ERROR_TOOLS_EVAL(constexpr unsigned int sot_dim = dim * dim;)
 
         TARDIGRADE_ERROR_TOOLS_CHECK(microDisplacement.size() == sot_dim, "The micro degrees of freedom must be 3D");
 
@@ -3505,8 +3505,8 @@ namespace tardigradeMicromorphicTools {
          */
 
         // Assume 3D
-        constexpr unsigned int dim     = 3;
-        constexpr unsigned int sot_dim = dim * dim;
+        TARDIGRADE_ERROR_TOOLS_EVAL(constexpr unsigned int dim = 3;)
+        TARDIGRADE_ERROR_TOOLS_EVAL(constexpr unsigned int sot_dim = dim * dim;)
 
         TARDIGRADE_ERROR_TOOLS_CHECK(gradientMicroDisplacement.size() == sot_dim * dim,
                                      "The gradient of the micro displacement must be 3D");
