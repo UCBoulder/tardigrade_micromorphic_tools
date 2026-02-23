@@ -19,6 +19,8 @@ build:
     - cmake --build build --target tardigrade_micromorphic_tools
     - cmake --install build --prefix ${PREFIX}
   skip: true  # [win]
+  run_exports:
+    - {{ pin_subpackage(name|lower, max_pin='x.x') }}
 
 requirements:
   build:
@@ -47,9 +49,6 @@ requirements:
     - tardigrade_constitutive_tools >=0.8.5
   run:
     - eigen >=3.3.7
-    - tardigrade_error_tools >=0.9.8
-    - tardigrade_vector_tools >=0.8.7
-    - tardigrade_constitutive_tools >=0.8.5
 
 test:
   requires:
