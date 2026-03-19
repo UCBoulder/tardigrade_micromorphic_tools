@@ -6,12 +6,45 @@ Changelog
 #########
 
 ******************
+1.4.4 (2026-03-19)
+******************
+
+Internal Changes
+================
+- Minor updates to the recipe (:pull:`29`). By `Nathan Miller`_.
+- Enabled the flag to turn off the tardigrade_error_tools error handling (:pull:`30`). By `Nathan Miller`_.
+- Added minor version run_export pinning (:pull:`31`). By `Nathan Miller`_.
+- Accommodated changes in Eigen3 packaging (:pull:`32`). By `Nathan Miller`_.
+
+Release
+=======
+- Released version (:pull:`33`). By `Nathan Miller`_.
+
+******************
+1.4.3 (2026-01-15)
+******************
+
+Internal Changes
+================
+- Added automatic linting to the repository (:pull:`25`). By `Nathan Miller`_.
+- Corrected README typo (:pull:`26`). By `Nathan Miller`_.
+- Updated conda packaging (:pull:`27`). By `Nathan Miller`_.
+
+Release
+=======
+- Released version (:pull:`28`). By `Nathan Miller`_.
+
+******************
 1.4.2 (2025-05-15)
 ******************
 
 Documentation
 =============
 - Updated the documentation to remove LANL links where appropriate (:pull:`23`). By `Nathan Miller`_.
+
+Release
+=======
+- Released version (:pull:`24`). By `Nathan Miller`_.
 
 ******************
 1.4.1 (2025-05-15)

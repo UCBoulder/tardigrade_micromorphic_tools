@@ -24,6 +24,11 @@ set(TARDIGRADE_FULL_BUILD
     "Flag for whether a full build of Tardigrade should be performed (i.e., all repos pulled from git and built)"
 )
 
+if(${TARDIGRADE_ERROR_TOOLS_OPT})
+    add_compile_definitions(TARDIGRADE_ERROR_TOOLS_OPT)
+    message(WARNING "BUILDING OPTIMIZED ERROR TOOLS. NO ERRORS WILL BE CAUGHT")
+endif()
+
 # Set build type checks
 string(TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type_lower)
 set(upstream_required "")
@@ -95,10 +100,17 @@ set_property(GLOBAL PROPERTY CLANG_FORMAT_SOURCE_FILES)
 #=============================================================================================== ADD PROJECT TARGETS ===
 
 # Find eigen
-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
-include_directories(SYSTEM ${EIGEN3_INCLUDE_DIR})
+find_package(Eigen3 3.3 NO_MODULE)
 if(EIGEN3_FOUND)
-    message(STATUS "Found Eigen3: ${EIGEN3_INCLUDE_DIR}")
+    message(STATUS "Found Eigen3 (less than version 3.4.1): ${EIGEN3_INCLUDE_DIR}")
+else()
+    find_package(Eigen3 3.4...5 NO_MODULE)
+    if(EIGEN3_FOUND)
+        message(STATUS "Found Eigen3 (less than version 5): ${EIGEN3_INCLUDE_DIR}")
+    else()
+        find_package(Eigen3 5 REQUIRED NO_MODULE)
+        message(STATUS "Found Eigen3 (version 5): ${EIGEN3_INCLUDE_DIR}")
+    endif()
 endif()
 
 # Find related, but external, projects in installed environment
