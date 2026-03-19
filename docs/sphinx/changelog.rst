@@ -6,7 +6,7 @@ Changelog
 #########
 
 ******************
-1.4.4 (unreleased)
+1.4.4 (2026-03-19)
 ******************
 
 Internal Changes
@@ -14,9 +14,14 @@ Internal Changes
 - Minor updates to the recipe (:pull:`29`). By `Nathan Miller`_.
 - Enabled the flag to turn off the tardigrade_error_tools error handling (:pull:`30`). By `Nathan Miller`_.
 - Added minor version run_export pinning (:pull:`31`). By `Nathan Miller`_.
+- Accommodated changes in Eigen3 packaging (:pull:`32`). By `Nathan Miller`_.
+
+Release
+=======
+- Released version (:pull:`33`). By `Nathan Miller`_.
 
 ******************
-1.4.3 (2025-01-15)
+1.4.3 (2026-01-15)
 ******************
 
 Internal Changes
