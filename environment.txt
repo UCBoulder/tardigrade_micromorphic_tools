@@ -1,5 +1,5 @@
 #Environment definition
-boa
+rattler-build
 breathe>=4.30.0
 cmake>=3.30
 compilers
